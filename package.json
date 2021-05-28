@@ -1,0 +1,18 @@
+{
+  "name": "cli-ts-signer",
+  "version": "1.0.0",
+  "description": "ts based signer for moonbeam",
+  "main": "index.js",
+  "repository": "git@github.com:PureStake/cli-ts-signer.git",
+  "author": "Antoine Estienne <estienne.antoine@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^15.6.1"
+  },
+  "scripts": {
+    "cli": "npx ts-node index.ts"
+  },
+  "dependencies": {
+    "yargs": "^17.0.1"
+  }
+}
