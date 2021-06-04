@@ -14,9 +14,12 @@
     "cli": "npx ts-node index.ts"
   },
   "dependencies": {
+    "@polkadot/api": "^4.12.1",
     "@polkadot/keyring": "^6.5.1",
     "@polkadot/util": "^6.5.1",
+    "@polkadot/wasm-crypto": "^4.0.2",
     "elliptic": "^6.5.4",
+    "moonbeam-types-bundle": "^1.1.21",
     "yargs": "^17.0.1"
   }
 }
