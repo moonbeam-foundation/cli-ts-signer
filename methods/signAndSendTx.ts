@@ -6,12 +6,13 @@ import prompts from 'prompts'
 import { needParam } from "../utils";
 import { SignerResult } from "@polkadot/api/types";
 
+// TODO add sudo
 export async function signAndSendTx(argv: { [key: string]: string }) {
   needParam("tx", "SignAndSendTx", argv);
   needParam("params", "SignAndSendTx", argv);
   needParam("ws", "SignAndSendTx", argv);
   needParam("address", "SignAndSendTx", argv);
-  needParam("bc_type", "SignAndSendTx", argv);
+  needParam("bc_type", "SignAndSendTx", argv); // TODO add networks
   if (!["moonbeam", "relay"].includes(argv.bc_type)) {
     throw new Error("Blockchain Type is not supported");
   }

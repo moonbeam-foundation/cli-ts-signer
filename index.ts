@@ -20,6 +20,9 @@ const argv = require("yargs/yargs")(hideBin(process.argv))
   })
   .option("address", {
     string: true,
+  })
+  .option("message", {
+    string: true,
   }).argv;
 
 function exit() {

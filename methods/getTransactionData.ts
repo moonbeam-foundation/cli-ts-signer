@@ -18,7 +18,7 @@ export async function getTransactionData(argv: { [key: string]: string }) {
   const splitParams = params.split(",");
   const api = await ApiPromise.create({
     provider: new WsProvider(ws),
-    typesBundle: typesBundle as any,
+    typesBundle: typesBundle as any, //TODO adapt for different types
   });
   let txExtrinsic = await api.tx[section][method](...splitParams);
   const signer = {

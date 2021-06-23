@@ -4,6 +4,7 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import { needParam } from "../utils";
 import {cryptoWaitReady} from '@polkadot/util-crypto'
 
+// TODO display payload content
 export async function sign(argv: { [key: string]: string }) {
   needParam("message", "sign", argv);
   needParam("privKey", "sign", argv);
@@ -13,9 +14,11 @@ export async function sign(argv: { [key: string]: string }) {
   }
   let { type, privKey, message } = argv;
   await cryptoWaitReady()
+  // TODO: check why its not the same as the signature in the app
   let keyring: Keyring = new Keyring({ type: type === "ethereum" ? "ethereum" : "sr25519" });
   const signer: KeyringPair = keyring.addFromSeed(hexToU8a(privKey));
-  const signature: Uint8Array = signer.sign(stringToU8a(message));
+  console.log("signer.address",signer.address)
+  const signature: Uint8Array = signer.sign(hexToU8a(message));
   console.log("SIGNATURE : " + u8aToHex(signature));
   console.log("FOR PUBKEY : " + u8aToHex(signer.publicKey));
 }
