@@ -1,7 +1,7 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
 import { typesBundle } from "moonbeam-types-bundle";
-import { needParam } from "./utils";
+import { needParam } from "../utils";
 
 export async function getExtrinsicData(argv:{[key:string]:string}){
 

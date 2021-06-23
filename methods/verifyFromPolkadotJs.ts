@@ -23,7 +23,7 @@ export function secp256k1Hasher(data: Uint8Array | string): Uint8Array {
   return isReady() ? keccakAsU8a(data) : keccakAsU8a(data);
 }
 
-export function verify(message: string, signature: string): string {
+export function verifyFromPolkadotJs(message: string, signature: string): string {
   const u8a = u8aToU8a(signature);
   const publicKey = new Uint8Array(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
