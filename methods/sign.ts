@@ -15,7 +15,7 @@ export async function sign(argv: { [key: string]: string }) {
   await cryptoWaitReady()
   let keyring: Keyring = new Keyring({ type: type === "ethereum" ? "ethereum" : "sr25519" });
   const signer: KeyringPair = keyring.addFromSeed(hexToU8a(privKey));
-  const signature: Uint8Array = signer.sign(stringToU8a(message));
+  const signature: Uint8Array = signer.sign(hexToU8a(message));
   console.log("SIGNATURE : " + u8aToHex(signature));
   console.log("FOR PUBKEY : " + u8aToHex(signer.publicKey));
 }
