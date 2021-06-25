@@ -25,8 +25,8 @@ export async function sign(argv: { [key: string]: string }) {
     message: 'Please enter payload',
     validate: value => true//value < 18 ? `Nightclub is 18+ only` : true
   });
-  console.log('response',response, response['message'].length) //226, 216 pr moonbeam
-  const signature: Uint8Array = signer.sign(hexToU8a(response.message));
+  console.log('response',response, response['message'].length) //226, 242, 216 pr moonbeam
+  const signature: Uint8Array = signer.sign(hexToU8a(response.message), { withType: true });
   console.log("SIGNATURE : " + u8aToHex(signature));
   console.log("FOR PUBKEY : " + u8aToHex(signer.publicKey));
 }
