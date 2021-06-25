@@ -706,10 +706,10 @@ minimalistic-crypto-utils@^1.0.1:
   resolved "https://registry.yarnpkg.com/minimalistic-crypto-utils/-/minimalistic-crypto-utils-1.0.1.tgz#f6c00c1c0b082246e5c4d99dfb8c7c083b2b582a"
   integrity sha1-9sAMHAsIIkblxNmd+4x8CDsrWCo=
 
-moonbeam-types-bundle@^1.1.21:
-  version "1.1.21"
-  resolved "https://registry.yarnpkg.com/moonbeam-types-bundle/-/moonbeam-types-bundle-1.1.21.tgz#0e8f178951d035e276255e1c348c5bab73596aa3"
-  integrity sha512-3+jRjX32CZ9CdUAffK38JS4GUW/bEhT6dE2w71bmoJvRirr2f4blPHKvR0Az7jIoJed0VO4vOUvPqH1cCYODdw==
+moonbeam-types-bundle@^1.1.22:
+  version "1.1.22"
+  resolved "https://registry.yarnpkg.com/moonbeam-types-bundle/-/moonbeam-types-bundle-1.1.22.tgz#40d25673e4eaea71411131f995f67e12cd26f7ab"
+  integrity sha512-ywFnAryUEnpE1oF4HysVDwBUg6AbFmOMHqgoli9/m75huA65QSpHmG7gznskXyJlMNyuIMUN2k304+eQzXRU4g==
   dependencies:
     "@polkadot/keyring" "^6.6.1"
     "@polkadot/types" "^4.12.1"
