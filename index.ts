@@ -1,11 +1,10 @@
 import { typesBundle } from "moonbeam-types-bundle";
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { needParam } from "./utils";
-import { getExtrinsicData } from "./methods/getExtrinsicData";
+import { needParam } from "./methods/utils";
 import { getTransactionData } from "./methods/getTransactionData";
 import { sign } from "./methods/sign";
 import { verify } from "./methods/verify";
-import { signAndSendTx } from "./methods/signAndSendTx";
+import { createAndSendTx } from "./methods/createAndSendTx";
 
 const { hideBin } = require("yargs/helpers");
 const argv = require("yargs/yargs")(hideBin(process.argv))
@@ -52,17 +51,13 @@ async function main() {
       console.log("verify");
       await verify(argv)
       break;
-    case "getExtrinsicData":
-      console.log("getExtrinsicData");
-      await getExtrinsicData(argv);
-      break;
     case "getTransactionData":
       console.log("getTransactionData");
       await getTransactionData(argv);
       break;
-    case "signAndSendTx":
-      console.log("signAndSendTx");
-      await signAndSendTx(argv);
+    case "createAndSendTx":
+      console.log("createAndSendTx");
+      await createAndSendTx(argv);
       break;
     case "submitTx":
       console.log("submitTx");

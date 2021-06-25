@@ -1,11 +1,8 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { Metadata } from "@polkadot/metadata/Metadata";
-import { TypeRegistry } from "@substrate/txwrapper/node_modules/@polkadot/types";
 import { u8aToHex } from "@polkadot/util";
 import { typesBundle } from "moonbeam-types-bundle";
 import { SignerPayloadJSON } from "@polkadot/types/types";
-import { createSigningPayload, getRegistry, methods } from "@substrate/txwrapper";
-import { needParam } from "../utils";
+import { moonbeamChains, needParam } from "./utils";
 import { SignerResult } from "@polkadot/api/types";
 
 export async function getTransactionData(argv: { [key: string]: string }) {
@@ -13,13 +10,20 @@ export async function getTransactionData(argv: { [key: string]: string }) {
   needParam("params", "getTransactionData", argv);
   needParam("ws", "getTransactionData", argv);
   needParam("address", "getTransactionData", argv);
-  let { tx, params, ws, address } = argv;
+  let { tx, params, ws, address, network } = argv;
   const [section, method] = tx.split(".");
   const splitParams = params.split(",");
-  const api = await ApiPromise.create({
-    provider: new WsProvider(ws),
-    typesBundle: typesBundle as any, //TODO adapt for different types
-  });
+  let  api :ApiPromise
+  if (moonbeamChains.includes(network)){
+    api=await ApiPromise.create({
+      provider: new WsProvider(ws),
+      typesBundle: typesBundle as any,
+    });
+  } else {
+    api=await ApiPromise.create({
+      provider: new WsProvider(ws)
+    });
+  }
   let txExtrinsic = await api.tx[section][method](...splitParams);
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {

@@ -1,4 +1,4 @@
-import { needParam } from "../utils";
+import { needParam } from "./utils";
 import { verifyFromPolkadotJs } from "./verifyFromPolkadotJs";
 
 export async function verify(argv:{[key:string]:string}){
