@@ -6,12 +6,9 @@ import prompts from "prompts";
 
 // TODO display payload content
 export async function sign( type:string, privKey:string) {
-  // needParam("privKey", "sign", argv);
-  // needParam("type", "all functions", argv);
   if (!["ethereum", "sr25519"].includes(type)) {
     throw new Error("Type is not supported");
   }
-  //let { type, privKey } = argv;
   await cryptoWaitReady()
   let keyring: Keyring = new Keyring({ type: type === "ethereum" ? "ethereum" : "sr25519" });
   const signer: KeyringPair = keyring.addFromSeed(hexToU8a(privKey));
