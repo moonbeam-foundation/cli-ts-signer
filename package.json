@@ -20,6 +20,7 @@
     "@polkadot/util": "^6.9.1",
     "@polkadot/wasm-crypto": "^4.0.2",
     "@types/prompts": "^2.0.13",
+    "@types/yargs": "^17.0.1",
     "elliptic": "^6.5.4",
     "moonbeam-types-bundle": "^1.1.22",
     "prompts": "^2.4.1",

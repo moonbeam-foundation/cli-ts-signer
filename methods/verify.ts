@@ -1,11 +1,10 @@
-import { needParam } from "./utils";
 import { verifyFromPolkadotJs } from "./verifyFromPolkadotJs";
 
-export async function verify(argv:{[key:string]:string}){
-    needParam("message", "verify", argv);
-    needParam("signature", "verify", argv);
-    needParam("pubKey", "verify", argv);
-    let pubKey = verifyFromPolkadotJs(argv.message, argv.signature);
+export async function verify(message:string,signature:string,pubKey:string){
+    // needParam("message", "verify", argv);
+    // needParam("signature", "verify", argv);
+    // needParam("pubKey", "verify", argv);
+    let publicKey = verifyFromPolkadotJs(message, signature);
     console.log("PUBKEY : " + pubKey);
-    console.log("VALIDITY : " + (argv.pubKey == pubKey).toString());
+    console.log("VALIDITY : " + (pubKey == publicKey).toString());
 }

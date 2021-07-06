@@ -1,13 +1,7 @@
+export const moonbeamChains = ["moonbase", "moonbeam", "moonriver", "moonshadow"];
+export const relayChains = ["kusama", "polkadot", "westend", "rococo"];
+export const authorizedChains = moonbeamChains.concat(relayChains);
 
-export function needParam(key: string, functionName: string, argv:{[key:string]:string}) {
-    if (!argv[key]) {
-      throw new Error(key + " parameter is required for " + functionName);
-    }
-  }
-  export const moonbeamChains = [
-    'moonbase',
-    'moonbeam',
-    'moonriver',
-    'moonshadow'
-  ];
-  
+export function exit() {
+  process.exit();
+}

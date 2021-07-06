@@ -1,16 +1,11 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
 import { typesBundle } from "moonbeam-types-bundle";
-import { SignerPayloadJSON } from "@polkadot/types/types";
-import { moonbeamChains, needParam } from "./utils";
-import { SignerResult } from "@polkadot/api/types";
+import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
+import { exit, moonbeamChains } from "./utils";
+import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
 
-export async function getTransactionData(argv: { [key: string]: string }) {
-  needParam("tx", "getTransactionData", argv);
-  needParam("params", "getTransactionData", argv);
-  needParam("ws", "getTransactionData", argv);
-  needParam("address", "getTransactionData", argv);
-  let { tx, params, ws, address, network } = argv;
+export async function getTransactionData(tx:string, params:string, ws:string, address:string, network:string, sudo:boolean|undefined) {
   const [section, method] = tx.split(".");
   const splitParams = params.split(",");
   let  api :ApiPromise
@@ -24,7 +19,12 @@ export async function getTransactionData(argv: { [key: string]: string }) {
       provider: new WsProvider(ws)
     });
   }
-  let txExtrinsic = await api.tx[section][method](...splitParams);
+  let txExtrinsic :SubmittableExtrinsic<"promise", ISubmittableResult>
+  if (sudo){
+    txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams)) ;
+  } else {
+    txExtrinsic = await api.tx[section][method](...splitParams);
+  }
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
       console.log("(sign)", payload);
@@ -39,4 +39,5 @@ export async function getTransactionData(argv: { [key: string]: string }) {
     },
   };
   await txExtrinsic.signAsync(address, { signer });
+  exit()
 }

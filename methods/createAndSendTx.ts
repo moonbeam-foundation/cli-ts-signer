@@ -3,17 +3,11 @@ import { isHex, u8aToHex } from "@polkadot/util";
 import { typesBundle } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from 'prompts'
-import { moonbeamChains, needParam } from "./utils";
+import { exit, moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
 
-// TODO add sudo
-export async function createAndSendTx(argv: { [key: string]: string }) {
-  needParam("tx", "createAndSendTx", argv);
-  needParam("params", "createAndSendTx", argv);
-  needParam("ws", "createAndSendTx", argv);
-  needParam("address", "createAndSendTx", argv);
-  needParam("network", "createAndSendTx", argv);
-  let { tx, params, ws, address, network, sudo } = argv;
+
+export async function createAndSendTx(tx:string, params:string, ws:string, address:string, network:string, sudo:boolean|undefined) {
   const [section, method] = tx.split(".");
   const splitParams = params.split(",");
   let  api :ApiPromise
@@ -29,7 +23,6 @@ export async function createAndSendTx(argv: { [key: string]: string }) {
   }
   let txExtrinsic :SubmittableExtrinsic<"promise", ISubmittableResult>
   if (sudo){
-    console.log("sudo",sudo)
     txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams)) ;
   } else {
     txExtrinsic = await api.tx[section][method](...splitParams);
@@ -49,7 +42,7 @@ export async function createAndSendTx(argv: { [key: string]: string }) {
           message: 'Please enter signature',
           validate: value => true//value < 18 ? `Nightclub is 18+ only` : true
         });
-        console.log('response',response, response['signature'].length) // 132 pr les deux
+        // console.log('response',response, response['signature'].length) // 132 pr les deux
         console.log('isHex',isHex(response['signature']));
         console.log("response['signature'].trim()",response['signature'].trim(),response['signature'].trim().length);
         resolve({ id: 1, signature: response['signature'].trim() });
@@ -57,4 +50,5 @@ export async function createAndSendTx(argv: { [key: string]: string }) {
     },
   };
   await txExtrinsic.signAndSend(address, { signer });
+  exit()
 }
