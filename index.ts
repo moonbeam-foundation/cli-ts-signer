@@ -6,29 +6,8 @@ import { sign } from "./methods/sign";
 import { verify } from "./methods/verify";
 import { createAndSendTx } from "./methods/createAndSendTx";
 import { submitPreSignedTx } from "./methods/submitPreSignedTx";
+import { CreateAndSendArgs, SendTxArgs, SignArgs, VerifyArgs } from "./methods/types";
 const { hideBin } = require("yargs/helpers");
-
-type SignArgs = {
-  type: string;
-  privateKey: string;
-};
-type VerifyArgs = {
-  message: string;
-  signature: string;
-  pubKey: string;
-};
-type CreateAndSendArgs = {
-  network: string;
-  ws: string;
-  address: string;
-  tx: string;
-  params: string;
-  sudo?: boolean;
-};
-type SendTxArgs = {
-  ws: string;
-  txData: string;
-};
 
 yargs(hideBin(process.argv))
   .command(

@@ -11,7 +11,8 @@
     "@types/node": "^15.6.1"
   },
   "scripts": {
-    "cli": "npx ts-node index.ts"
+    "cli": "npx ts-node index.ts",
+    "lint": "prettier -w ."
   },
   "dependencies": {
     "@polkadot/api": "^4.15.1",

@@ -1,11 +1,12 @@
 # cli-ts-signer
+
 Typescript based cli signer for both Substrate and Ethereum Transactions
 
 The goal is to be able to sign transactions offline for both Moonbeam based parachains and relay chains.
 
 ## Examples
 
-*run these commands in the shell_tests folder*
+_run these commands in the shell_tests folder_
 
 To run the examples, open two terminal and run in parallel the createAndSend and the signature test scripts:
 
