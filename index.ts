@@ -13,7 +13,7 @@ yargs(hideBin(process.argv))
   .command(
     "sign <type> <privateKey>", //TODO: put this into a module : https://github.com/yargs/yargs/blob/HEAD/docs/advanced.md#commands
     "sign byteCode with a private key",
-    (yargs:any) => {
+    (yargs) => {
       yargs
         .positional("type", {
           describe: "type of encryption scheme (sr25519 or ethereum)",
@@ -33,7 +33,7 @@ yargs(hideBin(process.argv))
   .command(
     "verify <message> <signature> <pubKey>", //TODO: this probably only works for ethereum
     "verify a signature",
-    (yargs:any) => {
+    (yargs) => {
       yargs
         .positional("message", {
           describe: "the message that is supposed to be signed",
@@ -55,7 +55,7 @@ yargs(hideBin(process.argv))
   .command(
     "createAndSendTx <network> <ws> <address> <tx> <params> [sudo]",
     "creates a transaction payload, prompts for signature and sends it",
-    (yargs:any) => {
+    (yargs) => {
       yargs
         .positional("network", {
           describe: "the network on which you want to send the tx",
@@ -92,7 +92,7 @@ yargs(hideBin(process.argv))
   .command(
     "getTransactionData <network> <ws> <address> <tx> <params> [sudo]",
     "creates a transaction payload and resolves",
-    (yargs:any) => {
+    (yargs) => {
       yargs
         .positional("network", {
           describe: "the network on which you want to send the tx",
@@ -129,7 +129,7 @@ yargs(hideBin(process.argv))
   .command(
     "submitTx <ws> <txData>", //TODO: test that with getTransactionData
     "creates a transaction payload and resolves",
-    (yargs:any) => {
+    (yargs) => {
       yargs
         .positional("txData", {
           describe: "the signed bytecode of the tx you wish to submit on chain",

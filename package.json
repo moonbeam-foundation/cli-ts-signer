@@ -14,7 +14,6 @@
     "cli": "npx ts-node index.ts",
     "cli-binary-macos": "./moonbeam-signer-macos",
     "lint": "prettier -w .",
-    "compileJs": "npx tsc --outDir compiledJs",
     "build-binary": "npx ncc build index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
   },
   "dependencies": {
