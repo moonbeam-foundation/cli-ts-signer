@@ -8,9 +8,7 @@ import { createAndSendTx } from "./methods/createAndSendTx";
 import { submitPreSignedTx } from "./methods/submitPreSignedTx";
 import { CreateAndSendArgs, SendTxArgs, SignArgs, VerifyArgs } from "./methods/types";
 const { hideBin } = require("yargs/helpers");
-console.log('ooooo')
-// async function main (){
-console.log('main')
+
 yargs(hideBin(process.argv))
   .command(
     "sign <type> <privateKey>", //TODO: put this into a module : https://github.com/yargs/yargs/blob/HEAD/docs/advanced.md#commands
@@ -148,8 +146,3 @@ yargs(hideBin(process.argv))
     }
   )
   .help().argv;
-  console.log('end main')
-  // await new Promise((res)=>setTimeout(res,10000))
-  //   console.log('end')
-// }
-// main()
