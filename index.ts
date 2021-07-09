@@ -1,97 +1,169 @@
-import { Keyring } from "@polkadot/keyring";
-import { hexToU8a, numberToHex, u8aToHex, stringToU8a } from "@polkadot/util";
-import type { KeyringPair } from "@polkadot/keyring/types";
-import { typesBundle } from "moonbeam-types-bundle";
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import { verify } from "./verify";
-import { needParam } from "./utils";
-import { getExtrinsicData } from "./getExtrinsicData";
-import { getTransactionData } from "./getTransactionData";
+import yargs from "yargs";
 
+import { authorizedChains } from "./methods/utils";
+import { getTransactionData } from "./methods/getTransactionData";
+import { sign } from "./methods/sign";
+import { verify } from "./methods/verify";
+import { createAndSendTx } from "./methods/createAndSendTx";
+import { submitPreSignedTx } from "./methods/submitPreSignedTx";
 const { hideBin } = require("yargs/helpers");
-const argv = require("yargs/yargs")(hideBin(process.argv))
-  .option("signature", {
-    string: true,
-  })
-  .option("privKey", {
-    string: true,
-  })
-  .option("pubKey", {
-    string: true,
-  })
-  .option("address", {
-    string: true,
-  }).argv;
 
-function exit() {
-  process.exit();
-}
+type SignArgs = {
+  type: string;
+  privateKey: string;
+};
+type VerifyArgs = {
+  message: string;
+  signature: string;
+  pubKey: string;
+};
+type CreateAndSendArgs = {
+  network: string;
+  ws: string;
+  address: string;
+  tx: string;
+  params: string;
+  sudo?: boolean;
+};
+type SendTxArgs = {
+  ws: string;
+  txData: string;
+};
 
-function submitPreSignedTx(api: ApiPromise, tx: string): void {
-  const extrinsic = api.createType("Extrinsic", tx);
-
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  api.rpc.author.submitAndWatchExtrinsic(extrinsic, (result) => {
-    console.log(JSON.stringify(result.toHuman(), null, 2));
-
-    if (result.isInBlock || result.isFinalized) {
-      process.exit(0);
+yargs(hideBin(process.argv))
+  .command(
+    "sign <type> <privateKey>", //TODO: put this into a module : https://github.com/yargs/yargs/blob/HEAD/docs/advanced.md#commands
+    "sign byteCode with a private key",
+    (yargs) => {
+      yargs
+        .positional("type", {
+          describe: "type of encryption scheme (sr25519 or ethereum)",
+          type: "string",
+          choices: ["sr25519", "ethereum"],
+          default: "ethereum",
+        })
+        .positional("privateKey", {
+          describe: "private key for the signature",
+          type: "string",
+        });
+    },
+    (argv: SignArgs) => {
+      sign(argv.type, argv.privateKey);
     }
-  });
-}
-
-async function main() {
-  let keyring: Keyring;
-  switch (argv.type) {
-    case "ethereum":
-      keyring = new Keyring({ type: "ethereum" });
-      break;
-    default:
-      console.log("type defaults to ethereum");
-      keyring = new Keyring({ type: "ethereum" });
-  }
-
-  switch (argv._[0]) {
-    case "sign":
-      console.log("sign");
-      needParam("message", "sign", argv);
-      needParam("privKey", "sign", argv);
-      const signer: KeyringPair = keyring.addFromSeed(hexToU8a(argv.privKey));
-      const signature: Uint8Array = signer.sign(stringToU8a(argv.message));
-      console.log("SIGNATURE : " + u8aToHex(signature));
-      console.log("FOR PUBKEY : " + u8aToHex(signer.publicKey));
-      break;
-    case "verify":
-      console.log("verify");
-      needParam("message", "verify", argv);
-      needParam("signature", "verify", argv);
-      needParam("pubKey", "verify", argv);
-      let pubKey = verify(argv.message, argv.signature);
-      console.log("PUBKEY : " + pubKey);
-      console.log("VALIDITY : " + (argv.pubKey == pubKey).toString());
-      break;
-    case "getExtrinsicData":
-      console.log("getExtrinsicData");
-      await getExtrinsicData(argv);
-      break;
-    case "getTransactionData":
-      console.log("getTransactionData");
-      await getTransactionData(argv);
-      break;
-    case "submitTx":
-      console.log("submitTx");
-      needParam("tx", "submitTx", argv);
-      needParam("ws", "submitTx", argv);
-      const { tx, ws } = argv;
-      const api = await ApiPromise.create({
-        provider: new WsProvider(ws),
-        typesBundle: typesBundle as any,
-      });
-      submitPreSignedTx(api, tx);
-      break;
-    default:
-      console.log(`function not recognized`);
-  }
-  exit();
-}
-main();
+  )
+  .command(
+    "verify <message> <signature> <pubKey>", //TODO: this probably only works for ethereum
+    "verify a signature",
+    (yargs) => {
+      yargs
+        .positional("message", {
+          describe: "the message that is supposed to be signed",
+          type: "string",
+        })
+        .positional("signature", {
+          describe: "signature of the message",
+          type: "string",
+        })
+        .positional("pubKey", {
+          describe: "public key of the party who sigend",
+          type: "string",
+        });
+    },
+    (argv: VerifyArgs) => {
+      verify(argv.message, argv.signature, argv.pubKey);
+    }
+  )
+  .command(
+    "createAndSendTx <network> <ws> <address> <tx> <params> [sudo]",
+    "creates a transaction payload, prompts for signature and sends it",
+    (yargs) => {
+      yargs
+        .positional("network", {
+          describe: "the network on which you want to send the tx",
+          type: "string",
+          default: "moonbase",
+          choices: authorizedChains,
+        })
+        .positional("ws", {
+          describe: "websocket address of the endpoint on which to connect",
+          type: "string",
+          default: "wss://wss.testnet.moonbeam.network",
+        })
+        .positional("address", {
+          describe: "address of the sender",
+          type: "string",
+        })
+        .positional("tx", {
+          describe: "<pallet>.<function>",
+          type: "string",
+        })
+        .positional("params", {
+          describe: "comma separated list of parameters",
+          type: "string",
+        })
+        .positional("sudo", {
+          describe: "activates sudo mode",
+          type: "boolean",
+        });
+    },
+    (argv: CreateAndSendArgs) => {
+      createAndSendTx(argv.tx, argv.params, argv.ws, argv.address, argv.network, argv.sudo);
+    }
+  )
+  .command(
+    "getTransactionData <network> <ws> <address> <tx> <params> [sudo]",
+    "creates a transaction payload and resolves",
+    (yargs) => {
+      yargs
+        .positional("network", {
+          describe: "the network on which you want to send the tx",
+          type: "string",
+          default: "moonbase",
+          choices: authorizedChains,
+        })
+        .positional("ws", {
+          describe: "websocket address of the endpoint on which to connect",
+          type: "string",
+          default: "wss://wss.testnet.moonbeam.network",
+        })
+        .positional("address", {
+          describe: "address of the sender",
+          type: "string",
+        })
+        .positional("tx", {
+          describe: "<pallet>.<function>",
+          type: "string",
+        })
+        .positional("params", {
+          describe: "comma separated list of parameters",
+          type: "string",
+        })
+        .positional("sudo", {
+          describe: "activates sudo mode",
+          type: "boolean",
+        });
+    },
+    (argv: CreateAndSendArgs) => {
+      getTransactionData(argv.tx, argv.params, argv.ws, argv.address, argv.network, argv.sudo);
+    }
+  )
+  .command(
+    "submitTx <ws> <txData>", //TODO: test that with getTransactionData
+    "creates a transaction payload and resolves",
+    (yargs) => {
+      yargs
+        .positional("txData", {
+          describe: "the signed bytecode of the tx you wish to submit on chain",
+          type: "string",
+        })
+        .positional("ws", {
+          describe: "websocket address of the endpoint on which to connect",
+          type: "string",
+          default: "wss://wss.testnet.moonbeam.network",
+        });
+    },
+    (argv: SendTxArgs) => {
+      submitPreSignedTx(argv.ws, argv.txData);
+    }
+  )
+  .help().argv;
