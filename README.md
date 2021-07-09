@@ -28,3 +28,12 @@ Then, in the two other windows run :
 `./test_createAndSend_sudo_moonbase`
 
 You will see the updated parachainBond in the apps (chain state) if connecting to ws://localhost:34102
+
+
+## Binary
+Build a binary for the cli-signer
+
+To build, run `yarn build-binary`
+
+Then, to use it on a mac, for example:
+`yarn run cli-binary-macos --help`
