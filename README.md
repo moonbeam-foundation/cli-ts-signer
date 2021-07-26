@@ -1,11 +1,12 @@
 # cli-ts-signer
+
 Typescript based cli signer for both Substrate and Ethereum Transactions
 
 The goal is to be able to sign transactions offline for both Moonbeam based parachains and relay chains.
 
 ## Examples
 
-*run these commands in the shell_tests folder*
+_run these commands in the shell_tests folder_
 
 To run the examples, open two terminal and run in parallel the createAndSend and the signature test scripts:
 
@@ -27,3 +28,12 @@ Then, in the two other windows run :
 `./test_createAndSend_sudo_moonbase`
 
 You will see the updated parachainBond in the apps (chain state) if connecting to ws://localhost:34102
+
+
+## Binary
+Build a binary for the cli-signer
+
+To build, run `yarn build-binary`
+
+Then, to use it on a mac, for example:
+`yarn run cli-binary-macos --help`

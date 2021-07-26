@@ -11,7 +11,10 @@
     "@types/node": "^15.6.1"
   },
   "scripts": {
-    "cli": "npx ts-node index.ts"
+    "cli": "npx ts-node index.ts",
+    "cli-binary-macos": "./moonbeam-signer-macos",
+    "lint": "prettier -w .",
+    "build-binary": "npx ncc build index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
   },
   "dependencies": {
     "@polkadot/api": "^4.15.1",
@@ -23,7 +26,10 @@
     "@types/yargs": "^17.0.1",
     "elliptic": "^6.5.4",
     "moonbeam-types-bundle": "^1.1.22",
+    "ncc": "^0.3.6",
+    "pkg": "^5.3.0",
     "prompts": "^2.4.1",
+    "typescript": "^4.3.5",
     "yargs": "^17.0.1"
   }
 }
