@@ -13,4 +13,4 @@ jobs:
         with:
           node-version: 14.x
       - run: yarn
-      - run: yarn run test
+      - run: node_modules/.bin/mocha -r ts-node/register --exit 'test/**.spec.ts'

@@ -49,7 +49,7 @@ export async function testSubmitTxCLI(data: string): Promise<string> {
   });
 }
 
-describe("Create and Send Tx Integration Test", function () {
+describe("Get Tx Data, sign it, and send it", function () {
   // TODO: the send offline function doesn't work, but is not very important since we cn use createAndSendTx
   // when we add the feature to decrypt tx data we can test that testGetTxDataCLI works
   it.skip("should increment Baltathar's account balance", async function () {
