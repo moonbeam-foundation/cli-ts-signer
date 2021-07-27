@@ -7,28 +7,15 @@ import { verify } from "./methods/verify";
 import { createAndSendTx } from "./methods/createAndSendTx";
 import { submitPreSignedTx } from "./methods/submitPreSignedTx";
 import { CreateAndSendArgs, SendTxArgs, SignArgs, VerifyArgs } from "./methods/types";
+import {signCommand, signPromptCommand} from './commands/signCommand'
 const { hideBin } = require("yargs/helpers");
 
-yargs(hideBin(process.argv))
+export const cli = yargs(hideBin(process.argv))
   .command(
-    "sign <type> <privateKey>", //TODO: put this into a module : https://github.com/yargs/yargs/blob/HEAD/docs/advanced.md#commands
-    "sign byteCode with a private key",
-    (yargs) => {
-      yargs
-        .positional("type", {
-          describe: "type of encryption scheme (sr25519 or ethereum)",
-          type: "string",
-          choices: ["sr25519", "ethereum"],
-          default: "ethereum",
-        })
-        .positional("privateKey", {
-          describe: "private key for the signature",
-          type: "string",
-        });
-    },
-    (argv: SignArgs) => {
-      sign(argv.type, argv.privateKey);
-    }
+    signCommand
+  )
+  .command(
+    signPromptCommand
   )
   .command(
     "verify <message> <signature> <pubKey>", //TODO: this probably only works for ethereum

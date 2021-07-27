@@ -1,6 +1,11 @@
 export type SignArgs = {
   type: string;
   privateKey: string;
+  message:string;
+};
+export type SignPromptArgs = {
+  type: string;
+  privateKey: string;
 };
 export type VerifyArgs = {
   message: string;
