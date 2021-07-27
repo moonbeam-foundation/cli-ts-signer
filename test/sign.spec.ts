@@ -21,6 +21,15 @@ export async function testSignCLI(data: string): Promise<string> {
         resolve(message.substring(12, message.length - 1));
       }
     });
+    call.stderr?.on("data", function (chunk) {
+      let message = chunk.toString();
+      console.log('errmsg',"+"+message+"+")
+      console.log(message)
+      debug(message)
+      // if (message.substring(0, 12) === "SIGNATURE : ") {
+      //   resolve(message.substring(12, message.length - 1));
+      // }
+    });
   });
 }
 
