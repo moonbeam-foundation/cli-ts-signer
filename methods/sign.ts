@@ -3,10 +3,11 @@ import { Keyring } from "@polkadot/keyring";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
 import prompts from "prompts";
+import { NetworkType } from "./types";
 
 // TODO display payload content
 export async function sign(
-  type: string,
+  type: NetworkType,
   privKey: string,
   prompt: boolean,
   message?: string

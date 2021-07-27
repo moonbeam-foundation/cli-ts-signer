@@ -1,26 +1,27 @@
-export type SignArgs = {
+export interface SignArgs extends SignPromptArgs {
+  message: string;
+}
+export interface SignPromptArgs {
   type: string;
   privateKey: string;
-  message:string;
-};
-export type SignPromptArgs = {
-  type: string;
-  privateKey: string;
-};
-export type VerifyArgs = {
+}
+export interface VerifyArgs {
   message: string;
   signature: string;
   pubKey: string;
-};
-export type CreateAndSendArgs = {
+  type: string;
+}
+export interface CreateAndSendArgs {
   network: string;
   ws: string;
   address: string;
   tx: string;
   params: string;
   sudo?: boolean;
-};
-export type SendTxArgs = {
+}
+export interface SendTxArgs {
   ws: string;
   txData: string;
-};
+}
+
+export type NetworkType = "ethereum" | "sr25519";

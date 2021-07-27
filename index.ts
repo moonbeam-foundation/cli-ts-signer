@@ -9,33 +9,13 @@ import { submitPreSignedTx } from "./methods/submitPreSignedTx";
 import { CreateAndSendArgs, SendTxArgs, SignArgs, VerifyArgs } from "./methods/types";
 import { signCommand, signPromptCommand } from "./commands/signCommand";
 import { createAndSendTxCommand } from "./commands/createAndSendCommand";
+import { verifyCommand } from "./commands/verifyCommand";
 const { hideBin } = require("yargs/helpers");
 
 export const cli = yargs(hideBin(process.argv))
   .command(signCommand)
   .command(signPromptCommand)
-  .command(
-    "verify <message> <signature> <pubKey>", //TODO: this probably only works for ethereum
-    "verify a signature",
-    (yargs) => {
-      yargs
-        .positional("message", {
-          describe: "the message that is supposed to be signed",
-          type: "string",
-        })
-        .positional("signature", {
-          describe: "signature of the message",
-          type: "string",
-        })
-        .positional("pubKey", {
-          describe: "public key of the party who sigend",
-          type: "string",
-        });
-    },
-    (argv: VerifyArgs) => {
-      verify(argv.message, argv.signature, argv.pubKey);
-    }
-  )
+  .command(verifyCommand)
   .command(createAndSendTxCommand)
   .command(
     "getTransactionData <network> <ws> <address> <tx> <params> [sudo]",

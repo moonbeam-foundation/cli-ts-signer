@@ -1,6 +1,7 @@
 import { SignArgs, SignPromptArgs } from "../methods/types";
 import { sign } from "../methods/sign";
 import { Argv } from "yargs";
+import { isNetworkType } from "../methods/utils";
 
 export const signCommand = {
   command: "sign <type> <privateKey> <message>", //TODO: put this into a module : https://github.com/yargs/yargs/blob/HEAD/docs/advanced.md#commands
@@ -25,7 +26,7 @@ export const signCommand = {
       });
   },
   handler: async (argv: SignArgs) => {
-    return await sign(argv.type, argv.privateKey,false,argv.message);
+    return await sign(isNetworkType(argv.type), argv.privateKey,false,argv.message);
   },
 };
 
@@ -47,7 +48,7 @@ export const signPromptCommand = {
         });
     },
     handler: async (argv: SignPromptArgs) => {
-      return await sign(argv.type, argv.privateKey, true);
+      return await sign(isNetworkType(argv.type), argv.privateKey, true);
     },
   };
   

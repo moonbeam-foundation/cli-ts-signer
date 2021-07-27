@@ -20,7 +20,7 @@ export function keccakAsU8a(
 }
 
 export function secp256k1Hasher(data: Uint8Array | string): Uint8Array {
-  return isReady() ? keccakAsU8a(data) : keccakAsU8a(data);
+  return isReady() ? keccakAsU8a(data) : keccakAsU8a(data); // TODO: this should be refactored
 }
 
 export function verifyFromPolkadotJs(message: string, signature: string): string {
