@@ -14,7 +14,7 @@ export async function testSignCLI(data: string): Promise<string> {
     );
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
-      console.log('message')
+      console.log('message',"+"+message+"+")
       console.log(message)
       debug(message)
       if (message.substring(0, 12) === "SIGNATURE : ") {
