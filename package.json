@@ -11,7 +11,7 @@
     "@types/node": "^15.6.1"
   },
   "scripts": {
-    "cli": "npx ts-node index.ts",
+    "cli": "node_modules/.bin/ts-node index.ts",
     "cli-binary-macos": "./moonbeam-signer-macos",
     "test": "mocha -r ts-node/register --exit 'test/**.spec.ts'",
     "lint": "prettier -w .",
