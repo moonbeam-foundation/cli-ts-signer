@@ -64,7 +64,7 @@ export async function getTransactionData(
     ws,
     address,
     network,
-    // Here we don't want to send the signature, 
+    // Here we don't want to send the signature,
     // just see the payload so we return empty signature
     async (_: string) => {
       return "";

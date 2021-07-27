@@ -69,7 +69,7 @@ export async function createAndSendTxPrompt(
       const response = await prompts({
         type: "text",
         name: "signature",
-        message: "Please enter signature for + "+payload+" +",
+        message: "Please enter signature for + " + payload + " +",
         validate: (value) => true, //value < 18 ? `Nightclub is 18+ only` : true
       });
       return response["signature"].trim();

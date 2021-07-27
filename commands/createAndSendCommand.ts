@@ -50,6 +50,6 @@ export const createAndSendTxCommand = {
       argv.network,
       argv.sudo
     );
-    exit()
+    exit();
   },
 };

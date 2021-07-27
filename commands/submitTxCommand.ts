@@ -2,16 +2,15 @@ import { SendTxArgs } from "../methods/types";
 import { Argv } from "yargs";
 import { submitPreSignedTx } from "../methods/submitPreSignedTx";
 
-
 export const submitTxCommand = {
-  command:"submitTx <ws> <txData>", //TODO: test that with getTransactionData
-  description:"creates a transaction payload and resolves",
-  builder:(yargs:Argv) => {
+  command: "submitTx <ws> <txData>", //TODO: test that with getTransactionData
+  description: "creates a transaction payload and resolves",
+  builder: (yargs: Argv) => {
     return yargs
       .positional("txData", {
         describe: "the signed bytecode of the tx you wish to submit on chain",
         type: "string",
-        default:"0x0"
+        default: "0x0",
       })
       .positional("ws", {
         describe: "websocket address of the endpoint on which to connect",
@@ -19,7 +18,7 @@ export const submitTxCommand = {
         default: "wss://wss.testnet.moonbeam.network",
       });
   },
-  handler:async(argv: SendTxArgs) => {
+  handler: async (argv: SendTxArgs) => {
     return await submitPreSignedTx(argv.ws, argv.txData);
-  }
+  },
 };

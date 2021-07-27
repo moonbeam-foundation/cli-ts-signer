@@ -3,7 +3,6 @@ import { verify } from "../methods/verify";
 import { Argv } from "yargs";
 import { ALITH, isNetworkType } from "../methods/utils";
 
-
 export const verifyCommand = {
   command: "verify <message> <signature> <pubKey>", //TODO: this probably only works for ethereum
   description: "verify a signature",

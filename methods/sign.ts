@@ -11,7 +11,7 @@ export async function sign(
   privKey: string,
   prompt: boolean,
   message?: string
-):Promise<string> {
+): Promise<string> {
   if (!["ethereum", "sr25519"].includes(type)) {
     throw new Error("Type is not supported");
   }
