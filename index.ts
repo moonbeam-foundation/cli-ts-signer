@@ -4,19 +4,16 @@ import { authorizedChains } from "./methods/utils";
 import { getTransactionData } from "./methods/getTransactionData";
 import { sign } from "./methods/sign";
 import { verify } from "./methods/verify";
-import { createAndSendTx } from "./methods/createAndSendTx";
+import { createAndSendTx, createAndSendTxPrompt } from "./methods/createAndSendTx";
 import { submitPreSignedTx } from "./methods/submitPreSignedTx";
 import { CreateAndSendArgs, SendTxArgs, SignArgs, VerifyArgs } from "./methods/types";
-import {signCommand, signPromptCommand} from './commands/signCommand'
+import { signCommand, signPromptCommand } from "./commands/signCommand";
+import { createAndSendTxCommand } from "./commands/createAndSendCommand";
 const { hideBin } = require("yargs/helpers");
 
 export const cli = yargs(hideBin(process.argv))
-  .command(
-    signCommand
-  )
-  .command(
-    signPromptCommand
-  )
+  .command(signCommand)
+  .command(signPromptCommand)
   .command(
     "verify <message> <signature> <pubKey>", //TODO: this probably only works for ethereum
     "verify a signature",
@@ -39,43 +36,7 @@ export const cli = yargs(hideBin(process.argv))
       verify(argv.message, argv.signature, argv.pubKey);
     }
   )
-  .command(
-    "createAndSendTx <network> <ws> <address> <tx> <params> [sudo]",
-    "creates a transaction payload, prompts for signature and sends it",
-    (yargs) => {
-      yargs
-        .positional("network", {
-          describe: "the network on which you want to send the tx",
-          type: "string",
-          default: "moonbase",
-          choices: authorizedChains,
-        })
-        .positional("ws", {
-          describe: "websocket address of the endpoint on which to connect",
-          type: "string",
-          default: "wss://wss.testnet.moonbeam.network",
-        })
-        .positional("address", {
-          describe: "address of the sender",
-          type: "string",
-        })
-        .positional("tx", {
-          describe: "<pallet>.<function>",
-          type: "string",
-        })
-        .positional("params", {
-          describe: "comma separated list of parameters",
-          type: "string",
-        })
-        .positional("sudo", {
-          describe: "activates sudo mode",
-          type: "boolean",
-        });
-    },
-    (argv: CreateAndSendArgs) => {
-      createAndSendTx(argv.tx, argv.params, argv.ws, argv.address, argv.network, argv.sudo);
-    }
-  )
+  .command(createAndSendTxCommand)
   .command(
     "getTransactionData <network> <ws> <address> <tx> <params> [sudo]",
     "creates a transaction payload and resolves",

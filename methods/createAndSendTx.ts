@@ -12,6 +12,7 @@ export async function createAndSendTx(
   ws: string,
   address: string,
   network: string,
+  signatureFunction: (payload: string) => Promise<string>,
   sudo: boolean | undefined
 ) {
   const [section, method] = tx.split(".");
@@ -39,26 +40,40 @@ export async function createAndSendTx(
 
       // create the actual payload we will be using
       const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
-      console.log("Transaction data to be signed", u8aToHex(xp.toU8a(true)));
+      console.log("Transaction data to be signed : ", u8aToHex(xp.toU8a(true)));
 
       return new Promise<SignerResult>(async (resolve) => {
-        const response = await prompts({
-          type: "text",
-          name: "signature",
-          message: "Please enter signature",
-          validate: (value) => true, //value < 18 ? `Nightclub is 18+ only` : true
-        });
-        // console.log('response',response, response['signature'].length) // 132 pr les deux
-        console.log("isHex", isHex(response["signature"]));
-        console.log(
-          "response['signature'].trim()",
-          response["signature"].trim(),
-          response["signature"].trim().length
-        );
-        resolve({ id: 1, signature: response["signature"].trim() });
+        const signature = await signatureFunction(u8aToHex(xp.toU8a(true)));
+        resolve({ id: 1, signature });
       });
     },
   };
   await txExtrinsic.signAndSend(address, { signer });
-  exit();
+  // exit();
+}
+export async function createAndSendTxPrompt(
+  tx: string,
+  params: string,
+  ws: string,
+  address: string,
+  network: string,
+  sudo: boolean | undefined
+) {
+  return createAndSendTx(
+    tx,
+    params,
+    ws,
+    address,
+    network,
+    async (payload: string) => {
+      const response = await prompts({
+        type: "text",
+        name: "signature",
+        message: "Please enter signature for + "+payload+" +",
+        validate: (value) => true, //value < 18 ? `Nightclub is 18+ only` : true
+      });
+      return response["signature"].trim();
+    },
+    sudo
+  );
 }

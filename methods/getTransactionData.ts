@@ -4,8 +4,9 @@ import { typesBundle } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import { exit, moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
+import { createAndSendTx } from "./createAndSendTx";
 
-export async function getTransactionData(
+export async function getTransactionData2(
   tx: string,
   params: string,
   ws: string,
@@ -47,4 +48,27 @@ export async function getTransactionData(
   };
   await txExtrinsic.signAsync(address, { signer });
   exit();
+}
+
+export async function getTransactionData(
+  tx: string,
+  params: string,
+  ws: string,
+  address: string,
+  network: string,
+  sudo: boolean | undefined
+) {
+  return createAndSendTx(
+    tx,
+    params,
+    ws,
+    address,
+    network,
+    // Here we don't want to send the signature, 
+    // just see the payload so we return empty signature
+    async (_: string) => {
+      return "";
+    },
+    sudo
+  );
 }
