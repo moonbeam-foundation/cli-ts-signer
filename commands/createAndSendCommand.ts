@@ -1,4 +1,5 @@
 import { Argv } from "yargs";
+console.log('process.cwd',process.cwd)
 import { CreateAndSendArgs } from "../methods/types";
 import { createAndSendTxPrompt } from "../methods/createAndSendtx";
 import { exit } from "../methods/utils";

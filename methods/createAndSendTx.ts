@@ -1,9 +1,9 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { isHex, u8aToHex } from "@polkadot/util";
+import { u8aToHex } from "@polkadot/util";
 import { typesBundle } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
-import { exit, moonbeamChains } from "./utils";
+import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
 
 export async function createAndSendTx(
