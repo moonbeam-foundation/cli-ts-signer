@@ -1,6 +1,6 @@
 import { Argv } from "yargs";
 import { CreateAndSendArgs } from "../methods/types";
-import { createAndSendTxPrompt } from "../methods/createAndSendtx";
+import { createAndSendTxPrompt } from "../methods/createAndSendTx";
 import { exit } from "../methods/utils";
 import { ALITH, authorizedChains, BALTATHAR } from "../methods/utils";
 

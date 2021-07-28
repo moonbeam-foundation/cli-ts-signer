@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAndSendTxCommand = void 0;
-const createAndSendtx_1 = require("../methods/createAndSendtx");
+const createAndSendTx_1 = require("../methods/createAndSendTx");
 const utils_1 = require("../methods/utils");
 const utils_2 = require("../methods/utils");
 exports.createAndSendTxCommand = {
@@ -42,7 +42,7 @@ exports.createAndSendTxCommand = {
         });
     },
     handler: async (argv) => {
-        await createAndSendtx_1.createAndSendTxPrompt(argv.tx, argv.params, argv.ws, argv.address, argv.network, argv.sudo);
+        await createAndSendTx_1.createAndSendTxPrompt(argv.tx, argv.params, argv.ws, argv.address, argv.network, argv.sudo);
         utils_1.exit();
     },
 };
