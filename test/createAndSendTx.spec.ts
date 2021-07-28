@@ -1,7 +1,7 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { typesBundle } from "moonbeam-types-bundle";
-import { createAndSendTx } from "../methods/createAndSendTx";
-import { ALITH, BALTATHAR, testnetWs } from "../methods/utils";
+import { createAndSendTx } from "../src/methods/createAndSendTx";
+import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
 import { testSignCLI } from "./sign.spec";
 var assert = require("assert");
 

@@ -11,11 +11,11 @@
     "@types/node": "^15.6.1"
   },
   "scripts": {
-    "cli": "node_modules/.bin/ts-node index.ts",
+    "cli": "node_modules/.bin/ts-node src/index.ts",
     "cli-binary-macos": "./moonbeam-signer-macos",
     "test": "mocha -r ts-node/register --exit 'test/**.spec.ts'",
     "lint": "prettier -w .",
-    "build-binary": "npx ncc build index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
+    "build-binary": "npx ncc build src/index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
   },
   "dependencies": {
     "@polkadot/api": "^5.2.1",

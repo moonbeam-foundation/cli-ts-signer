@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { ALITH } from "../methods/utils";
+import { ALITH } from "../src/methods/utils";
 import { testSignCLI } from "./sign.spec";
 var assert = require("assert");
 const testData =
@@ -7,9 +7,11 @@ const testData =
 
 export async function testVerifyCLI(data: string, sig: string): Promise<string> {
   return new Promise((resolve) => {
+      console.log('verify')
     let call = exec("yarn run cli verify " + data + " " + sig + " " + ALITH);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
+      console.log('M:',message)
       if (message.substring(0, 11) === "VALIDITY : ") {
         resolve(message.substring(11, message.length - 1));
       }
@@ -21,6 +23,7 @@ describe("Signature Verification", function () {
   it("should verify the signature to be valid", async function () {
     this.timeout(15000);
     const signature = await testSignCLI(testData);
+    console.log('signed')
     const verification = await testVerifyCLI(testData, signature);
     console.log("verification", verification);
     assert.equal(verification, "true");
