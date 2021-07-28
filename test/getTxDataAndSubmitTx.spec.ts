@@ -26,8 +26,6 @@ export async function testGetTxDataCLI(): Promise<string> {
     );
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
-      // console.log("hi","+"+message.substring(0, 32)+"+")
-      // console.log("oh","+"+message.substring(33, message.length - 1))
       if (message.substring(0, 32) === "Transaction data to be signed : ") {
         resolve(message.substring(33, message.length - 1));
       }
@@ -40,8 +38,6 @@ export async function testSubmitTxCLI(data: string): Promise<string> {
     let call = exec("yarn run cli submitTx " + testnetWs + " " + data);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
-      // console.log("ohhaaa",message)
-      // console.log("ohi",message.substring(0, 2))
       if (message.substring(0, 2) === "ok") {
         resolve(message.substring(31, message.length - 1));
       }
