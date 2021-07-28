@@ -1,5 +1,5 @@
-import { SendTxArgs } from "../methods/types";
 import { Argv } from "yargs";
+import { SendTxArgs } from "../methods/types";
 import { submitPreSignedTx } from "../methods/submitPreSignedTx";
 
 export const submitTxCommand = {

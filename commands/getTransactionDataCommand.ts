@@ -1,5 +1,5 @@
-import { CreateAndSendArgs } from "../methods/types";
 import { Argv } from "yargs";
+import { CreateAndSendArgs } from "../methods/types";
 import { ALITH, authorizedChains, BALTATHAR } from "../methods/utils";
 import { getTransactionData } from "../methods/getTransactionData";
 

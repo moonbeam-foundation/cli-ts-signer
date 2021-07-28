@@ -1,6 +1,6 @@
+import { Argv } from "yargs";
 import { VerifyArgs } from "../methods/types";
 import { verify } from "../methods/verify";
-import { Argv } from "yargs";
 import { ALITH, isNetworkType } from "../methods/utils";
 
 export const verifyCommand = {

@@ -39,7 +39,7 @@ export async function getTransactionData2(
 
       // create the actual payload we will be using
       const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
-      console.log("Transaction data to be signed", u8aToHex(xp.toU8a(true)));
+      console.log("Transaction data to be signed : ", u8aToHex(xp.toU8a(true)));
 
       return new Promise<SignerResult>((resolve) => {
         resolve({ id: 1, signature: "" });
@@ -64,7 +64,7 @@ export async function getTransactionData(
     ws,
     address,
     network,
-    // Here we don't want to send the signature,
+    // Here we don't want to send the signature, 
     // just see the payload so we return empty signature
     async (_: string) => {
       return "";

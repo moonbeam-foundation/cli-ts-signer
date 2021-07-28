@@ -1,6 +1,6 @@
+import { Argv } from "yargs";
 import { SignArgs, SignPromptArgs } from "../methods/types";
 import { sign } from "../methods/sign";
-import { Argv } from "yargs";
 import { isNetworkType } from "../methods/utils";
 
 export const signCommand = {
