@@ -5,16 +5,15 @@ import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
+import { NetworkArgs, TxArgs } from "./types";
 
 export async function createAndSendTx(
-  tx: string,
-  params: string,
-  ws: string,
-  address: string,
-  network: string,
+  txArgs:TxArgs,
+  networkArgs:NetworkArgs,
   signatureFunction: (payload: string) => Promise<string>,
-  sudo: boolean | undefined
 ) {
+  const {tx,params,address,sudo}=txArgs
+  const {ws,network}=networkArgs
   const [section, method] = tx.split(".");
   const splitParams = params.split(",");
   let api: ApiPromise;
@@ -52,28 +51,20 @@ export async function createAndSendTx(
   // exit();
 }
 export async function createAndSendTxPrompt(
-  tx: string,
-  params: string,
-  ws: string,
-  address: string,
-  network: string,
-  sudo: boolean | undefined
+  txArgs:TxArgs,
+  networkArgs:NetworkArgs
 ) {
   return createAndSendTx(
-    tx,
-    params,
-    ws,
-    address,
-    network,
+    txArgs,
+    networkArgs,
     async (payload: string) => {
       const response = await prompts({
         type: "text",
         name: "signature",
         message: "Please enter signature for + " + payload + " +",
-        validate: (value) => true, //value < 18 ? `Nightclub is 18+ only` : true
+        validate: (value) => true, // TODO: add validation
       });
       return response["signature"].trim();
-    },
-    sudo
+    }
   );
 }

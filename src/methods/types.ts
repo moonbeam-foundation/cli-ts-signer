@@ -1,3 +1,4 @@
+// Command Args
 export interface SignArgs extends SignPromptArgs {
   message: string;
 }
@@ -11,6 +12,10 @@ export interface VerifyArgs {
   pubKey: string;
   type: string;
 }
+export interface SendTxArgs {
+  ws: string;
+  txData: string;
+}
 export interface CreateAndSendArgs {
   network: string;
   ws: string;
@@ -19,9 +24,18 @@ export interface CreateAndSendArgs {
   params: string;
   sudo?: boolean;
 }
-export interface SendTxArgs {
-  ws: string;
-  txData: string;
+
+// Methods args
+export interface TxArgs {
+  tx: string,
+  params: string,
+  address: string,
+  sudo?: boolean
+}
+export interface NetworkArgs {
+  ws: string,
+  network: string,
 }
 
 export type NetworkType = "ethereum" | "sr25519";
+

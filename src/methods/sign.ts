@@ -16,23 +16,25 @@ export async function sign(
     throw new Error("Type is not supported");
   }
   await cryptoWaitReady();
+
+  // Instantiate keyring
   let keyring: Keyring = new Keyring({ type: type === "ethereum" ? "ethereum" : "sr25519" });
   const signer: KeyringPair = keyring.addFromSeed(hexToU8a(privKey));
-  let msg: string = "";
-  if (prompt) {
-    const response = await prompts({
-      type: "text",
-      name: "message",
-      message: "Please enter payload",
-      validate: (value) => true, //value < 18 ? `Nightclub is 18+ only` : true
-    });
-    msg = response.message;
-  } else if (message) {
-    msg = message;
-  } else {
+
+  if (!prompt && !message) {
     throw new Error("sign must either provide message or use prompt");
   }
-  // console.log('response',response, response['message'].length) //226 for relay, 216 pr moonbeam
+  
+  // Get message to be signed
+  const msg = message ||
+    (await prompts({
+        type: "text",
+        name: "message",
+        message: "Please enter payload",
+        validate: (value) => true, // TODO: add validation
+      })).message;
+
+  // Sign
   const signature: Uint8Array =
     type === "ethereum"
       ? signer.sign(hexToU8a(msg))

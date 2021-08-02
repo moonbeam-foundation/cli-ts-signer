@@ -42,12 +42,12 @@ export const getTransactionDataCommand = {
   },
   handler: async (argv: CreateAndSendArgs) => {
     return await getTransactionData(
-      argv.tx,
-      argv.params,
-      argv.ws,
-      argv.address,
-      argv.network,
-      argv.sudo
+      {tx:argv.tx,
+      params:argv.params,
+      address:argv.address,
+      sudo:argv.sudo},
+      {ws:argv.ws,
+      network:argv.network},
     );
   },
 };
