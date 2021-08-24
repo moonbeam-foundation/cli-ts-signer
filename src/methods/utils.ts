@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 import { NetworkType } from "./types";
 
 export const moonbeamChains = ["moonbase", "moonbeam", "moonriver", "moonshadow"];
@@ -18,4 +19,39 @@ export function isNetworkType(type: string): NetworkType {
 
 export function exit() {
   process.exit();
+}
+
+/**
+ * Send a JSONRPC request to the node at http://localhost:9933.
+ *
+ * @param method - The JSONRPC request method.
+ * @param params - The JSONRPC request params.
+ */
+ export function rpcToLocalNode(
+  httpUrl:string,
+	method: string,
+	params: any[] = []
+): Promise<any> {
+	return fetch('http://localhost:9933', {
+		body: JSON.stringify({
+			id: 1,
+			jsonrpc: '2.0',
+			method,
+			params,
+		}),
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		method: 'POST',
+	})
+		.then((response) => response.json())
+		.then(({ error, result }) => {
+			if (error) {
+				throw new Error(
+					`${error.code} ${error.message}: ${JSON.stringify(error.data)}`
+				);
+			}
+
+			return result;
+		});
 }

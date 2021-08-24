@@ -3,6 +3,16 @@ import { Keyring } from "@polkadot/keyring";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
 import prompts from "prompts";
+import {
+	construct,
+	decode,
+	deriveAddress,
+	getRegistry,
+	methods,
+	PolkadotSS58Format,
+} from '@substrate/txwrapper-polkadot';
+let types = require("@polkadot/types")
+
 import { NetworkType } from "./types";
 
 // TODO display payload content
@@ -34,6 +44,17 @@ export async function sign(
         validate: (value) => true, // TODO: add validation
       })).message;
 
+      let payloadInfo
+      if (type === "ethereum" ){
+
+      } else if (type === "sr25519"){
+
+      }
+      // payloadInfo = decode(msg, {
+      //   metadataRpc,
+      //   registry,
+      // });
+
   // Sign
   const signature: Uint8Array =
     type === "ethereum"
@@ -42,4 +63,30 @@ export async function sign(
   console.log("SIGNATURE : " + u8aToHex(signature));
   console.log("FOR PUBKEY : " + u8aToHex(signer.publicKey));
   return u8aToHex(signature);
+}
+
+function parseCustomType() {
+  try {
+    let typesObject = editor.get();
+
+    let lastTypeKey;
+
+    if (Array.isArray(typesObject)) {
+      typesObject.map(type => {
+        registry.register(type);
+      });
+
+      let lastTypeObject = typesObject[typesObject.length - 1];
+      lastTypeKey = Object.keys(lastTypeObject)[0];
+    } else {
+      registry.register(typesObject);
+      lastTypeKey = Object.keys(typesObject)[0];
+    }
+
+    output.innerText = JSON.stringify(
+      types.createType(registry, lastTypeKey, rawBytes.value.trim())
+    );
+  } catch (e) {
+    output.innerText = e;
+  }
 }

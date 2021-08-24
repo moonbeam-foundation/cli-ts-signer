@@ -24,6 +24,7 @@
     "@polkadot/types": "^5.2.1",
     "@polkadot/util": "^7.0.3",
     "@polkadot/wasm-crypto": "^4.1.2",
+    "@substrate/txwrapper-polkadot": "^1.2.10",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/prompts": "^2.0.13",
