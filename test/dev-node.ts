@@ -3,13 +3,20 @@ import { spawn, ChildProcess } from "child_process";
 import { ApiPromise } from "@polkadot/api";
 import { BlockHash } from "@polkadot/types/interfaces";
 
-// import { BINARY_PATH, DISPLAY_LOG, MOONBEAM_LOG, SPAWNING_TIME } from "./constants";
+import * as fs from "fs";
+import * as path from "path";
+import * as child_process from "child_process";
+
 export const BINARY_PATH = process.env.BINARY_PATH || `../moonbeam/target/release/moonbeam`;
 export const MOONBEAM_LOG = process.env.MOONBEAM_LOG || "info";
 export const SPAWNING_TIME = 20000;
 export const DISPLAY_LOG = process.env.MOONBEAM_LOG || false;
 
 const debug = require("debug")("test:dev-node");
+
+// test parachain from docker
+const paraName = "moonbase-0.11.2";
+const paraDocker = "purestake/moonbeam:v0.11.2";
 
 export async function findAvailablePorts() {
   const availablePorts = await Promise.all(
@@ -61,7 +68,26 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
   nodeStarted = true;
   const { p2pPort, rpcPort, wsPort } = await findAvailablePorts();
 
-  const cmd = BINARY_PATH;
+  let cmd: string;
+  if (process.env.LOCAL_BUILD) {
+    cmd = BINARY_PATH;
+  } else {
+    // if no specified local chain
+    // build parachain binary from docker
+    const parachainBinary = `build/${paraName}/moonbeam`;
+    const parachainPath = path.join(__dirname, `build/${paraName}/moonbeam`);
+    if (!fs.existsSync(parachainPath)) {
+      console.log(`     Missing ${parachainBinary} locally, downloading it...`);
+      child_process.execSync(`mkdir -p ${path.dirname(parachainPath)} && \
+            docker create --name moonbeam-tmp ${paraDocker} && \
+            docker cp moonbeam-tmp:/moonbeam/moonbeam ${parachainPath} && \
+            docker rm moonbeam-tmp`);
+      console.log(`${parachainBinary} downloaded !`);
+    }
+    console.log("parachainPath", parachainPath);
+    cmd = parachainPath;
+  }
+
   const args = [
     withWasm ? `--execution=Wasm` : `--execution=Native`, // Faster execution using native
     `--no-telemetry`,
@@ -108,7 +134,7 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
     process.exit(1);
   });
 
-  const binaryLogs:any[] = [];
+  const binaryLogs: any[] = [];
   await new Promise<void>((resolve) => {
     const timer = setTimeout(() => {
       console.error(`\x1b[31m Failed to start Moonbeam Test Node.\x1b[0m`);
@@ -118,7 +144,7 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
       throw new Error("Failed to launch node");
     }, SPAWNING_TIME - 2000);
 
-    const onData = async (chunk:any) => {
+    const onData = async (chunk: any) => {
       if (DISPLAY_LOG) {
         console.log(chunk.toString());
       }
@@ -138,7 +164,6 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
 
   return { p2pPort, rpcPort, wsPort, runningNode };
 }
-
 
 export async function createAndFinalizeBlock(
   api: ApiPromise,
