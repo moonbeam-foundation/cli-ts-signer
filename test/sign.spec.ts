@@ -24,7 +24,7 @@ export async function testSignCLI(data: string): Promise<string> {
 
 describe("Signature", function () {
   it("should correctly sign bytecode", async function () {
-    this.timeout(5000);
+    this.timeout(20000);
     const output = await testSignCLI(testData);
     assert.equal(output, expectedSignature);
   });
