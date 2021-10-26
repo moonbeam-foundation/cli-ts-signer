@@ -26,7 +26,7 @@ export const signCommand = {
       });
   },
   handler: async (argv: SignArgs) => {
-    return await sign(isNetworkType(argv.type), argv.privateKey, false, argv.message);
+    await sign(isNetworkType(argv.type), argv.privateKey, false, argv.message);
   },
 };
 
@@ -48,6 +48,6 @@ export const signPromptCommand = {
       });
   },
   handler: async (argv: SignPromptArgs) => {
-    return await sign(isNetworkType(argv.type), argv.privateKey, true);
+    await sign(isNetworkType(argv.type), argv.privateKey, true);
   },
 };

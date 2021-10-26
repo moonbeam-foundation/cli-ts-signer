@@ -1,6 +1,6 @@
 {
   "name": "cli-ts-signer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ts based signer for moonbeam",
   "main": "index.js",
   "repository": "git@github.com:PureStake/cli-ts-signer.git",
@@ -17,7 +17,7 @@
     "test": "mocha -r ts-node/register --exit 'test/**.spec.ts'",
     "test-local": "LOCAL_BUILD=true mocha -r ts-node/register --exit 'test/**.spec.ts'",
     "lint": "prettier -w .",
-    "build-binary": "npx ncc build src/index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
+    "build-binary": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
   },
   "dependencies": {
     "@polkadot/api": "^5.6.1",
