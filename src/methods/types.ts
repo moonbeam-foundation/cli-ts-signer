@@ -24,6 +24,11 @@ export interface CreateAndSendArgs {
   params: string;
   sudo?: boolean;
 }
+export interface VoteCouncilArgs {
+  network: string;
+  ws: string;
+  address: string;
+}
 
 // Methods args
 export interface TxArgs {
