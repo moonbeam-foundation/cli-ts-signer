@@ -6,11 +6,13 @@ import { moonbeamChains } from "./utils";
 import { NetworkArgs } from "./types";
 import { createAndSendTx } from "./createAndSendTx";
 
-export async function retrieveMotions(networkArgs: NetworkArgs): Promise<{
-  index: number;
-  hash: string;
-  text: string;
-}[]> {
+export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
+  {
+    index: number;
+    hash: string;
+    text: string;
+  }[]
+> {
   const { ws, network } = networkArgs;
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
@@ -38,7 +40,7 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<{
 
       console.log(`[${vote.index}] ${motion.section}.${motion.method}`);
       const data = {
-        index,
+        index: Number(vote.index),
         hash,
         text: "",
       };
@@ -71,8 +73,6 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<{
       return data;
     })
   );
-
-  // exit();
 }
 
 export async function voteCouncilPrompt(address: string, networkArgs: NetworkArgs) {
@@ -82,31 +82,38 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
     type: "select",
     name: "index",
     message: "Pick motion",
-    choices: motions.map((motion) => {
-      return { title: motion.text, value: motion.index };
+    choices: motions.map((motion, i) => {
+      return { title: motion.text, value: i };
     }),
   });
   const selectedMotion = motions[motionIndex.index];
 
   if (!selectedMotion) {
     console.log(`Selected motion doesn't exist`);
-    return
+    return;
   }
-  
+
   const vote = await prompts({
     type: "select",
     name: "yes",
     message: `Pick a vote for ${selectedMotion.text}`,
-    choices: [{ title: "Yes", value: true },{ title: "No", value: false }],
+    choices: [
+      { title: "Yes", value: true },
+      { title: "No", value: false },
+    ],
   });
-  console.log(`You are voting ${vote.yes} for [${motionIndex.index} - ${selectedMotion.hash}]`)
+  console.log(`You are voting ${vote.yes} for [${selectedMotion.index} - ${selectedMotion.hash}]`);
   console.log(`  ${selectedMotion.text}`);
 
   return createAndSendTx(
     {
       address,
       tx: `councilCollective.vote`,
-      params: [selectedMotion.hash, selectedMotion.index, vote.yes].join(`,`), // TODO: improve
+      params: [
+        selectedMotion.hash,
+        selectedMotion.index,
+        vote.yes, //vote.yes?"Yes":"No"
+      ],
     },
     networkArgs,
     async (payload: string) => {

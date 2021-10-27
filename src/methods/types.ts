@@ -30,17 +30,18 @@ export interface VoteCouncilArgs {
   address: string;
 }
 
+export type TxParam = boolean | string | number | { [key: string]: any };
+
 // Methods args
 export interface TxArgs {
-  tx: string,
-  params: string,
-  address: string,
-  sudo?: boolean
+  tx: string;
+  params: string | TxParam[];
+  address: string;
+  sudo?: boolean;
 }
 export interface NetworkArgs {
-  ws: string,
-  network: string,
+  ws: string;
+  network: string;
 }
 
 export type NetworkType = "ethereum" | "sr25519";
-
