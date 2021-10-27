@@ -20,12 +20,12 @@
     "build-binary": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
   },
   "dependencies": {
-    "@polkadot/api": "^5.6.1",
-    "@polkadot/keyring": "^7.2.1",
-    "@polkadot/rpc-core": "^5.6.1",
-    "@polkadot/types": "^5.6.1",
-    "@polkadot/util": "^7.2.1",
-    "@polkadot/wasm-crypto": "^4.1.2",
+    "@polkadot/api": "^6.5.2",
+    "@polkadot/keyring": "^7.6.1",
+    "@polkadot/rpc-core": "^6.5.2",
+    "@polkadot/types": "^6.5.2",
+    "@polkadot/util": "^7.6.1",
+    "@polkadot/wasm-crypto": "^4.2.1",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/prompts": "^2.0.13",

@@ -93,7 +93,7 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
     `--no-telemetry`,
     `--no-prometheus`,
     `--dev`,
-    `--ethapi=txpool,debug,trace`,
+    `--ethapi=txpool`,
     `--sealing=manual`,
     `-l${MOONBEAM_LOG}`,
     `--port=${p2pPort}`,

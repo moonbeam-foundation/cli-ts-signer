@@ -24,15 +24,18 @@ export async function sign(
   if (!prompt && !message) {
     throw new Error("sign must either provide message or use prompt");
   }
-  
+
   // Get message to be signed
-  const msg = message ||
-    (await prompts({
+  const msg =
+    message ||
+    (
+      await prompts({
         type: "text",
         name: "message",
         message: "Please enter payload",
         validate: (value) => true, // TODO: add validation
-      })).message;
+      })
+    ).message;
 
   // Sign
   const signature: Uint8Array =

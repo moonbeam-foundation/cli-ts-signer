@@ -43,12 +43,8 @@ export const createAndSendTxCommand = {
   },
   handler: async (argv: CreateAndSendArgs) => {
     await createAndSendTxPrompt(
-      {tx:argv.tx,
-      params:argv.params,
-      address:argv.address,
-      sudo:argv.sudo},
-      {ws:argv.ws,
-      network:argv.network},
+      { tx: argv.tx, params: argv.params, address: argv.address, sudo: argv.sudo },
+      { ws: argv.ws, network: argv.network }
     );
     exit();
   },
