@@ -20,7 +20,7 @@ See script for input details.
 ### Sudo
 
 To try sudo, open 3 terminals.
-In the first one run `yarn run launch --parachain local --relay local` in order
+In the first one run `npm run launch --parachain local --relay local` in order
 to launch a local parachain on port 34102.
 
 Then, in the two other windows run :
@@ -33,15 +33,15 @@ You will see the updated parachainBond in the apps (chain state) if connecting t
 
 Some specific actions are provided as a preconfigured feature:
 
-`yarn run cli voteCouncil <network> <ws> <address>` : creates a vote council payload, prompts for signature and sends it
+`npm run cli voteCouncil <network> <ws> <address>` : creates a vote council payload, prompts for signature and sends it
 
-`yarn run cli voteTechCommittee <network> <ws> <address>` : creates a tech committee vote payload, prompts for signature and sends it
+`npm run cli voteTechCommittee <network> <ws> <address>` : creates a tech committee vote payload, prompts for signature and sends it
 
 ## Binary
 
 Build a binary for the cli-signer
 
-To build, run `yarn build-binary`
+To build, run `npm build-binary`
 
 Then, to use it on a mac, for example:
-`yarn run cli-binary-macos --help`
+`npm run cli-binary-macos --help`

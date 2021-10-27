@@ -15,7 +15,7 @@ export async function createAndSendTx(
   const { tx, params, address, sudo } = txArgs;
   const { ws, network } = networkArgs;
   const [section, method] = tx.split(".");
-  const splitParams: TxParam[] = params.length
+  const splitParams: TxParam[] = Array.isArray(params)
     ? (params as TxParam[])
     : (params as string).split(",");
 
