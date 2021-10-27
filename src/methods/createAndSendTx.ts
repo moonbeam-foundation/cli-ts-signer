@@ -5,7 +5,7 @@ import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
-import { NetworkArgs, TxArgs } from "./types";
+import { NetworkArgs, TxArgs, TxParam } from "./types";
 
 export async function createAndSendTx(
   txArgs:TxArgs,
@@ -15,7 +15,8 @@ export async function createAndSendTx(
   const {tx,params,address,sudo}=txArgs
   const {ws,network}=networkArgs
   const [section, method] = tx.split(".");
-  const splitParams = params.split(",");
+  const splitParams:TxParam[] = params.length? (params as TxParam[]): (params as string).split(",")
+
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
     api = await ApiPromise.create({
@@ -27,6 +28,8 @@ export async function createAndSendTx(
       provider: new WsProvider(ws),
     });
   }
+  console.log("splitParams")//JSON.stringify(splitParams,null,2))
+  splitParams.forEach((p)=>{console.log(p)})
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
   if (sudo) {
     txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));

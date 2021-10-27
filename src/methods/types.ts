@@ -30,10 +30,12 @@ export interface VoteCouncilArgs {
   address: string;
 }
 
+export type TxParam=string|number|{[key:string]:any}
+
 // Methods args
 export interface TxArgs {
   tx: string,
-  params: string,
+  params: string|TxParam[],
   address: string,
   sudo?: boolean
 }

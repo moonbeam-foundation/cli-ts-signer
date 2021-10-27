@@ -102,11 +102,14 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
   console.log(`You are voting ${vote.yes} for [${motionIndex.index} - ${selectedMotion.hash}]`)
   console.log(`  ${selectedMotion.text}`);
 
+  console.log("Number(vote.yes)",Number(vote.yes))
   return createAndSendTx(
     {
       address,
       tx: `councilCollective.vote`,
-      params: [selectedMotion.hash, selectedMotion.index, vote.yes].join(`,`), // TODO: improve
+      params: [selectedMotion.hash, selectedMotion.index, 
+      vote.yes?"Yes":"No"
+    ]
     },
     networkArgs,
     async (payload: string) => {
