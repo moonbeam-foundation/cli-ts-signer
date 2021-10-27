@@ -24,11 +24,11 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<{
     });
   }
 
-  const hashes = await api.query["councilCollective" as "council"].proposals();
-  const motionList = (await api.query["councilCollective" as "council"].proposalOf.multi(
+  const hashes = await api.query["techComitteeCollective" as "council"].proposals();
+  const motionList = (await api.query["techComitteeCollective" as "council"].proposalOf.multi(
     hashes
   )) as any;
-  const votes = (await api.query["councilCollective" as "council"].voting.multi(hashes)) as any;
+  const votes = (await api.query["techComitteeCollective" as "council"].voting.multi(hashes)) as any;
 
   return await Promise.all(
     motionList.map(async (motionData: any, index: any) => {
@@ -73,7 +73,7 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<{
   );
 }
 
-export async function voteCouncilPrompt(address: string, networkArgs: NetworkArgs) {
+export async function voteTechCommitteePrompt(address: string, networkArgs: NetworkArgs) {
   const motions = await retrieveMotions(networkArgs);
 
   const motionIndex = await prompts({
@@ -103,9 +103,9 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
   return createAndSendTx(
     {
       address,
-      tx: `councilCollective.vote`,
+      tx: `techComitteeCollective.vote`,
       params: [selectedMotion.hash, selectedMotion.index, 
-        vote.yes//vote.yes?"Yes":"No"
+        vote.yes
     ]
     },
     networkArgs,

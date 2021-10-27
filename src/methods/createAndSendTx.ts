@@ -28,8 +28,6 @@ export async function createAndSendTx(
       provider: new WsProvider(ws),
     });
   }
-  console.log("splitParams")//JSON.stringify(splitParams,null,2))
-  splitParams.forEach((p)=>{console.log(p)})
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
   if (sudo) {
     txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));

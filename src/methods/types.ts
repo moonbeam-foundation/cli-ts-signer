@@ -30,7 +30,7 @@ export interface VoteCouncilArgs {
   address: string;
 }
 
-export type TxParam=string|number|{[key:string]:any}
+export type TxParam=boolean|string|number|{[key:string]:any}
 
 // Methods args
 export interface TxArgs {
