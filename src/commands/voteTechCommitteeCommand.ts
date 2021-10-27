@@ -6,7 +6,7 @@ import { voteTechCommitteePrompt } from "../methods/voteTechCommittee";
 
 export const voteTechCommitteeCommand = {
   command: "voteTechCommittee <network> <ws> <address>",
-  describe: "creates a vote council payload, prompts for signature and sends it",
+  describe: "creates a tech committee vote payload, prompts for signature and sends it",
   builder: (yargs: Argv) => {
     return yargs
       .positional("network", {

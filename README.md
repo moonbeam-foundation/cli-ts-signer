@@ -29,6 +29,14 @@ Then, in the two other windows run :
 
 You will see the updated parachainBond in the apps (chain state) if connecting to ws://localhost:34102
 
+### Specific Actions
+
+Some specific actions are provided as a preconfigured feature:
+
+`yarn run cli voteCouncil <network> <ws> <address>` : creates a vote council payload, prompts for signature and sends it
+
+`yarn run cli voteTechCommittee <network> <ws> <address>` : creates a tech committee vote payload, prompts for signature and sends it
+
 ## Binary
 
 Build a binary for the cli-signer
