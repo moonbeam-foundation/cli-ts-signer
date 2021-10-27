@@ -27,11 +27,7 @@ export const voteCouncilCommand = {
       });
   },
   handler: async (argv: VoteCouncilArgs) => {
-    await voteCouncilPrompt(
-      argv.address,
-      {ws:argv.ws,
-      network:argv.network},
-    );
+    await voteCouncilPrompt(argv.address, { ws: argv.ws, network: argv.network });
     exit();
   },
 };

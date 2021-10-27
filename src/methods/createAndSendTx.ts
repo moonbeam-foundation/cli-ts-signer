@@ -8,14 +8,16 @@ import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
 import { NetworkArgs, TxArgs, TxParam } from "./types";
 
 export async function createAndSendTx(
-  txArgs:TxArgs,
-  networkArgs:NetworkArgs,
-  signatureFunction: (payload: string) => Promise<string>,
+  txArgs: TxArgs,
+  networkArgs: NetworkArgs,
+  signatureFunction: (payload: string) => Promise<string>
 ) {
-  const {tx,params,address,sudo}=txArgs
-  const {ws,network}=networkArgs
+  const { tx, params, address, sudo } = txArgs;
+  const { ws, network } = networkArgs;
   const [section, method] = tx.split(".");
-  const splitParams:TxParam[] = params.length? (params as TxParam[]): (params as string).split(",")
+  const splitParams: TxParam[] = params.length
+    ? (params as TxParam[])
+    : (params as string).split(",");
 
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
@@ -51,21 +53,14 @@ export async function createAndSendTx(
   await txExtrinsic.signAndSend(address, { signer });
   // exit();
 }
-export async function createAndSendTxPrompt(
-  txArgs:TxArgs,
-  networkArgs:NetworkArgs
-) {
-  return createAndSendTx(
-    txArgs,
-    networkArgs,
-    async (payload: string) => {
-      const response = await prompts({
-        type: "text",
-        name: "signature",
-        message: "Please enter signature for + " + payload + " +",
-        validate: (value) => true, // TODO: add validation
-      });
-      return response["signature"].trim();
-    }
-  );
+export async function createAndSendTxPrompt(txArgs: TxArgs, networkArgs: NetworkArgs) {
+  return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
+    const response = await prompts({
+      type: "text",
+      name: "signature",
+      message: "Please enter signature for + " + payload + " +",
+      validate: (value) => true, // TODO: add validation
+    });
+    return response["signature"].trim();
+  });
 }

@@ -27,11 +27,7 @@ export const voteTechCommitteeCommand = {
       });
   },
   handler: async (argv: VoteCouncilArgs) => {
-    await voteTechCommitteePrompt(
-      argv.address,
-      {ws:argv.ws,
-      network:argv.network},
-    );
+    await voteTechCommitteePrompt(argv.address, { ws: argv.ws, network: argv.network });
     exit();
   },
 };
