@@ -4,7 +4,7 @@ import { sign } from "../methods/sign";
 import { isNetworkType } from "../methods/utils";
 
 export const signCommand = {
-  command: "sign <type> <privateKey> <message>", //TODO: put this into a module : https://github.com/yargs/yargs/blob/HEAD/docs/advanced.md#commands
+  command: "sign <type> <privateKey> <message>",
   describe: "sign byteCode with a private key",
   builder: (yargs: Argv) => {
     return yargs
@@ -31,7 +31,7 @@ export const signCommand = {
 };
 
 export const signPromptCommand = {
-  command: "signPrompt <type> <privateKey>", //TODO: put this into a module : https://github.com/yargs/yargs/blob/HEAD/docs/advanced.md#commands
+  command: "signPrompt <type> <privateKey|mnemonic>",
   describe: "sign byteCode with a private key - using prompt",
   builder: (yargs: Argv) => {
     return yargs
@@ -45,6 +45,11 @@ export const signPromptCommand = {
         describe: "private key for the signature",
         type: "string",
         default: "0x0",
+      })
+      .positional("mnemonic", {
+        describe: "mnemonic for the signature",
+        type: "string",
+        default: `bottom drive obey lake curtain smoke basket hold race lonely fit walk`,
       });
   },
   handler: async (argv: SignPromptArgs) => {
