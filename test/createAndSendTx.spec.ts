@@ -3,7 +3,7 @@ import { typesBundle } from "moonbeam-types-bundle";
 import { createAndSendTx } from "../src/methods/createAndSendTx";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
 import { createAndFinalizeBlock, startMoonbeamDevNode } from "./dev-node";
-import { testSignCLI } from "./sign.spec";
+import { testSignCLIPrivateKey } from "./sign.spec";
 var assert = require("assert");
 
 const testAmount = "1000000000000";
@@ -41,7 +41,7 @@ describe("Create and Send Tx Integration Test", function () {
       },
       { ws: wsUrl, network: "moonbase" },
       async (payload: string) => {
-        return await testSignCLI(payload);
+        return await testSignCLIPrivateKey(payload);
       }
     );
 

@@ -4,7 +4,7 @@ import { sign } from "../methods/sign";
 import { isNetworkType } from "../methods/utils";
 
 export const signCommand = {
-  command: "sign <type> <privateKey> <message>",
+  command: "sign <type> <privateKey|mnemonic> <message> [derivePath]",
   describe: "sign byteCode with a private key",
   builder: (yargs: Argv) => {
     return yargs
@@ -23,15 +23,26 @@ export const signCommand = {
         describe: "message to be signed",
         type: "string",
         default: "0x0",
+      })
+      .positional("mnemonic", {
+        describe: "mnemonic for the signature",
+        type: "string",
+        default: `bottom drive obey lake curtain smoke basket hold race lonely fit walk`,
+      })
+      .positional("derivePath", {
+        describe: "derivation path for bip-44 (optional)",
+        type: "string",
+        default: `/m/44'/60'/0'/0/0`,
       });
   },
   handler: async (argv: SignArgs) => {
-    await sign(isNetworkType(argv.type), argv.privateKey, false, argv.message);
+    console.log("argv.derivePath", argv.derivePath);
+    await sign(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.message);
   },
 };
 
 export const signPromptCommand = {
-  command: "signPrompt <type> <privateKey|mnemonic>",
+  command: "signPrompt <type> <privateKey|mnemonic> [derivePath]",
   describe: "sign byteCode with a private key - using prompt",
   builder: (yargs: Argv) => {
     return yargs
@@ -50,9 +61,14 @@ export const signPromptCommand = {
         describe: "mnemonic for the signature",
         type: "string",
         default: `bottom drive obey lake curtain smoke basket hold race lonely fit walk`,
+      })
+      .positional("derivePath", {
+        describe: "derivation path for bip-44 (optional)",
+        type: "string",
+        default: `/m/44'/60'/0'/0/0`,
       });
   },
   handler: async (argv: SignPromptArgs) => {
-    await sign(isNetworkType(argv.type), argv.privateKey, true);
+    await sign(isNetworkType(argv.type), argv.privateKey, true, argv.derivePath);
   },
 };

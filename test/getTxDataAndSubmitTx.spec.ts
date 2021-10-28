@@ -2,7 +2,7 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 import { exec } from "child_process";
 import { typesBundle } from "moonbeam-types-bundle";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
-import { testSignCLI } from "./sign.spec";
+import { testSignCLIPrivateKey } from "./sign.spec";
 var assert = require("assert");
 
 const testAmount = "1000000000000";
@@ -60,7 +60,7 @@ describe("Get Tx Data, sign it, and send it", function () {
 
     // get tx data
     const txData = await testGetTxDataCLI();
-    const signature = await testSignCLI(txData);
+    const signature = await testSignCLIPrivateKey(txData);
     console.log("sig", signature);
 
     // this doesnt work, function is probably deprecated
