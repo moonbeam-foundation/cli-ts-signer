@@ -14,18 +14,13 @@ export const signCommand = {
         choices: ["sr25519", "ethereum"],
         default: "ethereum",
       })
-      .positional("privateKey", {
-        describe: "private key for the signature",
-        type: "string",
-        default: "0x0",
-      })
       .positional("message", {
         describe: "message to be signed",
         type: "string",
         default: "0x0",
       })
-      .positional("mnemonic", {
-        describe: "mnemonic for the signature",
+      .positional("privateKey", {
+        describe: "private key or mnemonic for the signature",
         type: "string",
         default: `bottom drive obey lake curtain smoke basket hold race lonely fit walk`,
       })
@@ -36,7 +31,6 @@ export const signCommand = {
       });
   },
   handler: async (argv: SignArgs) => {
-    console.log("argv.derivePath", argv.derivePath);
     await sign(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.message);
   },
 };
@@ -53,12 +47,7 @@ export const signPromptCommand = {
         default: "ethereum",
       })
       .positional("privateKey", {
-        describe: "private key for the signature",
-        type: "string",
-        default: "0x0",
-      })
-      .positional("mnemonic", {
-        describe: "mnemonic for the signature",
+        describe: "private key or mnemonic for the signature",
         type: "string",
         default: `bottom drive obey lake curtain smoke basket hold race lonely fit walk`,
       })

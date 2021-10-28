@@ -44,12 +44,12 @@ describe("Signature - privkey", function () {
 });
 
 describe("Signature - mnemonic", function () {
-  it.only("should correctly sign bytecode with mnemonic", async function () {
+  it("should correctly sign bytecode with mnemonic", async function () {
     this.timeout(20000);
     const output = await testSignCLIMnemonic(testData);
     assert.equal(output, expectedSignature);
   });
-  it.only("should correctly sign bytecode with mnemonic and derivation path (baltathar address)", async function () {
+  it("should correctly sign bytecode with mnemonic and derivation path (baltathar address)", async function () {
     this.timeout(20000);
     const output = await testSign(
       `npm run cli sign ethereum "bottom drive obey lake curtain smoke basket hold race lonely fit walk" ` +
