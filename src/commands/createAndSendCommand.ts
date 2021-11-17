@@ -5,7 +5,7 @@ import { exit } from "../methods/utils";
 import { ALITH, authorizedChains, BALTATHAR } from "../methods/utils";
 
 export const createAndSendTxCommand = {
-  command: "createAndSendTx <network> <ws> <address> <tx> <params> [sudo]",
+  command: "createAndSendTx <network> <ws> <address> <tx> <params> [sudo] [immortality]",
   describe: "creates a transaction payload, prompts for signature and sends it",
   builder: (yargs: Argv) => {
     return yargs
@@ -39,11 +39,16 @@ export const createAndSendTxCommand = {
         describe: "activates sudo mode",
         type: "boolean",
         default: false,
+      })
+      .positional("immortality", {
+        describe: "creates an immortal transaction (doesn't expire)",
+        type: "boolean",
+        default: false,
       });
   },
   handler: async (argv: CreateAndSendArgs) => {
     await createAndSendTxPrompt(
-      { tx: argv.tx, params: argv.params, address: argv.address, sudo: argv.sudo },
+      { tx: argv.tx, params: argv.params, address: argv.address, sudo: argv.sudo, immortality: argv.immortality },
       { ws: argv.ws, network: argv.network }
     );
     exit();

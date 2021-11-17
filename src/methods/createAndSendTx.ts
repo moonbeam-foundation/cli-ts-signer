@@ -50,7 +50,8 @@ export async function createAndSendTx(
       });
     },
   };
-  await txExtrinsic.signAndSend(address, { signer });
+  let options=txArgs.immortality?{ signer,era:0 }:{ signer }
+  await txExtrinsic.signAndSend(address, options);
   // exit();
 }
 export async function createAndSendTxPrompt(txArgs: TxArgs, networkArgs: NetworkArgs) {

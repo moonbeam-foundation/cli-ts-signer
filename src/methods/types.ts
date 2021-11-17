@@ -24,6 +24,7 @@ export interface CreateAndSendArgs {
   tx: string;
   params: string;
   sudo?: boolean;
+  immortality?: boolean;
 }
 export interface VoteCouncilArgs {
   network: string;
@@ -39,6 +40,7 @@ export interface TxArgs {
   params: string | TxParam[];
   address: string;
   sudo?: boolean;
+  immortality?: boolean;
 }
 export interface NetworkArgs {
   ws: string;
