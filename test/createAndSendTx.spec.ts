@@ -121,7 +121,7 @@ describe("Create and Send Tx Integration Test", function () {
           return await testSignCLIPrivateKey(payload);
         }
       );
-    } catch(e){
+    } catch(e:any){
       expect(e.toString()).to.eq("Error: 1010: Invalid Transaction: Transaction has a bad signature")
     }
 
