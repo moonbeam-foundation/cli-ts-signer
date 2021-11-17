@@ -5,6 +5,7 @@ export interface SignArgs extends SignPromptArgs {
 export interface SignPromptArgs {
   type: string;
   privateKey: string;
+  derivePath: string;
 }
 export interface VerifyArgs {
   message: string;

@@ -1,6 +1,7 @@
 import { hexToU8a, stringToU8a, u8aToHex } from "@polkadot/util";
 import { Keyring } from "@polkadot/keyring";
 import type { KeyringPair } from "@polkadot/keyring/types";
+import type { KeypairType } from "@polkadot/util-crypto/types";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
 import prompts from "prompts";
 import { NetworkType } from "./types";
@@ -8,18 +9,28 @@ import { NetworkType } from "./types";
 // TODO display payload content
 export async function sign(
   type: NetworkType,
-  privKey: string,
+  privKeyOrMnemonic: string,
   prompt: boolean,
+  derivePath: string,
   message?: string
 ): Promise<string> {
   if (!["ethereum", "sr25519"].includes(type)) {
     throw new Error("Type is not supported");
   }
   await cryptoWaitReady();
-
   // Instantiate keyring
-  let keyring: Keyring = new Keyring({ type: type === "ethereum" ? "ethereum" : "sr25519" });
-  const signer: KeyringPair = keyring.addFromSeed(hexToU8a(privKey));
+  let keyringType: KeypairType = type === "ethereum" ? "ethereum" : "sr25519";
+  let keyring: Keyring = new Keyring({ type: keyringType });
+
+  // Support both private key and mnemonic
+  const signer: KeyringPair =
+    privKeyOrMnemonic.substring(0, 2) === "0x"
+      ? keyring.addFromSeed(hexToU8a(privKeyOrMnemonic))
+      : keyring.addFromUri(
+          type === "ethereum" ? privKeyOrMnemonic + derivePath : privKeyOrMnemonic,
+          {},
+          keyringType
+        );
 
   if (!prompt && !message) {
     throw new Error("sign must either provide message or use prompt");
