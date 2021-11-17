@@ -10,7 +10,7 @@ import { NetworkArgs, TxArgs, TxParam } from "./types";
 export async function createAndSendTx(
   txArgs: TxArgs,
   networkArgs: NetworkArgs,
-  signatureFunction: (payload: string) => Promise<string>
+  signatureFunction: (payload: string) => Promise<`0x${string}`>
 ) {
   const { tx, params, address, sudo } = txArgs;
   const { ws, network } = networkArgs;

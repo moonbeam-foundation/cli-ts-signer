@@ -8,7 +8,7 @@ export async function getTransactionData(txArgs: TxArgs, networkArgs: NetworkArg
     // Here we don't want to send the signature,
     // just see the payload so we return empty signature
     async (_: string) => {
-      return "";
+      return "0x";
     }
   );
 }
