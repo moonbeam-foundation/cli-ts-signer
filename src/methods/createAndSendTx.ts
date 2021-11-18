@@ -27,7 +27,7 @@ export async function createAndSendTx(
     });
   } else {
     api = await ApiPromise.create({
-      provider:new WsProvider(ws),
+      provider: new WsProvider(ws),
     });
   }
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
