@@ -19,7 +19,7 @@ export async function testGetTxDataCLI(): Promise<string> {
         testnetWs +
         " " +
         ALITH +
-        " balances.transfer "+
+        " balances.transfer " +
         BALTATHAR +
         "," +
         testAmount
