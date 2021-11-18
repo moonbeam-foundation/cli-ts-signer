@@ -8,9 +8,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Lint
+        run: npm run lint
+        
       - name: Use Node.js 14.x
         uses: actions/setup-node@v2
         with:
           node-version: 14.x
       - run: yarn
       - run: node_modules/.bin/mocha -r ts-node/register --exit 'test/**.spec.ts'
+

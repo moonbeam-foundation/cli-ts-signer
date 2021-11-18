@@ -26,7 +26,7 @@ export async function createAndSendTx(
       typesBundle: typesBundle as any,
     });
   } else {
-    api = await ApiPromise.create({
+    api= await ApiPromise.create({
       provider: new WsProvider(ws),
     });
   }
