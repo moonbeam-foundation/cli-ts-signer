@@ -16,9 +16,9 @@ async function getBalance(address: string, api: ApiPromise) {
 }
 
 describe("Create and Send Tx Integration Test", function () {
-  let moonbeamProcess: ChildProcess|null;
-  let api:ApiPromise
-  let wsUrl:string;
+  let moonbeamProcess: ChildProcess | null;
+  let api: ApiPromise;
+  let wsUrl: string;
   beforeEach("Starting Moonbeam Test Node", async function () {
     this.timeout(40000);
 
@@ -30,7 +30,7 @@ describe("Create and Send Tx Integration Test", function () {
       typesBundle: typesBundle as any,
     });
     moonbeamProcess = init.runningNode;
-  })
+  });
   it("should increment Baltathar's account balance", async function () {
     this.timeout(40000);
 
@@ -75,12 +75,12 @@ describe("Create and Send Tx Integration Test", function () {
         params: BALTATHAR + "," + testAmount,
         address: ALITH,
         sudo: false,
-        immortality:true
+        immortality: true,
       },
       { ws: wsUrl, network: "moonbase" },
       async (payload: string) => {
         // wait 300 blocks before submitting signature
-        for (let i=0;i<300;i++){
+        for (let i = 0; i < 300; i++) {
           await createAndFinalizeBlock(api, undefined, true);
         }
         return await testSignCLIPrivateKey(payload);
@@ -104,25 +104,27 @@ describe("Create and Send Tx Integration Test", function () {
     const initialBalance = await getBalance(BALTATHAR, api);
 
     // create and send transfer tx from ALITH
-    try{
+    try {
       await createAndSendTx(
         {
           tx: "balances.transfer",
           params: BALTATHAR + "," + testAmount,
           address: ALITH,
-          sudo: false
+          sudo: false,
         },
         { ws: wsUrl, network: "moonbase" },
         async (payload: string) => {
-          for (let i=0;i<300;i++){
+          for (let i = 0; i < 300; i++) {
             // wait 300 blocks before submitting signature
             await createAndFinalizeBlock(api, undefined, true);
           }
           return await testSignCLIPrivateKey(payload);
         }
       );
-    } catch(e:any){
-      expect(e.toString()).to.eq("Error: 1010: Invalid Transaction: Transaction has a bad signature")
+    } catch (e: any) {
+      expect(e.toString()).to.eq(
+        "Error: 1010: Invalid Transaction: Transaction has a bad signature"
+      );
     }
 
     // Wait for block
@@ -132,11 +134,11 @@ describe("Create and Send Tx Integration Test", function () {
     const finalBalance = await getBalance(BALTATHAR, api);
     assert.equal(
       Number(finalBalance).toString().substring(0, 15),
-      (Number(initialBalance)).toString().substring(0, 15)
+      Number(initialBalance).toString().substring(0, 15)
     );
   });
   afterEach(async function () {
-    api.disconnect()
+    api.disconnect();
 
     if (moonbeamProcess) {
       await new Promise((resolve) => {
