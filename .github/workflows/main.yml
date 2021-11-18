@@ -13,7 +13,8 @@ jobs:
         run: npm i
 
       - name: Lint
-        run: npm run lint
+        run:  |
+        npm run lint
         DIFF_INDEX=$(git diff-index --name-only HEAD)
           if [[ ${DIFF_INDEX:0:5} == "fatal" ]]; then
             echo "There was an error with the git checkout. Can't check package-lock.json file."
