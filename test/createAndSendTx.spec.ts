@@ -38,12 +38,12 @@ describe("Create and Send Tx Integration Test", function () {
     const initialBalance = await getBalance(BALTATHAR, api);
 
     // Start producing blocks in parallel
-    let produceBlocks=true
-    setInterval(async ()=>{
-      if (produceBlocks){
+    let produceBlocks = true;
+    setInterval(async () => {
+      if (produceBlocks) {
         await createAndFinalizeBlock(api, undefined, true);
       }
-    },500)
+    }, 500);
 
     // create and send transfer tx from ALITH
     await createAndSendTx(
@@ -60,7 +60,7 @@ describe("Create and Send Tx Integration Test", function () {
     );
 
     // Stop producing blocks
-    produceBlocks=false
+    produceBlocks = false;
 
     // Then check incremented balance of Baltathar
     const finalBalance = await getBalance(BALTATHAR, api);

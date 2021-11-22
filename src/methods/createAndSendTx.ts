@@ -53,19 +53,19 @@ export async function createAndSendTx(
   let options = txArgs.immortality ? { signer, era: 0 } : { signer };
 
   // Only resolve when it's finalised
-  await new Promise<void>((res)=>{
+  await new Promise<void>((res) => {
     txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
-      console.log('Transaction status:', status.type);
-  
+      console.log("Transaction status:", status.type);
+
       if (status.isInBlock) {
-        console.log('Included at block hash', status.asInBlock.toHex());
-        res()
+        console.log("Included at block hash", status.asInBlock.toHex());
+        res();
       } else if (status.isFinalized) {
-        console.log('Finalized block hash', status.asFinalized.toHex());
-        res()
+        console.log("Finalized block hash", status.asFinalized.toHex());
+        res();
       }
     });
-  })
+  });
 }
 export async function createAndSendTxPrompt(txArgs: TxArgs, networkArgs: NetworkArgs) {
   return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
