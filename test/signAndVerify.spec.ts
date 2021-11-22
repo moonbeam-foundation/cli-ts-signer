@@ -7,7 +7,7 @@ const testData =
 
 export async function testVerifyCLI(data: string, sig: string): Promise<string> {
   return new Promise((resolve) => {
-    let call = exec("yarn run cli verify " + data + " " + sig + " " + ALITH);
+    let call = exec("npm run cli verify " + data + " " + sig + " " + ALITH);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
       if (message.substring(0, 11) === "VALIDITY : ") {

@@ -15,7 +15,7 @@ async function getBalance(address: string, api: ApiPromise) {
 export async function testGetTxDataCLI(): Promise<string> {
   return new Promise((resolve) => {
     let call = exec(
-      "yarn run cli getTransactionData moonbase " +
+      "npm run cli getTransactionData moonbase " +
         testnetWs +
         " " +
         ALITH +
@@ -35,7 +35,7 @@ export async function testGetTxDataCLI(): Promise<string> {
 
 export async function testSubmitTxCLI(data: string): Promise<string> {
   return new Promise((resolve) => {
-    let call = exec("yarn run cli submitTx " + testnetWs + " " + data);
+    let call = exec("npm run cli submitTx " + testnetWs + " " + data);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
       if (message.substring(0, 2) === "ok") {
