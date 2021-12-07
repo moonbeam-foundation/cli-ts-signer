@@ -23,7 +23,8 @@
     "cli-binary-macos": "./moonbeam-signer-macos",
     "test": "mocha -r ts-node/register --exit 'test/**.spec.ts'",
     "test-local": "LOCAL_BUILD=true mocha -r ts-node/register --exit 'test/**.spec.ts'",
-    "lint": "node_modules/.bin/prettier -w .",
+    "lint": "node_modules/.bin/prettier --check .",
+    "lint:fix": "node_modules/.bin/prettier -w .",
     "build-binary": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
   },
   "dependencies": {

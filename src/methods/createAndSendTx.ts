@@ -68,7 +68,7 @@ export async function createAndSendTx(
           "There was a problem with the extrinsic, status : ",
           status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
         );
-        resolve();
+        resolve( );
       }
     });
   });
