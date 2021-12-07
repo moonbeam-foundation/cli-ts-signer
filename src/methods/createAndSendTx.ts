@@ -53,16 +53,22 @@ export async function createAndSendTx(
   let options = txArgs.immortality ? { signer, era: 0 } : { signer };
 
   // Only resolve when it's finalised
-  await new Promise<void>((res) => {
+  await new Promise<void>((resolve, reject) => {
     txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
       console.log("Transaction status:", status.type);
 
       if (status.isInBlock) {
         console.log("Included at block hash", status.asInBlock.toHex());
-        res();
+        resolve();
       } else if (status.isFinalized) {
         console.log("Finalized block hash", status.asFinalized.toHex());
-        res();
+        resolve();
+      } else if (status.isDropped || status.isInvalid || status.isRetracted) {
+        console.log(
+          "There was a problem with the extrinsic, status : ",
+          status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
+        );
+        resolve();
       }
     });
   });
