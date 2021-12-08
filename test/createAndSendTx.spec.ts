@@ -2,6 +2,7 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 import { expect } from "chai";
 import { ChildProcess } from "child_process";
 import { typesBundle } from "moonbeam-types-bundle";
+import { clearInterval } from "timers";
 import { createAndSendTx } from "../src/methods/createAndSendTx";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
 import { createAndFinalizeBlock, startMoonbeamDevNode } from "./dev-node";
@@ -37,6 +38,14 @@ describe("Create and Send Tx Integration Test", function () {
     // First get initial balance of Baltathar
     const initialBalance = await getBalance(BALTATHAR, api);
 
+    // Start producing blocks in parallel
+    let produceBlocks = true;
+    setInterval(async () => {
+      if (produceBlocks) {
+        await createAndFinalizeBlock(api, undefined, true);
+      }
+    }, 500);
+
     // create and send transfer tx from ALITH
     await createAndSendTx(
       {
@@ -51,8 +60,8 @@ describe("Create and Send Tx Integration Test", function () {
       }
     );
 
-    // Wait for block
-    await createAndFinalizeBlock(api, undefined, true);
+    // Stop producing blocks
+    produceBlocks = false;
 
     // Then check incremented balance of Baltathar
     const finalBalance = await getBalance(BALTATHAR, api);
@@ -67,6 +76,14 @@ describe("Create and Send Tx Integration Test", function () {
 
     // First get initial balance of Baltathar
     const initialBalance = await getBalance(BALTATHAR, api);
+
+    // Start producing blocks in parallel
+    let produceBlocks = true;
+    setInterval(async () => {
+      if (produceBlocks) {
+        await createAndFinalizeBlock(api, undefined, true);
+      }
+    }, 500);
 
     // create and send transfer tx from ALITH
     await createAndSendTx(
@@ -86,9 +103,8 @@ describe("Create and Send Tx Integration Test", function () {
         return await testSignCLIPrivateKey(payload);
       }
     );
-
-    // Wait for block
-    await createAndFinalizeBlock(api, undefined, true);
+    // Stop producing blocks
+    produceBlocks = false;
 
     // Then check incremented balance of Baltathar
     const finalBalance = await getBalance(BALTATHAR, api);
@@ -99,43 +115,65 @@ describe("Create and Send Tx Integration Test", function () {
   });
   it("make sure tx fail after 300 blocks without immortality", async function () {
     this.timeout(40000);
+    return new Promise(async (res) => {
+      // First get initial balance of Baltathar
+      const initialBalance = await getBalance(BALTATHAR, api);
 
-    // First get initial balance of Baltathar
-    const initialBalance = await getBalance(BALTATHAR, api);
-
-    // create and send transfer tx from ALITH
-    try {
-      await createAndSendTx(
-        {
-          tx: "balances.transfer",
-          params: BALTATHAR + "," + testAmount,
-          address: ALITH,
-          sudo: false,
-        },
-        { ws: wsUrl, network: "moonbase" },
-        async (payload: string) => {
-          for (let i = 0; i < 300; i++) {
-            // wait 300 blocks before submitting signature
-            await createAndFinalizeBlock(api, undefined, true);
-          }
-          return await testSignCLIPrivateKey(payload);
+      // Start producing blocks in parallel
+      let produceBlocks = true;
+      setInterval(async () => {
+        if (produceBlocks) {
+          await createAndFinalizeBlock(api, undefined, true);
         }
-      );
-    } catch (e: any) {
-      expect(e.toString()).to.eq(
-        "Error: 1010: Invalid Transaction: Transaction has a bad signature"
-      );
-    }
+      }, 500);
 
-    // Wait for block
-    await createAndFinalizeBlock(api, undefined, true);
+      // listen for node error messages
+      moonbeamProcess?.stderr?.on("data", async function (chunk) {
+        let message = chunk.toString();
+        if (
+          message.includes(
+            "Transaction pool error: Invalid transaction validity: InvalidTransaction::BadProof"
+          )
+        ) {
+          // Stop producing blocks
+          produceBlocks = false;
+          const finalBalance = await getBalance(BALTATHAR, api);
+          assert.equal(
+            Number(finalBalance).toString().substring(0, 15),
+            Number(initialBalance).toString().substring(0, 15)
+          );
+          res();
+        }
+      });
 
-    // Then check incremented balance of Baltathar
-    const finalBalance = await getBalance(BALTATHAR, api);
-    assert.equal(
-      Number(finalBalance).toString().substring(0, 15),
-      Number(initialBalance).toString().substring(0, 15)
-    );
+      // create and send transfer tx from ALITH
+      try {
+        await createAndSendTx(
+          {
+            tx: "balances.transfer",
+            params: BALTATHAR + "," + testAmount,
+            address: ALITH,
+            sudo: false,
+          },
+          { ws: wsUrl, network: "moonbase" },
+          async (payload: string) => {
+            for (let i = 0; i < 300; i++) {
+              // wait 300 blocks before submitting signature
+              await createAndFinalizeBlock(api, undefined, true);
+            }
+            return await testSignCLIPrivateKey(payload);
+          }
+        );
+        // Stop producing blocks
+        produceBlocks = false;
+      } catch (e: any) {
+        // Stop producing blocks
+        produceBlocks = false;
+        expect(e.toString()).to.eq(
+          "Error: 1010: Invalid Transaction: Transaction has a bad signature"
+        );
+      }
+    });
   });
   afterEach(async function () {
     api.disconnect();
