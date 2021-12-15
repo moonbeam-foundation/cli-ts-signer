@@ -1,6 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { exec } from "child_process";
-import { typesBundle } from "moonbeam-types-bundle";
+import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
 import { testSignCLIPrivateKey } from "./sign.spec";
 var assert = require("assert");
@@ -52,7 +52,7 @@ describe("Get Tx Data, sign it, and send it", function () {
     this.timeout(40000);
     let api = await ApiPromise.create({
       provider: new WsProvider(testnetWs),
-      typesBundle: typesBundle as any,
+      typesBundle: typesBundlePre900 as any,
     });
 
     // First get initial balance of Baltathar
