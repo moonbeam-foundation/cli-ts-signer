@@ -4,9 +4,11 @@ import type { KeyringPair } from "@polkadot/keyring/types";
 import type { KeypairType } from "@polkadot/util-crypto/types";
 import { cryptoWaitReady } from "@polkadot/util-crypto";
 import prompts from "prompts";
+import fs from 'fs'
+import { TypeRegistry } from '@polkadot/types';
 import { NetworkType } from "./types";
 
-// TODO display payload content
+
 export async function sign(
   type: NetworkType,
   privKeyOrMnemonic: string,
@@ -56,4 +58,36 @@ export async function sign(
   console.log("SIGNATURE : " + u8aToHex(signature));
   console.log("FOR PUBKEY : " + u8aToHex(signer.publicKey));
   return u8aToHex(signature);
+}
+
+export async function signAndVerify(
+  type: NetworkType,
+  privKeyOrMnemonic: string,
+  prompt: boolean,
+  derivePath: string,
+  filePath:string,
+  message?: string
+): Promise<string> {
+  console.log('message',message)
+  // get the payload data from the file
+	const rawdata = fs.readFileSync(filePath);
+  //@ts-ignore
+  const payloadFromFile = JSON.parse(rawdata);
+  console.log("payloadFromFile",payloadFromFile)
+
+  // let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
+  // if (sudo) {
+  //   txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));
+  // } else {
+  //   txExtrinsic = await api.tx[section][method](...splitParams);
+  // }
+
+  const registry = new TypeRegistry();
+  const extrinsicPayload = registry
+        .createType('ExtrinsicPayload', payloadFromFile, { version: payloadFromFile.version })
+  // create the actual payload we will be using
+  // const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
+  // const payloadHex=u8aToHex(xp.toU8a(true))
+  console.log("Transaction data to be signed : ", extrinsicPayload);
+  return sign(type,privKeyOrMnemonic,prompt,derivePath,message)
 }

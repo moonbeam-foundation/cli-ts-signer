@@ -70,6 +70,44 @@ describe("Create and Send Tx Integration Test", function () {
       (Number(initialBalance) + Number(testAmount)).toString().substring(0, 15)
     );
   });
+  it("should increment Baltathar's account balance - use file to verify", async function () {
+    this.timeout(40000);
+
+    // First get initial balance of Baltathar
+    const initialBalance = await getBalance(BALTATHAR, api);
+
+    // Start producing blocks in parallel
+    let produceBlocks = true;
+    setInterval(async () => {
+      if (produceBlocks) {
+        await createAndFinalizeBlock(api, undefined, true);
+      }
+    }, 500);
+
+    // create and send transfer tx from ALITH
+    await createAndSendTx(
+      {
+        tx: "balances.transfer",
+        params: BALTATHAR + "," + testAmount,
+        address: ALITH,
+        sudo: false,
+      },
+      { ws: wsUrl, network: "moonbase" },
+      async (payload: string) => {
+        return await testSignCLIPrivateKey(payload);
+      }
+    );
+
+    // Stop producing blocks
+    produceBlocks = false;
+
+    // Then check incremented balance of Baltathar
+    const finalBalance = await getBalance(BALTATHAR, api);
+    assert.equal(
+      Number(finalBalance).toString().substring(0, 15),
+      (Number(initialBalance) + Number(testAmount)).toString().substring(0, 15)
+    );
+  });
   // tx expire after 256 blocks in moonbeam
   it("should increment Baltathar's account balance - immortal tx", async function () {
     this.timeout(40000);
