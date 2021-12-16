@@ -1,6 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { parseImage } from "@polkadot/api-derive/democracy/util";
-import { typesBundle } from "moonbeam-types-bundle";
+import { typesBundlePre900 } from "moonbeam-types-bundle";
 import prompts from "prompts";
 import { moonbeamChains } from "./utils";
 import { NetworkArgs } from "./types";
@@ -18,7 +18,7 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
   if (moonbeamChains.includes(network)) {
     api = await ApiPromise.create({
       provider: new WsProvider(ws),
-      typesBundle: typesBundle as any,
+      typesBundle: typesBundlePre900 as any,
     });
   } else {
     api = await ApiPromise.create({

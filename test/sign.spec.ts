@@ -32,7 +32,7 @@ export async function testSign(command: string,lookForError:boolean=false): Prom
 
 export async function testSignCLIPrivateKey(data: string): Promise<`0x${string}`> {
   return testSign(
-    "npm run cli sign ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
+    "npm run cli sign -- --type ethereum --privateKey 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 --message " +
       data
   );
 }
@@ -55,14 +55,14 @@ export async function testSignCLIWithFilePathWithError(data: string, filePath:st
 
 export async function testSignCLIMnemonic(data: string): Promise<`0x${string}`> {
   return testSign(
-    `npm run cli sign ethereum "bottom drive obey lake curtain smoke basket hold race lonely fit walk" ` +
+    `npm run cli sign -- --type ethereum --mnemonic "bottom drive obey lake curtain smoke basket hold race lonely fit walk" --message ` +
       data
   );
 }
 
 describe("Signature - privkey", function () {
   it("should correctly sign bytecode", async function () {
-    this.timeout(20000);
+    this.timeout(200000);
     const output = await testSignCLIPrivateKey(testData);
     assert.equal(output, expectedSignature);
   });
@@ -77,9 +77,9 @@ describe("Signature - mnemonic", function () {
   it("should correctly sign bytecode with mnemonic and derivation path (baltathar address)", async function () {
     this.timeout(20000);
     const output = await testSign(
-      `npm run cli sign ethereum "bottom drive obey lake curtain smoke basket hold race lonely fit walk" ` +
+      `npm run cli sign -- --type ethereum --mnemonic "bottom drive obey lake curtain smoke basket hold race lonely fit walk" --message ` +
         testData +
-        ` "/m/44'/60'/0'/0/1"`
+        ` --derivePath "/m/44'/60'/0'/0/1"`
     );
     assert.equal(output, expectedSignatureBaltathar);
   });

@@ -1,6 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
-import { typesBundle } from "moonbeam-types-bundle";
+import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import fs from 'fs'
@@ -24,7 +24,7 @@ export async function createAndSendTx(
   if (moonbeamChains.includes(network)) {
     api = await ApiPromise.create({
       provider: new WsProvider(ws),
-      typesBundle: typesBundle as any,
+      typesBundle: typesBundlePre900 as any,
     });
   } else {
     api = await ApiPromise.create({
