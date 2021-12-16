@@ -123,8 +123,6 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
   });
 
   runningNode.on("error", (err) => {
-    console.log("ERROR");
-    console.log(err);
     if ((err as any).errno == "ENOENT") {
       console.error(
         `\x1b[31mMissing Moonbeam binary ` +

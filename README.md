@@ -33,9 +33,9 @@ You will see the updated parachainBond in the apps (chain state) if connecting t
 
 Some specific actions are provided as a preconfigured feature:
 
-`npm run cli voteCouncil <network> <ws> <address>` : creates a vote council payload, prompts for signature and sends it
+`npm run cli voteCouncil -- --network <network> --ws <ws> <address>` : creates a vote council payload, prompts for signature and sends it
 
-`npm run cli voteTechCommittee <network> <ws> <address>` : creates a tech committee vote payload, prompts for signature and sends it
+`npm run cli voteTechCommittee -- --network <network> --ws <ws> --address <address>` : creates a tech committee vote payload, prompts for signature and sends it
 
 ## Binary
 

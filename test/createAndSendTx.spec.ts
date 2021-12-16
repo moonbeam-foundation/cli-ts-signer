@@ -1,7 +1,7 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { expect } from "chai";
 import { ChildProcess } from "child_process";
-import { typesBundle } from "moonbeam-types-bundle";
+import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { clearInterval } from "timers";
 import { createAndSendTx } from "../src/methods/createAndSendTx";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
@@ -28,7 +28,7 @@ describe("Create and Send Tx Integration Test", function () {
     wsUrl = `ws://localhost:${init.wsPort}`;
     api = await ApiPromise.create({
       provider: new WsProvider(wsUrl),
-      typesBundle: typesBundle as any,
+      typesBundle: typesBundlePre900 as any,
     });
     moonbeamProcess = init.runningNode;
   });

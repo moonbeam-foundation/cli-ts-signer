@@ -7,11 +7,19 @@ const testData =
 
 export async function testVerifyCLI(data: string, sig: string): Promise<string> {
   return new Promise((resolve) => {
-    let call = exec("npm run cli verify " + data + " " + sig + " " + ALITH);
+    console.log("testVerifyCLI");
+    let call = exec(
+      "npm run cli verify -- --type ethereum --message " +
+        data +
+        " --signature " +
+        sig +
+        " --pubKey " +
+        ALITH
+    );
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
-      if (message.substring(0, 11) === "VALIDITY : ") {
-        resolve(message.substring(11, message.length - 1));
+      if (message.search("VALIDITY") > -1) {
+        resolve(message.substring(message.search("VALIDITY") + 11, message.length - 1));
       }
     });
   });
