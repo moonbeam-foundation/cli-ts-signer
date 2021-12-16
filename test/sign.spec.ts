@@ -11,11 +11,9 @@ const expectedSignatureBaltathar =
 
 export async function testSign(command: string): Promise<`0x${string}`> {
   return new Promise((resolve) => {
-    console.log("command",command)
     let call = exec(command);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
-      console.log('m ',message)
       if (message.substring(0, 12) === "SIGNATURE : ") {
         resolve(message.substring(12, message.length - 1));
       }
@@ -25,20 +23,20 @@ export async function testSign(command: string): Promise<`0x${string}`> {
 
 export async function testSignCLIPrivateKey(data: string): Promise<`0x${string}`> {
   return testSign(
-    "npm run cli sign --type ethereum --privateKey 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
+    "npm run cli sign -- --type ethereum --privateKey 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 --message " +
       data
   );
 }
 
 export async function testSignCLIMnemonic(data: string): Promise<`0x${string}`> {
   return testSign(
-    `npm run cli sign -- type ethereum --mnemonic "bottom drive obey lake curtain smoke basket hold race lonely fit walk" ` +
+    `npm run cli sign -- --type ethereum --mnemonic "bottom drive obey lake curtain smoke basket hold race lonely fit walk" --message ` +
       data
   );
 }
 
 describe("Signature - privkey", function () {
-  it.only("should correctly sign bytecode", async function () {
+  it("should correctly sign bytecode", async function () {
     this.timeout(200000);
     const output = await testSignCLIPrivateKey(testData);
     assert.equal(output, expectedSignature);
@@ -54,7 +52,7 @@ describe("Signature - mnemonic", function () {
   it("should correctly sign bytecode with mnemonic and derivation path (baltathar address)", async function () {
     this.timeout(20000);
     const output = await testSign(
-      `npm run cli sign -- type ethereum --mnemonic "bottom drive obey lake curtain smoke basket hold race lonely fit walk" ` +
+      `npm run cli sign -- --type ethereum --mnemonic "bottom drive obey lake curtain smoke basket hold race lonely fit walk" --message ` +
         testData +
         ` --derivePath "/m/44'/60'/0'/0/1"`
     );

@@ -3,7 +3,7 @@ import { SendTxArgs } from "../methods/types";
 import { submitPreSignedTx } from "../methods/submitPreSignedTx";
 
 export const submitTxCommand = {
-  command: "submitTx <ws> <txData>", //TODO: test that with getTransactionData
+  command: "submitTx", //TODO: test that with getTransactionData
   description: "creates a transaction payload and resolves",
   builder: (yargs: Argv) => {
     return yargs

@@ -4,10 +4,10 @@ import { getTransactionData } from "../methods/getTransactionData";
 import { createTxOptions } from "./createAndSendCommand";
 
 export const getTransactionDataCommand = {
-  command: "getTransactionData <network> <ws> <address> <tx> <params> [sudo]",
+  command: "getTransactionData",
   description: "creates a transaction payload and resolves",
   builder: (yargs: Argv) => {
-    return yargs.options(createTxOptions)
+    return yargs.options(createTxOptions);
   },
   handler: async (argv: CreateAndSendArgs) => {
     return await getTransactionData(

@@ -15,11 +15,11 @@ async function getBalance(address: string, api: ApiPromise) {
 export async function testGetTxDataCLI(): Promise<string> {
   return new Promise((resolve) => {
     let call = exec(
-      "npm run cli getTransactionData moonbase " +
+      "npm run cli getTransactionData -- --network moonbase --ws " +
         testnetWs +
-        " " +
+        " --address " +
         ALITH +
-        " balances.transfer " +
+        " --tx balances.transfer --params " +
         BALTATHAR +
         "," +
         testAmount
@@ -35,7 +35,7 @@ export async function testGetTxDataCLI(): Promise<string> {
 
 export async function testSubmitTxCLI(data: string): Promise<string> {
   return new Promise((resolve) => {
-    let call = exec("npm run cli submitTx " + testnetWs + " " + data);
+    let call = exec("npm run cli submitTx -- --ws " + testnetWs + " --txData " + data);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
       if (message.substring(0, 2) === "ok") {
@@ -61,7 +61,6 @@ describe("Get Tx Data, sign it, and send it", function () {
     // get tx data
     const txData = await testGetTxDataCLI();
     const signature = await testSignCLIPrivateKey(txData);
-    console.log("sig", signature);
 
     // this doesnt work, function is probably deprecated
     const hash = await testSubmitTxCLI(signature);

@@ -14,11 +14,6 @@ export async function sign(
   derivePath: string,
   message?: string
 ): Promise<string> {
-  console.log(type,
-    privKeyOrMnemonic,
-    prompt,
-    derivePath,
-    message)
   if (!["ethereum", "sr25519"].includes(type)) {
     throw new Error("Type is not supported");
   }
