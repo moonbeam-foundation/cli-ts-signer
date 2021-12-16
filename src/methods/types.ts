@@ -2,6 +2,10 @@
 export interface SignArgs extends SignPromptArgs {
   message: string;
 }
+export interface SignAndVerifyArgs extends SignArgs {
+  filePath:string
+  wsUrl:string
+}
 export interface SignPromptArgs {
   type: string;
   privateKey: string;

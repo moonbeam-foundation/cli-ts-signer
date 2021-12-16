@@ -9,15 +9,24 @@ const expectedSignature =
 const expectedSignatureBaltathar =
   "0xa85517f8b6c9d88810fff4e734db98adf5ed77547ac4adc3c61e4dbb539a2caa1cbc0cf4b8708bb81bc48a4748c040fcafd7ae9cd1882313df420cdf1eb15a1b01";
 
-export async function testSign(command: string): Promise<`0x${string}`> {
+export async function testSign(command: string,lookForError:boolean=false): Promise<`0x${string}`> {
   return new Promise((resolve) => {
     let call = exec(command);
-    call.stdout?.on("data", function (chunk) {
-      let message = chunk.toString();
-      if (message.substring(0, 12) === "SIGNATURE : ") {
-        resolve(message.substring(12, message.length - 1));
-      }
-    });
+    if (lookForError){
+      call.stderr?.on("data", function (chunk) {
+        let message = chunk.toString();
+        if (message.substring(0, 5) === "Error") {
+          resolve(message);
+        }
+      });
+    } else {
+      call.stdout?.on("data", function (chunk) {
+        let message = chunk.toString();
+        if (message.substring(0, 12) === "SIGNATURE : ") {
+          resolve(message.substring(12, message.length - 1));
+        }
+      });
+    }
   });
 }
 
@@ -25,6 +34,22 @@ export async function testSignCLIPrivateKey(data: string): Promise<`0x${string}`
   return testSign(
     "npm run cli sign ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
       data
+  );
+}
+
+export async function testSignCLIPrivateKeyWithFilePath(data: string, filePath:string, wsUrl:string): Promise<`0x${string}`> {
+  console.log('testSignCLIPrivateKeyWithFilePath')
+  return testSign(
+    "npm run cli signAndVerify ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
+      data + " " +filePath + " "+wsUrl
+  );
+}
+
+export async function testSignCLIWithFilePathWithError(data: string, filePath:string, wsUrl:string): Promise<string> {
+  console.log('testSignCLIWithFilePathWithError')
+  return testSign(
+    "npm run cli signAndVerify ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
+      data + " " +filePath + " "+wsUrl, true
   );
 }
 

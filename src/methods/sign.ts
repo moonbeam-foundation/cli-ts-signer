@@ -7,6 +7,9 @@ import prompts from "prompts";
 import fs from 'fs'
 import { TypeRegistry } from '@polkadot/types';
 import { NetworkType } from "./types";
+import { ApiPromise, WsProvider } from "@polkadot/api";
+import { moonbeamChains } from "./utils";
+import { typesBundle } from "moonbeam-types-bundle";
 
 
 export async function sign(
@@ -66,13 +69,13 @@ export async function signAndVerify(
   prompt: boolean,
   derivePath: string,
   filePath:string,
+  wsUrl:string,
   message?: string
 ): Promise<string> {
-  console.log('message',message)
+  console.log('message (payload) ',message)
   // get the payload data from the file
 	const rawdata = fs.readFileSync(filePath);
-  //@ts-ignore
-  const payloadFromFile = JSON.parse(rawdata);
+  const payloadFromFile = JSON.parse(rawdata as any);
   console.log("payloadFromFile",payloadFromFile)
 
   // let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
@@ -81,13 +84,38 @@ export async function signAndVerify(
   // } else {
   //   txExtrinsic = await api.tx[section][method](...splitParams);
   // }
+  // const ws=
 
-  const registry = new TypeRegistry();
-  const extrinsicPayload = registry
+  let api: ApiPromise;
+  if (type==="ethereum") {
+    api = await ApiPromise.create({
+      provider: new WsProvider(wsUrl),
+      typesBundle: typesBundle as any,
+    });
+  } else {
+    api = await ApiPromise.create({
+      provider: new WsProvider(wsUrl),
+    });
+  }
+  // NB: using a plain registry doesn't work and it is required to use the api (to be verified with latest api version)
+  // const registry = new TypeRegistry();
+  const extrinsicPayload = api.registry
         .createType('ExtrinsicPayload', payloadFromFile, { version: payloadFromFile.version })
+
+      const payloadHex=u8aToHex(extrinsicPayload.toU8a(true))
+      console.log("Transaction data to be signed : ", payloadHex);
+
+  console.log("payloadHex")
+  console.log(payloadHex)
+  console.log("message")
+  console.log(message)
+  if (payloadHex!==message) {
+    throw new Error("Payload is not matching payload in filepath");
+  }
+
   // create the actual payload we will be using
   // const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
   // const payloadHex=u8aToHex(xp.toU8a(true))
-  console.log("Transaction data to be signed : ", extrinsicPayload);
+  // console.log("Transaction data to be signed : ", extrinsicPayload);
   return sign(type,privKeyOrMnemonic,prompt,derivePath,message)
 }

@@ -1,6 +1,6 @@
 import { Argv } from "yargs";
-import { SignArgs, SignPromptArgs } from "../methods/types";
-import { sign } from "../methods/sign";
+import { SignAndVerifyArgs, SignArgs, SignPromptArgs } from "../methods/types";
+import { sign, signAndVerify } from "../methods/sign";
 import { isNetworkType } from "../methods/utils";
 
 export const signCommand = {
@@ -64,8 +64,8 @@ export const signPromptCommand = {
 };
 
 export const signAndVerifyCommand = {
-  command: "signAndVerify  <type> <privateKey|mnemonic> <message> [derivePath]",
-  describe: "sign byteCode with a private key",
+  command: "signAndVerify  <type> <privateKey|mnemonic> <message> <filePath> <wsUrl> [derivePath]",
+  describe: "sign byteCode with a private key and verify against payload file",
   builder: (yargs: Argv) => {
     return yargs
       .positional("type", {
@@ -84,13 +84,23 @@ export const signAndVerifyCommand = {
         type: "string",
         default: `bottom drive obey lake curtain smoke basket hold race lonely fit walk`,
       })
+      .positional("filePath", {
+        describe: "file path of the saved extrinsic payload",
+        type: "string",
+        default: "payload.json"
+      })
+      .positional("wsUrl", {
+        describe: "file path of the saved extrinsic",
+        type: "string",
+        default: "ok.json"
+      })
       .positional("derivePath", {
         describe: "derivation path for bip-44 (optional)",
         type: "string",
         default: `/m/44'/60'/0'/0/0`,
       });
   },
-  handler: async (argv: SignArgs) => {
-    await sign(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.message);
+  handler: async (argv: SignAndVerifyArgs) => {
+    await signAndVerify(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.filePath , argv.wsUrl ,argv.message);
   },
 };
