@@ -69,15 +69,22 @@ export const verifyAndSignCommand = {
         default: "0x0",
         demandOption: true,
       },
-      "filePath": {
+      filePath: {
         describe: "file path of the saved extrinsic payload",
         type: "string",
         default: "payload.json",
         demandOption: true,
-      }
+      },
     });
   },
   handler: async (argv: SignAndVerifyArgs) => {
-    await verifyAndSign(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.filePath,argv.message);
+    await verifyAndSign(
+      isNetworkType(argv.type),
+      argv.privateKey,
+      false,
+      argv.derivePath,
+      argv.filePath,
+      argv.message
+    );
   },
 };

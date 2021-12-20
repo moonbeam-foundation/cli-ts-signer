@@ -5,7 +5,7 @@ export interface SignArgs extends SignPromptArgs {
   message: string;
 }
 export interface SignAndVerifyArgs extends SignArgs {
-  filePath:string
+  filePath: string;
 }
 export interface SignPromptArgs {
   type: string;
@@ -54,16 +54,16 @@ export interface NetworkArgs {
 
 export type NetworkType = "ethereum" | "sr25519";
 
-//Registry 
+//Registry
 
-export interface RegistryPersistantInfo{
-  runtimeVersion:{specName:string,specVersion:number},
-  chainName:string,
-  chainProps:{ss58Format:string,tokenSymbol:string,tokenDecimals:string},
-  metadataHex:`0x${string}`
+export interface RegistryPersistantInfo {
+  runtimeVersion: { specName: string; specVersion: number };
+  chainName: string;
+  chainProps: { ss58Format: string; tokenSymbol: string; tokenDecimals: string };
+  metadataHex: `0x${string}`;
 }
 
-export interface PayloadVerificationInfo{
-  payload:SignerPayloadJSON,
-  registryInfo:RegistryPersistantInfo
+export interface PayloadVerificationInfo {
+  payload: SignerPayloadJSON;
+  registryInfo: RegistryPersistantInfo;
 }

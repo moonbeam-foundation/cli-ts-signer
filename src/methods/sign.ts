@@ -6,7 +6,6 @@ import { cryptoWaitReady } from "@polkadot/util-crypto";
 import prompts from "prompts";
 import { NetworkType } from "./types";
 
-
 export async function sign(
   type: NetworkType,
   privKeyOrMnemonic: string,

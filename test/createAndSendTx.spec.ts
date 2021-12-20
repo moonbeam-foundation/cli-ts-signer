@@ -6,7 +6,11 @@ import { clearInterval } from "timers";
 import { createAndSendTx } from "../src/methods/createAndSendTx";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
 import { createAndFinalizeBlock, startMoonbeamDevNode } from "./dev-node";
-import { testSignCLIPrivateKey, testSignCLIPrivateKeyWithFilePath, testSignCLIWithFilePathWithError } from "./sign.spec";
+import {
+  testSignCLIPrivateKey,
+  testSignCLIPrivateKeyWithFilePath,
+  testSignCLIWithFilePathWithError,
+} from "./sign.spec";
 var assert = require("assert");
 
 const testAmount = "1000000000000";
@@ -26,7 +30,7 @@ describe("Create and Send Tx Integration Test", function () {
     // setup network
     const init = await startMoonbeamDevNode(false);
     wsUrl = `ws://localhost:${init.wsPort}`;
-    console.log("wsUrl",wsUrl)
+    console.log("wsUrl", wsUrl);
     api = await ApiPromise.create({
       provider: new WsProvider(wsUrl),
       typesBundle: typesBundlePre900 as any,
@@ -94,8 +98,8 @@ describe("Create and Send Tx Integration Test", function () {
         sudo: false,
       },
       { ws: wsUrl, network: "moonbase" },
-      async (payload: string, filePath:string) => {
-        return await testSignCLIPrivateKeyWithFilePath(payload, filePath,wsUrl);
+      async (payload: string, filePath: string) => {
+        return await testSignCLIPrivateKeyWithFilePath(payload, filePath, wsUrl);
       }
     );
 
@@ -124,7 +128,7 @@ describe("Create and Send Tx Integration Test", function () {
     }, 500);
 
     // create and send transfer tx from ALITH
-    const error:string=await new Promise((res)=>{
+    const error: string = await new Promise((res) => {
       createAndSendTx(
         {
           tx: "balances.transfer",
@@ -133,15 +137,21 @@ describe("Create and Send Tx Integration Test", function () {
           sudo: false,
         },
         { ws: wsUrl, network: "moonbase" },
-        async (payload: string, filePath:string) => {
+        async (payload: string, filePath: string) => {
           // look for error
-          res(await testSignCLIWithFilePathWithError(payload.substring(0,(payload.length)-3)+"zzz", filePath,wsUrl));
-          return "0x0"
+          res(
+            await testSignCLIWithFilePathWithError(
+              payload.substring(0, payload.length - 3) + "zzz",
+              filePath,
+              wsUrl
+            )
+          );
+          return "0x0";
         }
       );
-    }) 
+    });
     // expect error from the sign cli
-    expect(error.substring(0,50)).to.eq("Error: Payload is not matching payload in filepath")
+    expect(error.substring(0, 50)).to.eq("Error: Payload is not matching payload in filepath");
 
     // Stop producing blocks
     produceBlocks = false;
@@ -150,7 +160,7 @@ describe("Create and Send Tx Integration Test", function () {
     const finalBalance = await getBalance(BALTATHAR, api);
     assert.equal(
       Number(finalBalance).toString(), //.substring(0, 15),
-      (Number(initialBalance)).toString() //.substring(0, 15)
+      Number(initialBalance).toString() //.substring(0, 15)
     );
   });
   // tx expire after 256 blocks in moonbeam

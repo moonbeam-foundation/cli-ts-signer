@@ -9,10 +9,13 @@ const expectedSignature =
 const expectedSignatureBaltathar =
   "0xa85517f8b6c9d88810fff4e734db98adf5ed77547ac4adc3c61e4dbb539a2caa1cbc0cf4b8708bb81bc48a4748c040fcafd7ae9cd1882313df420cdf1eb15a1b01";
 
-export async function testSign(command: string,lookForError:boolean=false): Promise<`0x${string}`> {
+export async function testSign(
+  command: string,
+  lookForError: boolean = false
+): Promise<`0x${string}`> {
   return new Promise((resolve) => {
     let call = exec(command);
-    if (lookForError){
+    if (lookForError) {
       call.stderr?.on("data", function (chunk) {
         let message = chunk.toString();
         if (message.substring(0, 5) === "Error") {
@@ -22,8 +25,10 @@ export async function testSign(command: string,lookForError:boolean=false): Prom
     } else {
       call.stdout?.on("data", function (chunk) {
         let message = chunk.toString();
-         if (message.search("SIGNATURE") > -1) {
-          resolve(message.substring(message.search("SIGNATURE") + 12,message.search("SIGNATURE") + 144));
+        if (message.search("SIGNATURE") > -1) {
+          resolve(
+            message.substring(message.search("SIGNATURE") + 12, message.search("SIGNATURE") + 144)
+          );
         }
       });
     }
@@ -37,18 +42,35 @@ export async function testSignCLIPrivateKey(data: string): Promise<`0x${string}`
   );
 }
 
-export async function testSignCLIPrivateKeyWithFilePath(data: string, filePath:string, wsUrl:string): Promise<`0x${string}`> {
+export async function testSignCLIPrivateKeyWithFilePath(
+  data: string,
+  filePath: string,
+  wsUrl: string
+): Promise<`0x${string}`> {
   return testSign(
     "npm run cli verifyAndSign ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
-      data + " " +filePath + " "+wsUrl
+      data +
+      " " +
+      filePath +
+      " " +
+      wsUrl
   );
 }
 
-export async function testSignCLIWithFilePathWithError(data: string, filePath:string, wsUrl:string): Promise<string> {
-  console.log('testSignCLIWithFilePathWithError')
+export async function testSignCLIWithFilePathWithError(
+  data: string,
+  filePath: string,
+  wsUrl: string
+): Promise<string> {
+  console.log("testSignCLIWithFilePathWithError");
   return testSign(
     "npm run cli signAndVerify ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
-      data + " " +filePath + " "+wsUrl, true
+      data +
+      " " +
+      filePath +
+      " " +
+      wsUrl,
+    true
   );
 }
 
