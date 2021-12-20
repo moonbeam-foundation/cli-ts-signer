@@ -75,7 +75,7 @@ describe("Create and Send Tx Integration Test", function () {
       (Number(initialBalance) + Number(testAmount)).toString().substring(0, 15)
     );
   });
-  it.only("should increment Baltathar's account balance - use file to verify", async function () {
+  it("should increment Baltathar's account balance - use file to verify", async function () {
     this.timeout(40000);
 
     // First get initial balance of Baltathar
@@ -139,11 +139,12 @@ describe("Create and Send Tx Integration Test", function () {
         { ws: wsUrl, network: "moonbase" },
         async (payload: string, filePath: string) => {
           // look for error
+          console.log("payload", payload);
+          console.log("payload", payload.substring(0, payload.length - 3) + "zzz");
           res(
             await testSignCLIWithFilePathWithError(
               payload.substring(0, payload.length - 3) + "zzz",
-              filePath,
-              wsUrl
+              filePath
             )
           );
           return "0x0";

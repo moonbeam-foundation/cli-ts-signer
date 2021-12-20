@@ -48,28 +48,22 @@ export async function testSignCLIPrivateKeyWithFilePath(
   wsUrl: string
 ): Promise<`0x${string}`> {
   return testSign(
-    "npm run cli verifyAndSign ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
+    "npm run cli verifyAndSign -- --type ethereum --privateKey 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 --message " +
       data +
-      " " +
-      filePath +
-      " " +
-      wsUrl
+      " --filePath " +
+      filePath
   );
 }
 
 export async function testSignCLIWithFilePathWithError(
   data: string,
-  filePath: string,
-  wsUrl: string
+  filePath: string
 ): Promise<string> {
-  console.log("testSignCLIWithFilePathWithError");
   return testSign(
-    "npm run cli signAndVerify ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
+    "npm run cli verifyAndSign -- --type ethereum --privateKey 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 --message " +
       data +
-      " " +
-      filePath +
-      " " +
-      wsUrl,
+      " --filePath " +
+      filePath,
     true
   );
 }
