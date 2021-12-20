@@ -6,7 +6,6 @@ export interface SignArgs extends SignPromptArgs {
 }
 export interface SignAndVerifyArgs extends SignArgs {
   filePath:string
-  wsUrl:string
 }
 export interface SignPromptArgs {
   type: string;

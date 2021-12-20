@@ -22,9 +22,8 @@ export async function testSign(command: string,lookForError:boolean=false): Prom
     } else {
       call.stdout?.on("data", function (chunk) {
         let message = chunk.toString();
-        console.log("m",message)
-        if (message.substring(0, 12) === "SIGNATURE : ") {
-          resolve(message.substring(12, message.length - 1));
+         if (message.search("SIGNATURE") > -1) {
+          resolve(message.substring(message.search("SIGNATURE") + 12,message.search("SIGNATURE") + 144));
         }
       });
     }

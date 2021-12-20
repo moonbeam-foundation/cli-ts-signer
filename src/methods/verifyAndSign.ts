@@ -25,8 +25,7 @@ function filterVersions (versions: OverrideVersionedType[] = [], specVersion: nu
       objectSpread(result, types), {}
     );
 }
-
-export function getSpecTypes ({ knownTypes }: Registry, chainName: Text | string, specName: Text | string, specVersion: bigint | BN | number): RegistryTypes {
+function getSpecTypes ({ knownTypes }: Registry, chainName: Text | string, specName: Text | string, specVersion: bigint | BN | number): RegistryTypes {
   const _chainName = chainName.toString();
   const _specName = specName.toString();
   const _specVersion = bnToBn(specVersion).toNumber();
@@ -45,7 +44,7 @@ export function getSpecTypes ({ knownTypes }: Registry, chainName: Text | string
     knownTypes.types
   );
 }
-export function getSpecHasher ({ knownTypes }: Registry, chainName: Text | string, specName: Text | string): CodecHasher | null {
+function getSpecHasher ({ knownTypes }: Registry, chainName: Text | string, specName: Text | string): CodecHasher | null {
   const _chainName = chainName.toString();
   const _specName = specName.toString();
 
@@ -55,7 +54,7 @@ export function getSpecHasher ({ knownTypes }: Registry, chainName: Text | strin
 /**
  * @description Based on the chain and runtimeVersion, get the applicable alias definitions (ready for registration)
  */
- export function getSpecAlias ({ knownTypes }: Registry, chainName: Text | string, specName: Text | string): Record<string, OverrideModuleType> {
+function getSpecAlias ({ knownTypes }: Registry, chainName: Text | string, specName: Text | string): Record<string, OverrideModuleType> {
   const _chainName = chainName.toString();
   const _specName = specName.toString();
 
@@ -70,7 +69,7 @@ export function getSpecHasher ({ knownTypes }: Registry, chainName: Text | strin
 /**
  * @description Based on the chain and runtimeVersion, get the applicable signed extensions (ready for registration)
  */
- export function getSpecExtensions ({ knownTypes }: Registry, chainName: Text | string, specName: Text | string): ExtDef {
+function getSpecExtensions ({ knownTypes }: Registry, chainName: Text | string, specName: Text | string): ExtDef {
   const _chainName = chainName.toString();
   const _specName = specName.toString();
 
@@ -80,53 +79,8 @@ export function getSpecHasher ({ knownTypes }: Registry, chainName: Text | strin
   );
 }
 
+const initRegistry= async (registry: Registry,registryInfo:RegistryPersistantInfo): Promise<void> => {
 
-export async function verifyAndSign(
-  type: NetworkType,
-  privKeyOrMnemonic: string,
-  prompt: boolean,
-  derivePath: string,
-  filePath:string,
-  wsUrl:string,
-  message?: string
-): Promise<string> {
-  console.log('message (payload) ',message)
-  // get the payload data from the file
-	const rawdata = fs.readFileSync(filePath);
-  const payloadVerifInfoFromFile:PayloadVerificationInfo = JSON.parse(rawdata as any);
-  console.log("payloadVerifInfoFromFile",payloadVerifInfoFromFile)
-
-  // let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
-  // if (sudo) {
-  //   txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));
-  // } else {
-  //   txExtrinsic = await api.tx[section][method](...splitParams);
-  // }
-  // const ws=
-
-  let api: ApiPromise;
-  if (type==="ethereum") {
-    api = await ApiPromise.create({
-      provider: new WsProvider(wsUrl),
-      typesBundle: typesBundlePre900 as any,
-    });
-  } else {
-    api = await ApiPromise.create({
-      provider: new WsProvider(wsUrl),
-    });
-  }
-
-  const initRegistry= async (registry: Registry,registryInfo:RegistryPersistantInfo): Promise<void> => {
-    console.log("_initRegistry")
-    // console.log("runtimeVersion.toJSON()",runtimeVersion.toJSON())
-    // console.log("runtimeVersion.specName",runtimeVersion.specName)
-    // console.log("runtimeVersion.specVersion",runtimeVersion.specVersion)
-    // console.log("chain - chainName",chain.toString())
-    // console.log("chainProps",chainProps)
-    // console.log("chainMetadata",chainMetadata,chainMetadata.toJSON,chainMetadata.toRawType,chainMetadata.toHex())
-    console.log('resolved')
-    
-    // console.log(runtimeVersion, chain, chainProps, chainMetadata)
     registry.setChainProperties(registryInfo.chainProps as any) //|| api.registry.getChainProperties());
     registry.setKnownTypes({typesBundle: typesBundlePre900});
     registry.register(getSpecTypes(registry, registryInfo.chainName as any, registryInfo.runtimeVersion.specName as any, registryInfo.runtimeVersion.specVersion));
@@ -144,50 +98,29 @@ export async function verifyAndSign(
   }
 
 
-  let hash=api.registry.createdAtHash
-  let knownTypes=api.registry.knownTypes
-  let metadata=api.registry.metadata
-  console.log('hash',hash)
-  console.log('knownTypes',knownTypes)
-  // console.log('metadata',metadata.lookup)
-  let jsonRegsitry=JSON.stringify(api.registry)
-  // console.log("jsonRegsitry",jsonRegsitry)
-  // NB: using a plain registry doesn't work and it is required to use the api (to be verified with latest api version)
- //  const registry = JSON.parse(jsonRegsitry)
+export async function verifyAndSign(
+  type: NetworkType,
+  privKeyOrMnemonic: string,
+  prompt: boolean,
+  derivePath: string,
+  filePath:string,
+  message?: string
+): Promise<string> {
+  // get the payload data from the file
+	const rawdata = fs.readFileSync(filePath);
+  const payloadVerifInfoFromFile:PayloadVerificationInfo = JSON.parse(rawdata as any);
+
+  // Recreate registry
   const registry = new TypeRegistry();
   await initRegistry(registry,payloadVerifInfoFromFile.registryInfo)
-  // registry.setMetadata(new Metadata(registry,metadata.toHex()))
-  console.log('knownTypes.types',knownTypes.types&&knownTypes.types)
-  // knownTypes.types&& registry.register(knownTypes.types)
-  // registry.setKnownTypes({})
-  //registry.setMetadata(metadata as any)
-  // registry.setLookup(metadata.lookup)
-  console.log('with plain registry ')
+  
+  // Check the payload against payload info
   const hexFromSimpleRegistry=u8aToHex((registry
     .createType('ExtrinsicPayload', payloadVerifInfoFromFile.payload, { version: payloadVerifInfoFromFile.payload.version })).toU8a(true))
-  const extrinsicPayload = api.registry
-        .createType('ExtrinsicPayload', payloadVerifInfoFromFile.payload, { version: payloadVerifInfoFromFile.payload.version })
 
-      const payloadHex=u8aToHex(extrinsicPayload.toU8a(true))
-      console.log("Transaction data to be signed : ", payloadHex);
-      console.log("hexFromSimpleRegistry",hexFromSimpleRegistry)
-      console.log(payloadHex);
-      console.log(hexFromSimpleRegistry);
-
-      //no
-      console.log('isSame',hexFromSimpleRegistry===payloadHex)
-
-  console.log("payloadHex")
-  console.log(payloadHex)
-  console.log("message")
-  console.log(message)
   if (hexFromSimpleRegistry!==message) {
     throw new Error("Payload is not matching payload in filepath");
   }
 
-  // create the actual payload we will be using
-  // const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
-  // const payloadHex=u8aToHex(xp.toU8a(true))
-  // console.log("Transaction data to be signed : ", extrinsicPayload);
   return sign(type,privKeyOrMnemonic,prompt,derivePath,message)
 }
