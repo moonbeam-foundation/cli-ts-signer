@@ -1,3 +1,5 @@
+import { SignerPayloadJSON } from "@polkadot/types/types";
+
 // Command Args
 export interface SignArgs extends SignPromptArgs {
   message: string;
@@ -52,3 +54,17 @@ export interface NetworkArgs {
 }
 
 export type NetworkType = "ethereum" | "sr25519";
+
+//Registry 
+
+export interface RegistryPersistantInfo{
+  runtimeVersion:{specName:string,specVersion:number},
+  chainName:string,
+  chainProps:{ss58Format:string,tokenSymbol:string,tokenDecimals:string},
+  metadataHex:`0x${string}`
+}
+
+export interface PayloadVerificationInfo{
+  payload:SignerPayloadJSON,
+  registryInfo:RegistryPersistantInfo
+}

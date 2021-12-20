@@ -71,7 +71,7 @@ describe("Create and Send Tx Integration Test", function () {
       (Number(initialBalance) + Number(testAmount)).toString().substring(0, 15)
     );
   });
-  it("should increment Baltathar's account balance - use file to verify", async function () {
+  it.only("should increment Baltathar's account balance - use file to verify", async function () {
     this.timeout(40000);
 
     // First get initial balance of Baltathar

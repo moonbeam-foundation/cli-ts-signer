@@ -22,6 +22,7 @@ export async function testSign(command: string,lookForError:boolean=false): Prom
     } else {
       call.stdout?.on("data", function (chunk) {
         let message = chunk.toString();
+        console.log("m",message)
         if (message.substring(0, 12) === "SIGNATURE : ") {
           resolve(message.substring(12, message.length - 1));
         }
@@ -38,9 +39,8 @@ export async function testSignCLIPrivateKey(data: string): Promise<`0x${string}`
 }
 
 export async function testSignCLIPrivateKeyWithFilePath(data: string, filePath:string, wsUrl:string): Promise<`0x${string}`> {
-  console.log('testSignCLIPrivateKeyWithFilePath')
   return testSign(
-    "npm run cli signAndVerify ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
+    "npm run cli verifyAndSign ethereum 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 " +
       data + " " +filePath + " "+wsUrl
   );
 }

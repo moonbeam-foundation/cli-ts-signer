@@ -1,7 +1,8 @@
 import { Argv } from "yargs";
 import { SignAndVerifyArgs, SignArgs, SignPromptArgs } from "../methods/types";
-import { sign, signAndVerify } from "../methods/sign";
+import { sign } from "../methods/sign";
 import { isNetworkType } from "../methods/utils";
+import { verifyAndSign } from "../methods/verifyAndSign";
 
 export const signOptions = {
   type: {
@@ -56,8 +57,8 @@ export const signPromptCommand = {
   },
 };
 
-export const signAndVerifyCommand = {
-  command: "signAndVerify  <type> <privateKey|mnemonic> <message> <filePath> <wsUrl> [derivePath]",
+export const verifyAndSignCommand = {
+  command: "verifyAndSign  <type> <privateKey|mnemonic> <message> <filePath> <wsUrl> [derivePath]",
   describe: "sign byteCode with a private key and verify against payload file",
   builder: (yargs: Argv) => {
     return yargs
@@ -94,6 +95,6 @@ export const signAndVerifyCommand = {
       });
   },
   handler: async (argv: SignAndVerifyArgs) => {
-    await signAndVerify(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.filePath , argv.wsUrl ,argv.message);
+    await verifyAndSign(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.filePath , argv.wsUrl ,argv.message);
   },
 };

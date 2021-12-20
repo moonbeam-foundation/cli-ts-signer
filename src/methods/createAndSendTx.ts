@@ -6,7 +6,23 @@ import prompts from "prompts";
 import fs from 'fs'
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
-import { NetworkArgs, TxArgs, TxParam } from "./types";
+import { NetworkArgs, PayloadVerificationInfo, RegistryPersistantInfo, TxArgs, TxParam } from "./types";
+
+export const getRegistryInfo=async(api:ApiPromise):Promise<RegistryPersistantInfo>=>{
+
+  const [runtimeVersion, chain, chainProps, chainMetadata] = await Promise.all([
+    (api.rpc.state.getRuntimeVersion()),
+    (api.rpc.system.chain()),
+    (api.rpc.system.properties()),
+    api.rpc.state.getMetadata()
+  ]);
+  return{
+      runtimeVersion:{specName:runtimeVersion.specName.toString(),specVersion:Number(runtimeVersion.specVersion)},
+      chainName:chain.toString(),
+      chainProps:{ss58Format:chainProps.ss58Format.toString(),tokenSymbol:chainProps.tokenSymbol.toString(),tokenDecimals:chainProps.tokenDecimals.toString()} ,
+      metadataHex:chainMetadata.toHex()
+  }
+}
 
 export async function createAndSendTx(
   txArgs: TxArgs,
@@ -38,7 +54,7 @@ export async function createAndSendTx(
     txExtrinsic = await api.tx[section][method](...splitParams);
   }
   const signer = {
-    signPayload: (payload: SignerPayloadJSON) => {
+    signPayload:async (payload: SignerPayloadJSON) => {
       console.log("(sign)", payload);
 
       // create the actual payload we will be using
@@ -47,7 +63,11 @@ export async function createAndSendTx(
       console.log("Transaction data to be signed : ", payloadHex);
       
       // save tx data in a file
-      const data = JSON.stringify(payload, null, 2);
+      const payloadData:PayloadVerificationInfo={
+        payload,
+        registryInfo:await getRegistryInfo(api)
+      }
+      const data = JSON.stringify(payloadData, null, 2);
       const filePath:string=`payload-${payloadHex.substring(0,10)}...${payloadHex.substring(payloadHex.length-10,payloadHex.length)}.json`
       fs.writeFileSync(filePath, data);
 
