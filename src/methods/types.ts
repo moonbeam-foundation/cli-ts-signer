@@ -24,6 +24,7 @@ export interface CreateAndSendArgs {
   tx: string;
   params: string;
   sudo?: boolean;
+  nonce?: number;
   immortality?: boolean;
 }
 export interface VoteCouncilArgs {
@@ -36,8 +37,9 @@ export type TxParam = boolean | string | number | { [key: string]: any };
 
 // Methods args
 export interface TxArgs {
+  nonce?: number;
   tx: string;
-  params: string | TxParam[];
+  params: any[];
   address: string;
   sudo?: boolean;
   immortality?: boolean;

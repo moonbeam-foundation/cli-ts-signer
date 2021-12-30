@@ -12,12 +12,9 @@ export async function createAndSendTx(
   networkArgs: NetworkArgs,
   signatureFunction: (payload: string) => Promise<`0x${string}`>
 ) {
-  const { tx, params, address, sudo } = txArgs;
+  const { tx, params, address, sudo, nonce } = txArgs;
   const { ws, network } = networkArgs;
   const [section, method] = tx.split(".");
-  const splitParams: TxParam[] = Array.isArray(params)
-    ? (params as TxParam[])
-    : (params as string).split(",");
 
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
@@ -32,9 +29,9 @@ export async function createAndSendTx(
   }
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
   if (sudo) {
-    txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));
+    txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...params));
   } else {
-    txExtrinsic = await api.tx[section][method](...splitParams);
+    txExtrinsic = await api.tx[section][method](...params);
   }
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
@@ -50,7 +47,7 @@ export async function createAndSendTx(
       });
     },
   };
-  let options = txArgs.immortality ? { signer, era: 0 } : { signer };
+  let options = txArgs.immortality ? { signer, era: 0, nonce } : { signer, nonce };
 
   // Only resolve when it's finalised
   await new Promise<void>((resolve, reject) => {
