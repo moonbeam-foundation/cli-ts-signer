@@ -1,10 +1,10 @@
 // Command Args
 export interface SignArgs extends SignPromptArgs {
-  message: string;
+  message?: string;
 }
 export interface SignPromptArgs {
   type: string;
-  privateKey: string;
+  privateKey?: string;
   derivePath: string;
 }
 export interface VerifyArgs {

@@ -76,7 +76,7 @@ npm run cli -- createAndSendTx --network moonbase --ws "wss://wss.testnet.moonbe
     {"callIndex": [3, 1], "args":["0x5fd2be87a9b5fd50f4b30de41d59a82337a41de7", "0x5f68e8131ecf80000", "0x00"]},
     {"callIndex": [3, 1], "args":["0x0e5409fba28c823ef3ecbc9385f75a4b2ef9c712", "0x5f68e8131ecf80000", "0x00"]},
     {"callIndex": [3, 1], "args":["0xe77f5dddc987822e4ca03f67566478684def9f28", "0x5f68e8131ecf80000", "0x00"]}
-  ]]'
+  ]]}]'
 ```
 [1, 2] is utility.BatchAll in current Moonbase runtime 1101  
 [3, 1] is balance.setBalance in current Moonbase runtime 1101
