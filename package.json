@@ -28,15 +28,24 @@
     "build-binary": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg -t node14-linux-x64,node14-macos-x64,node14-win-x64 -o moonbeam-signer dist/index.js"
   },
   "dependencies": {
-    "@polkadot/api": "^7.1.1",
+    "@polkadot/api": "^7.3.1",
+    "@polkadot/api-derive": "^7.3.1",
+    "@polkadot/keyring": "^8.3.1",
+    "@polkadot/rpc-augment": "^7.3.1",
+    "@polkadot/rpc-core": "^7.3.1",
+    "@polkadot/types": "^7.3.1",
+    "@polkadot/util": "^8.3.1",
+    "@polkadot/wasm-crypto": "^4.5.1",
     "child_process": "^1.0.2",
     "elliptic": "^6.5.4",
+    "moonbeam-types-bundle": "^2.0.2",
     "ncc": "^0.3.6",
     "pkg": "^5.3.0",
     "prompts": "^2.4.1",
     "tcp-port-used": "^1.0.2",
     "ts-node": "^10.1.0",
     "typescript": "^4.3.5",
+    "web3": "^1.6.1",
     "yargs": "^17.0.1"
   }
 }

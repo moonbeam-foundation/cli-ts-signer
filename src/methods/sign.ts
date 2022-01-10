@@ -22,6 +22,9 @@ export async function sign(
   let keyringType: KeypairType = type === "ethereum" ? "ethereum" : "sr25519";
   let keyring: Keyring = new Keyring({ type: keyringType });
 
+  // const keyring = new Keyring({ type: "ethereum" });
+  // const   genesisAccount = await keyring.addFromUri("0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133", undefined, "ethereum");
+
   // Support both private key and mnemonic
   const signer: KeyringPair =
     privKeyOrMnemonic.substring(0, 2) === "0x"
@@ -49,6 +52,8 @@ export async function sign(
     ).message;
 
   // Sign
+  console.log("hexToU8a(msg).length");
+  console.log(hexToU8a(msg).length);
   const signature: Uint8Array =
     type === "ethereum"
       ? signer.sign(hexToU8a(msg))

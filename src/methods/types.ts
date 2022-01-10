@@ -39,7 +39,7 @@ export type TxParam = boolean | string | number | { [key: string]: any };
 export interface TxArgs {
   nonce?: number;
   tx: string;
-  params: any[];
+  params: TxParam[];
   address: string;
   sudo?: boolean;
   immortality?: boolean;

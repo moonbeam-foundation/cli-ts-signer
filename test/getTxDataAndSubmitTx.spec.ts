@@ -8,7 +8,7 @@ var assert = require("assert");
 const testAmount = "1000000000000";
 
 async function getBalance(address: string, api: ApiPromise) {
-  const account = await api.query.system.account(address);
+  const account: any = await api.query.system.account(address);
   return account.data.free.toString();
 }
 

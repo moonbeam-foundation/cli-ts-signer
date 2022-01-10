@@ -3,6 +3,8 @@ import { u8aToHex } from "@polkadot/util";
 import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
+import Keyring from "@polkadot/keyring";
+
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
 import { NetworkArgs, TxArgs, TxParam } from "./types";
@@ -15,6 +17,12 @@ export async function createAndSendTx(
   const { tx, params, address, sudo, nonce } = txArgs;
   const { ws, network } = networkArgs;
   const [section, method] = tx.split(".");
+  console.log("tx, params, address, sudo, nonce ");
+  console.log(tx, params, address, sudo, nonce);
+  console.log(...params);
+  console.log("params");
+  console.log(params[0]);
+  console.log(params[1]);
 
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
@@ -39,19 +47,34 @@ export async function createAndSendTx(
 
       // create the actual payload we will be using
       const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
-      console.log("Transaction data to be signed : ", u8aToHex(xp.toU8a(true)));
+      const payloadHex = u8aToHex(xp.toU8a(true));
+      console.log("Transaction data to be signed : ", payloadHex);
+      console.log("Transaction data to be signed : ", payloadHex.substring(0, 514));
+      console.log("Payload length : ", payloadHex.length);
 
       return new Promise<SignerResult>(async (resolve) => {
-        const signature = await signatureFunction(u8aToHex(xp.toU8a(true)));
+        const signature = await signatureFunction(payloadHex.substring(0, 514));
         resolve({ id: 1, signature });
       });
     },
   };
   let options = txArgs.immortality ? { signer, era: 0, nonce } : { signer, nonce };
 
+  const keyring = new Keyring({ type: "ethereum" });
+  const genesisAccount = await keyring.addFromUri(
+    "0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133",
+    undefined,
+    "ethereum"
+  );
+  let res = await txExtrinsic.sign(genesisAccount);
+  //@ts-ignore
+  console.log("sig from normal sign", txExtrinsic.toHuman().signature);
+  console.log("txExtrinsic", txExtrinsic.toHuman());
+  console.log("res", res);
   // Only resolve when it's finalised
   await new Promise<void>((resolve, reject) => {
     txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
+      //txExtrinsic.signAndSend(genesisAccount, {}, ({ events = [], status }) => {
       console.log("Transaction status:", status.type);
 
       if (status.isInBlock) {

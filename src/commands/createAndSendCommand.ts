@@ -44,14 +44,14 @@ export const createTxOptions = {
   },
   nonce: {
     describe: "nonce to use",
-    type: "number" as "number"
+    type: "number" as "number",
   },
   immortality: {
     describe: "creates an immortal transaction (doesn't expire)",
     type: "boolean" as "boolean",
     default: false,
     demandOption: false,
-  }
+  },
 };
 
 export const createAndSendTxCommand = {

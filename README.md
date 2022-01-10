@@ -46,17 +46,18 @@ To build, run `npm build-binary`
 Then, to use it on a mac, for example:
 `npm run cli-binary-macos --help`
 
-
 ## Exemples
 
 Using sudo.sudoAs to add proxy to another account
+
 ```
 npm run cli -- createAndSendTx --ws "wss://wss.testnet.moonbeam.network" --address "0x5a7869f6aEfC93F45b30514023324B8D38e2a11c" --tx sudo.sudoAs --params '["0x62D9F113cBd2263FADd5C6248B0f538dD133f6A4", {"callIndex": [22, 1], "args":["0xb1C35866AEba18de80b8A60226EA47990F7D2208", "Any", 50400]}]'
 ```
+
 [22, 1] is proxy.addProxy in current Moonbase runtime 1101
 
-
 Using sudo to set the balance of multiple accounts
+
 ```
 npm run cli -- createAndSendTx --network moonbase --ws "wss://wss.testnet.moonbeam.network" --address "0x5a7869f6aEfC93F45b30514023324B8D38e2a11c" \
   --tx sudo.sudo \
@@ -78,5 +79,6 @@ npm run cli -- createAndSendTx --network moonbase --ws "wss://wss.testnet.moonbe
     {"callIndex": [3, 1], "args":["0xe77f5dddc987822e4ca03f67566478684def9f28", "0x5f68e8131ecf80000", "0x00"]}
   ]]}]'
 ```
+
 [1, 2] is utility.BatchAll in current Moonbase runtime 1101  
 [3, 1] is balance.setBalance in current Moonbase runtime 1101
