@@ -12,7 +12,7 @@ export async function sign(
   prompt: boolean,
   derivePath: string,
   message?: string
-): Promise<string> {
+): Promise<`0x${string}`> {
   if (!["ethereum", "sr25519"].includes(type)) {
     throw new Error("Type is not supported");
   }

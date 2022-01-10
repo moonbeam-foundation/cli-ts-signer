@@ -2,7 +2,9 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 import { expect } from "chai";
 import { ChildProcess } from "child_process";
 import { typesBundlePre900 } from "moonbeam-types-bundle";
-import { clearInterval } from "timers";
+import {getTransactionData} from '../src/methods/getTransactionData'
+import {sendSignedTx} from '../src/methods/sendSignedTx'
+import {verifyAndSign} from '../src/methods/verifyAndSign'
 import { createAndSendTx } from "../src/methods/createAndSendTx";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
 import { createAndFinalizeBlock, startMoonbeamDevNode } from "./dev-node";
@@ -64,6 +66,57 @@ describe("Create and Send Tx Integration Test", function () {
         return await testSignCLIPrivateKey(payload);
       }
     );
+
+    // Stop producing blocks
+    produceBlocks = false;
+
+    // Then check incremented balance of Baltathar
+    const finalBalance = await getBalance(BALTATHAR, api);
+    assert.equal(
+      Number(finalBalance).toString().substring(0, 15),
+      (Number(initialBalance) + Number(testAmount)).toString().substring(0, 15)
+    );
+  });
+  it.only("should increment Baltathar's account balance - step by step", async function () {
+    this.timeout(40000);
+
+    // First get initial balance of Baltathar
+    const initialBalance = await getBalance(BALTATHAR, api);
+
+    // Start producing blocks in parallel
+    let produceBlocks = true;
+    setInterval(async () => {
+      if (produceBlocks) {
+        await createAndFinalizeBlock(api, undefined, true);
+      }
+    }, 500);
+
+    // create and send transfer tx from ALITH
+    // await createAndSendTx(
+    //   {
+    //     tx: "balances.transfer",
+    //     params: BALTATHAR + "," + testAmount,
+    //     address: ALITH,
+    //     sudo: false,
+    //   },
+    //   { ws: wsUrl, network: "moonbase" },
+    //   async (payload: string) => {
+    //     return await testSignCLIPrivateKey(payload);
+    //   }
+    // );
+    const networkArgs={ ws: wsUrl, network: "moonbase" }
+    let {payload,filePath}=await getTransactionData({
+      tx: "balances.transfer",
+      params: BALTATHAR + "," + testAmount,
+      address: ALITH,
+      sudo: false,
+    },networkArgs
+    )
+    console.log(1)
+    let signature=await verifyAndSign('ethereum','0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133',false,`/m/44'/60'/0'/0/0`,filePath,payload)
+    console.log(2)
+    await sendSignedTx(networkArgs,filePath,signature)
+    console.log(3)
 
     // Stop producing blocks
     produceBlocks = false;

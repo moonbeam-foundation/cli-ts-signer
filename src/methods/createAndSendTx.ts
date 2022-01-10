@@ -4,7 +4,7 @@ import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import fs from "fs";
-import { moonbeamChains } from "./utils";
+import { instantiateApi, moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
 import {
   NetworkArgs,
@@ -39,7 +39,7 @@ export const getRegistryInfo = async (api: ApiPromise): Promise<RegistryPersista
 export async function createAndSendTx(
   txArgs: TxArgs,
   networkArgs: NetworkArgs,
-  signatureFunction: (payload: string, filePath: string) => Promise<`0x${string}`>
+  signatureFunction: (payload: `0x${string}`, filePath: string) => Promise<`0x${string}`>
 ) {
   const { tx, params, address, sudo } = txArgs;
   const { ws, network } = networkArgs;
@@ -48,17 +48,8 @@ export async function createAndSendTx(
     ? (params as TxParam[])
     : (params as string).split(",");
 
-  let api: ApiPromise;
-  if (moonbeamChains.includes(network)) {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-      typesBundle: typesBundlePre900 as any,
-    });
-  } else {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-    });
-  }
+  const api=await instantiateApi(network,ws)
+
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
   if (sudo) {
     txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));
@@ -116,7 +107,7 @@ export async function createAndSendTx(
   });
 }
 export async function createAndSendTxPrompt(txArgs: TxArgs, networkArgs: NetworkArgs) {
-  return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
+  return createAndSendTx(txArgs, networkArgs, async (payload: `0x${string}`) => {
     const response = await prompts({
       type: "text",
       name: "signature",
