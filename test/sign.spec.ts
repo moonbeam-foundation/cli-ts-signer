@@ -14,7 +14,6 @@ export async function testSign(command: string): Promise<`0x${string}`> {
     let call = exec(command);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
-      console.log("l ", message);
       if (message.substring(0, 12) === "SIGNATURE : ") {
         resolve(message.substring(12, message.length - 1));
       }
@@ -37,11 +36,9 @@ export async function testSignCLIMnemonic(data: string): Promise<`0x${string}`> 
 }
 
 describe("Signature - privkey", function () {
-  it.only("should correctly sign bytecode", async function () {
+  it("should correctly sign bytecode", async function () {
     this.timeout(200000);
-    console.log("starr");
     const output = await testSignCLIPrivateKey(testData);
-    console.log("starr");
     assert.equal(output, expectedSignature);
   });
 });
