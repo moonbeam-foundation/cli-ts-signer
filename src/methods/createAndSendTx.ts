@@ -4,8 +4,7 @@ import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import Keyring from "@polkadot/keyring";
-import { blake2AsHex } from '@polkadot/util-crypto';
-
+import { blake2AsHex } from "@polkadot/util-crypto";
 
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
@@ -46,9 +45,7 @@ export async function createAndSendTx(
       const payloadHex = u8aToHex(xp.toU8a(true));
       console.log("Transaction data to be signed : ", payloadHex);
 
-      const hashed = (payloadHex.length > (256 + 1) * 2)
-        ? blake2AsHex(payloadHex)
-        : payloadHex;
+      const hashed = payloadHex.length > (256 + 1) * 2 ? blake2AsHex(payloadHex) : payloadHex;
       return new Promise<SignerResult>(async (resolve) => {
         const signature = await signatureFunction(hashed);
         resolve({ id: 1, signature });

@@ -112,11 +112,7 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
     {
       address,
       tx: `councilCollective.vote`,
-      params: [
-        selectedMotion.hash,
-        selectedMotion.index,
-        vote.yes,
-      ],
+      params: [selectedMotion.hash, selectedMotion.index, vote.yes],
     },
     networkArgs,
     async (payload: string) => {
