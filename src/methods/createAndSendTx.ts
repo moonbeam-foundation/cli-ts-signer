@@ -67,7 +67,6 @@ export async function createAndSendTx(
   // Only resolve when it's finalised
   await new Promise<void>((resolve, reject) => {
     txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
-      //txExtrinsic.signAndSend(genesisAccount, {}, ({ events = [], status }) => {
       console.log("Transaction status:", status.type);
 
       if (status.isInBlock) {
