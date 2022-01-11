@@ -83,7 +83,10 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
     name: "index",
     message: "Pick motion",
     choices: motions.map((motion, i) => {
-      return { title: motion.text, value: i };
+      return {
+        title: `[Motion #${motion.index}] ${motion.text || `Not available - hash ${motion.hash}`}`,
+        value: i,
+      };
     }),
   });
   const selectedMotion = motions[motionIndex.index];
