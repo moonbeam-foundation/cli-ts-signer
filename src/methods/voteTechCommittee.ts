@@ -1,5 +1,4 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { parseImage } from "@polkadot/api-derive/democracy/util";
 import { typesBundlePre900 } from "moonbeam-types-bundle";
 import prompts from "prompts";
 import { moonbeamChains } from "./utils";
@@ -31,7 +30,7 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
     api.query["techCommitteeCollective" as "council"] ||
     api.query["techComitteeCollective" as "council"];
 
-  const hashes = await techCommitteeQuery.proposals();
+  const hashes = (await techCommitteeQuery.proposals()) as any;
   const motionList = (await techCommitteeQuery.proposalOf.multi(hashes)) as any;
   const votes = (await techCommitteeQuery.voting.multi(hashes)) as any;
 
@@ -52,16 +51,21 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
         motion.method == "externalProposeDefault" ||
         motion.method == "externalPropose"
       ) {
-        const preimageData = await api.query.democracy.preimages(motion.args[0]);
-        const preimage = parseImage(api as any, preimageData as any);
+        const preimageData = (await api.query.democracy.preimages(motion.args[0])) as any;
+        const proposal =
+          preimageData.toHuman() && preimageData.unwrap().isAvailable
+            ? api.registry.createType(
+                "Proposal",
+                preimageData.unwrap().asAvailable.data.toU8a(true)
+              )
+            : null;
 
-        const proposal = preimage && preimage.proposal;
         if (proposal) {
           data.text = `[${vote.index}] ${motion.method} - ${proposal.section}.${
             proposal.method
-          }: ${proposal.args
-            .map((argv) => {
-              const text = argv.toHuman()?.toString() || "";
+          }: ${Object.keys((proposal.toHuman() as any).args)
+            .map((argKey) => {
+              const text = `${argKey}:${(proposal.toHuman() as any).args[argKey]}`;
               return `${
                 text.length > 100
                   ? `${text.substring(0, 7)}..${text.substring(text.length - 4)}`

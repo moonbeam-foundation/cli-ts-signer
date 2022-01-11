@@ -9,9 +9,9 @@ export async function submitPreSignedTx(ws: string, tx: string): Promise<void> {
   const extrinsic = api.createType("Extrinsic", tx);
 
   // //  eslint-disable-next-line @typescript-eslint/no-floating-promises
-  api.rpc.author.submitAndWatchExtrinsic(extrinsic, (result) => {
-    if (result.isInBlock || result.isFinalized) {
-      process.exit(0);
-    }
-  });
+  // api.rpc.author.submitAndWatchExtrinsic(extrinsic, (result) => {
+  //   if (result.isInBlock || result.isFinalized) {
+  //     process.exit(0);
+  //   }
+  // });
 }

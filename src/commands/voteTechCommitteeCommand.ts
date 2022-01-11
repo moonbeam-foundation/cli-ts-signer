@@ -1,8 +1,8 @@
 import { Argv } from "yargs";
 import { VoteCouncilArgs } from "../methods/types";
-import { exit } from "../methods/utils";
 import { voteTechCommitteePrompt } from "../methods/voteTechCommittee";
 import { specificTxOptions } from "./voteCouncilCommand";
+import { exit } from "../methods/utils";
 
 export const voteTechCommitteeCommand = {
   command: "voteTechCommittee",
