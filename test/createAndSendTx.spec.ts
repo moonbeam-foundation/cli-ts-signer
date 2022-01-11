@@ -2,11 +2,17 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 import { expect } from "chai";
 import { ChildProcess } from "child_process";
 import { typesBundlePre900 } from "moonbeam-types-bundle";
-import { clearInterval } from "timers";
+import {getTransactionData} from '../src/methods/getTransactionData'
+import {sendSignedTx} from '../src/methods/sendSignedTx'
+import {verifyAndSign} from '../src/methods/verifyAndSign'
 import { createAndSendTx } from "../src/methods/createAndSendTx";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
 import { createAndFinalizeBlock, startMoonbeamDevNode } from "./dev-node";
-import { testSignCLIPrivateKey } from "./sign.spec";
+import {
+  testSignCLIPrivateKey,
+  testSignCLIPrivateKeyWithFilePath,
+  testSignCLIWithFilePathWithError,
+} from "./sign.spec";
 var assert = require("assert");
 
 const testAmount = "1000000000000";
@@ -26,6 +32,7 @@ describe("Create and Send Tx Integration Test", function () {
     // setup network
     const init = await startMoonbeamDevNode(false);
     wsUrl = `ws://localhost:${init.wsPort}`;
+    console.log("wsUrl", wsUrl);
     api = await ApiPromise.create({
       provider: new WsProvider(wsUrl),
       typesBundle: typesBundlePre900 as any,
@@ -68,6 +75,146 @@ describe("Create and Send Tx Integration Test", function () {
     assert.equal(
       Number(finalBalance).toString().substring(0, 15),
       (Number(initialBalance) + Number(testAmount)).toString().substring(0, 15)
+    );
+  });
+  it.only("should increment Baltathar's account balance - step by step", async function () {
+    this.timeout(40000);
+
+    // First get initial balance of Baltathar
+    const initialBalance = await getBalance(BALTATHAR, api);
+
+    // Start producing blocks in parallel
+    let produceBlocks = true;
+    setInterval(async () => {
+      if (produceBlocks) {
+        await createAndFinalizeBlock(api, undefined, true);
+      }
+    }, 500);
+
+    // create and send transfer tx from ALITH
+    // await createAndSendTx(
+    //   {
+    //     tx: "balances.transfer",
+    //     params: BALTATHAR + "," + testAmount,
+    //     address: ALITH,
+    //     sudo: false,
+    //   },
+    //   { ws: wsUrl, network: "moonbase" },
+    //   async (payload: string) => {
+    //     return await testSignCLIPrivateKey(payload);
+    //   }
+    // );
+    const networkArgs={ ws: wsUrl, network: "moonbase" }
+    let {payload,filePath}=await getTransactionData({
+      tx: "balances.transfer",
+      params: BALTATHAR + "," + testAmount,
+      address: ALITH,
+      sudo: false,
+    },networkArgs
+    )
+    console.log(1)
+    let signature=await verifyAndSign('ethereum','0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133',false,`/m/44'/60'/0'/0/0`,filePath,payload)
+    console.log(2)
+    await sendSignedTx(networkArgs,filePath,signature,"0x740403003cd0a705a2dc65e5b1e1205896baa2be8a07c6e0070010a5d4e8")
+    console.log(3)
+
+    // Stop producing blocks
+    produceBlocks = false;
+
+    // Then check incremented balance of Baltathar
+    const finalBalance = await getBalance(BALTATHAR, api);
+    assert.equal(
+      Number(finalBalance).toString().substring(0, 15),
+      (Number(initialBalance) + Number(testAmount)).toString().substring(0, 15)
+    );
+  });
+  it("should increment Baltathar's account balance - use file to verify", async function () {
+    this.timeout(40000);
+
+    // First get initial balance of Baltathar
+    const initialBalance = await getBalance(BALTATHAR, api);
+
+    // Start producing blocks in parallel
+    let produceBlocks = true;
+    setInterval(async () => {
+      if (produceBlocks) {
+        await createAndFinalizeBlock(api, undefined, true);
+      }
+    }, 500);
+
+    // create and send transfer tx from ALITH
+    await createAndSendTx(
+      {
+        tx: "balances.transfer",
+        params: BALTATHAR + "," + testAmount,
+        address: ALITH,
+        sudo: false,
+      },
+      { ws: wsUrl, network: "moonbase" },
+      async (payload: string, filePath: string) => {
+        return await testSignCLIPrivateKeyWithFilePath(payload, filePath, wsUrl);
+      }
+    );
+
+    // Stop producing blocks
+    produceBlocks = false;
+
+    // Then check incremented balance of Baltathar
+    const finalBalance = await getBalance(BALTATHAR, api);
+    assert.equal(
+      Number(finalBalance).toString().substring(0, 15),
+      (Number(initialBalance) + Number(testAmount)).toString().substring(0, 15)
+    );
+  });
+  it("shouldn't increment Baltathar's account balance - use file to verify and fail", async function () {
+    this.timeout(40000);
+
+    // First get initial balance of Baltathar
+    const initialBalance = await getBalance(BALTATHAR, api);
+
+    // Start producing blocks in parallel
+    let produceBlocks = true;
+    setInterval(async () => {
+      if (produceBlocks) {
+        await createAndFinalizeBlock(api, undefined, true);
+      }
+    }, 500);
+
+    // create and send transfer tx from ALITH
+    const error: string = await new Promise((res) => {
+      createAndSendTx(
+        {
+          tx: "balances.transfer",
+          params: BALTATHAR + "," + testAmount,
+          address: ALITH,
+          sudo: false,
+        },
+        { ws: wsUrl, network: "moonbase" },
+        async (payload: string, filePath: string) => {
+          // look for error
+          console.log("payload", payload);
+          console.log("payload", payload.substring(0, payload.length - 3) + "zzz");
+          res(
+            await testSignCLIWithFilePathWithError(
+              payload.substring(0, payload.length - 3) + "zzz",
+              filePath
+            )
+          );
+          return "0x0";
+        }
+      );
+    });
+    // expect error from the sign cli
+    expect(error.substring(0, 50)).to.eq("Error: Payload is not matching payload in filepath");
+
+    // Stop producing blocks
+    produceBlocks = false;
+
+    // Then check incremented balance of Baltathar
+    const finalBalance = await getBalance(BALTATHAR, api);
+    assert.equal(
+      Number(finalBalance).toString(), //.substring(0, 15),
+      Number(initialBalance).toString() //.substring(0, 15)
     );
   });
   // tx expire after 256 blocks in moonbeam

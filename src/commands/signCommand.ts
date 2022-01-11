@@ -1,7 +1,8 @@
 import { Argv } from "yargs";
-import { SignArgs, SignPromptArgs } from "../methods/types";
+import { SignAndVerifyArgs, SignArgs, SignPromptArgs } from "../methods/types";
 import { sign } from "../methods/sign";
 import { isNetworkType } from "../methods/utils";
+import { verifyAndSign } from "../methods/verifyAndSign";
 
 export const signOptions = {
   type: {
@@ -44,6 +45,7 @@ export const signCommand = {
   },
 };
 
+// TODO this should be an optional arg
 export const signPromptCommand = {
   command: "signPrompt <type> <privateKey|mnemonic> [derivePath]",
   describe: "sign byteCode with a private key - using prompt",
@@ -52,5 +54,37 @@ export const signPromptCommand = {
   },
   handler: async (argv: SignPromptArgs) => {
     await sign(isNetworkType(argv.type), argv.privateKey, true, argv.derivePath);
+  },
+};
+
+export const verifyAndSignCommand = {
+  command: "verifyAndSign",
+  describe: "sign byteCode with a private key and verify against payload file",
+  builder: (yargs: Argv) => {
+    return yargs.options({
+      ...signOptions,
+      message: {
+        describe: "message to be signed",
+        type: "string" as "string",
+        default: "0x0",
+        demandOption: true,
+      },
+      filePath: {
+        describe: "file path of the saved extrinsic payload",
+        type: "string",
+        default: "payload.json",
+        demandOption: true,
+      },
+    });
+  },
+  handler: async (argv: SignAndVerifyArgs) => {
+    await verifyAndSign(
+      isNetworkType(argv.type),
+      argv.privateKey,
+      false,
+      argv.derivePath,
+      argv.filePath,
+      argv.message
+    );
   },
 };

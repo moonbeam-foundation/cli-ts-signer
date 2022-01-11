@@ -1,4 +1,4 @@
-import { hexToU8a, stringToU8a, u8aToHex } from "@polkadot/util";
+import { hexToU8a, u8aToHex } from "@polkadot/util";
 import { Keyring } from "@polkadot/keyring";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import type { KeypairType } from "@polkadot/util-crypto/types";
@@ -6,14 +6,13 @@ import { cryptoWaitReady } from "@polkadot/util-crypto";
 import prompts from "prompts";
 import { NetworkType } from "./types";
 
-// TODO display payload content
 export async function sign(
   type: NetworkType,
   privKeyOrMnemonic: string,
   prompt: boolean,
   derivePath: string,
   message?: string
-): Promise<string> {
+): Promise<`0x${string}`> {
   if (!["ethereum", "sr25519"].includes(type)) {
     throw new Error("Type is not supported");
   }

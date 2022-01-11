@@ -3,14 +3,43 @@ import { u8aToHex } from "@polkadot/util";
 import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
-import { moonbeamChains } from "./utils";
+import fs from "fs";
+import { instantiateApi, moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
-import { NetworkArgs, TxArgs, TxParam } from "./types";
+import {
+  NetworkArgs,
+  PayloadVerificationInfo,
+  RegistryPersistantInfo,
+  TxArgs,
+  TxParam,
+} from "./types";
+
+export const getRegistryInfo = async (api: ApiPromise): Promise<RegistryPersistantInfo> => {
+  const [runtimeVersion, chain, chainProps, chainMetadata] = await Promise.all([
+    api.rpc.state.getRuntimeVersion(),
+    api.rpc.system.chain(),
+    api.rpc.system.properties(),
+    api.rpc.state.getMetadata(),
+  ]);
+  return {
+    runtimeVersion: {
+      specName: runtimeVersion.specName.toString(),
+      specVersion: Number(runtimeVersion.specVersion),
+    },
+    chainName: chain.toString(),
+    chainProps: {
+      ss58Format: chainProps.ss58Format.toString(),
+      tokenSymbol: chainProps.tokenSymbol.toString(),
+      tokenDecimals: chainProps.tokenDecimals.toString(),
+    },
+    metadataHex: chainMetadata.toHex(),
+  };
+};
 
 export async function createAndSendTx(
   txArgs: TxArgs,
   networkArgs: NetworkArgs,
-  signatureFunction: (payload: string) => Promise<`0x${string}`>
+  signatureFunction: (payload: `0x${string}`, filePath: string) => Promise<`0x${string}`>
 ) {
   const { tx, params, address, sudo } = txArgs;
   const { ws, network } = networkArgs;
@@ -19,33 +48,38 @@ export async function createAndSendTx(
     ? (params as TxParam[])
     : (params as string).split(",");
 
-  let api: ApiPromise;
-  if (moonbeamChains.includes(network)) {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-      typesBundle: typesBundlePre900 as any,
-    });
-  } else {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-    });
-  }
+  const api=await instantiateApi(network,ws)
+
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
   if (sudo) {
     txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));
   } else {
     txExtrinsic = await api.tx[section][method](...splitParams);
   }
+  console.log('txExtrinsic',txExtrinsic.toHex())
   const signer = {
-    signPayload: (payload: SignerPayloadJSON) => {
+    signPayload: async (payload: SignerPayloadJSON) => {
       console.log("(sign)", payload);
 
       // create the actual payload we will be using
       const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
-      console.log("Transaction data to be signed : ", u8aToHex(xp.toU8a(true)));
+      const payloadHex = u8aToHex(xp.toU8a(true));
+      console.log("Transaction data to be signed : ", payloadHex);
+
+      // save tx data in a file
+      const payloadData: PayloadVerificationInfo = {
+        payload,
+        registryInfo: await getRegistryInfo(api),
+      };
+      const data = JSON.stringify(payloadData, null, 2);
+      const filePath: string = `payload-${payloadHex.substring(0, 10)}...${payloadHex.substring(
+        payloadHex.length - 10,
+        payloadHex.length
+      )}.json`;
+      fs.writeFileSync(filePath, data);
 
       return new Promise<SignerResult>(async (resolve) => {
-        const signature = await signatureFunction(u8aToHex(xp.toU8a(true)));
+        const signature = await signatureFunction(payloadHex, filePath);
         resolve({ id: 1, signature });
       });
     },
@@ -74,7 +108,7 @@ export async function createAndSendTx(
   });
 }
 export async function createAndSendTxPrompt(txArgs: TxArgs, networkArgs: NetworkArgs) {
-  return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
+  return createAndSendTx(txArgs, networkArgs, async (payload: `0x${string}`) => {
     const response = await prompts({
       type: "text",
       name: "signature",
