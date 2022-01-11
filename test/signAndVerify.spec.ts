@@ -9,7 +9,6 @@ const veryLongString =
 
 export async function testVerifyCLI(data: string, sig: string): Promise<string> {
   return new Promise((resolve) => {
-    console.log("testVerifyCLI");
     let call = exec(
       "npm run cli verify -- --type ethereum --message " +
         data +
@@ -34,7 +33,7 @@ describe("Signature Verification", function () {
     const verification = await testVerifyCLI(testData, signature);
     assert.equal(verification, "true");
   });
-  it.only("should verify the signature to be valid - veryLongString", async function () {
+  it("should verify the signature to be valid - veryLongString", async function () {
     this.timeout(15000);
     const signature = await testSignCLIPrivateKey(veryLongString);
     const verification = await testVerifyCLI(veryLongString, signature);

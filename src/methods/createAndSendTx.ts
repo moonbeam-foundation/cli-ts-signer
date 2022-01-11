@@ -4,6 +4,8 @@ import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import Keyring from "@polkadot/keyring";
+import { blake2AsHex } from '@polkadot/util-crypto';
+
 
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
@@ -17,12 +19,6 @@ export async function createAndSendTx(
   const { tx, params, address, sudo, nonce } = txArgs;
   const { ws, network } = networkArgs;
   const [section, method] = tx.split(".");
-  console.log("tx, params, address, sudo, nonce ");
-  console.log(tx, params, address, sudo, nonce);
-  console.log(...params);
-  console.log("params");
-  console.log(params[0]);
-  console.log(params[1]);
 
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
@@ -49,11 +45,12 @@ export async function createAndSendTx(
       const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
       const payloadHex = u8aToHex(xp.toU8a(true));
       console.log("Transaction data to be signed : ", payloadHex);
-      console.log("Transaction data to be signed : ", payloadHex.substring(0, 514));
-      console.log("Payload length : ", payloadHex.length);
 
+      const hashed = (payloadHex.length > (256 + 1) * 2)
+        ? blake2AsHex(payloadHex)
+        : payloadHex;
       return new Promise<SignerResult>(async (resolve) => {
-        const signature = await signatureFunction(payloadHex.substring(0, 514));
+        const signature = await signatureFunction(hashed);
         resolve({ id: 1, signature });
       });
     },
@@ -67,10 +64,6 @@ export async function createAndSendTx(
     "ethereum"
   );
   let res = await txExtrinsic.sign(genesisAccount);
-  //@ts-ignore
-  console.log("sig from normal sign", txExtrinsic.toHuman().signature);
-  console.log("txExtrinsic", txExtrinsic.toHuman());
-  console.log("res", res);
   // Only resolve when it's finalised
   await new Promise<void>((resolve, reject) => {
     txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {

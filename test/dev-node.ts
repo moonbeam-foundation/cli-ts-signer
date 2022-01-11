@@ -84,7 +84,6 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
             docker rm moonbeam-tmp`);
       console.log(`${parachainBinary} downloaded !`);
     }
-    console.log("parachainPath", parachainPath);
     cmd = parachainPath;
   }
 

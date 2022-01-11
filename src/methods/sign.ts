@@ -2,7 +2,7 @@ import { hexToU8a, stringToU8a, u8aToHex } from "@polkadot/util";
 import { Keyring } from "@polkadot/keyring";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import type { KeypairType } from "@polkadot/util-crypto/types";
-import { cryptoWaitReady } from "@polkadot/util-crypto";
+import { cryptoWaitReady, blake2AsHex } from "@polkadot/util-crypto";
 import prompts from "prompts";
 import { NetworkType } from "./types";
 
@@ -21,9 +21,6 @@ export async function sign(
   // Instantiate keyring
   let keyringType: KeypairType = type === "ethereum" ? "ethereum" : "sr25519";
   let keyring: Keyring = new Keyring({ type: keyringType });
-
-  // const keyring = new Keyring({ type: "ethereum" });
-  // const   genesisAccount = await keyring.addFromUri("0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133", undefined, "ethereum");
 
   // Support both private key and mnemonic
   const signer: KeyringPair =
@@ -52,8 +49,6 @@ export async function sign(
     ).message;
 
   // Sign
-  console.log("hexToU8a(msg).length");
-  console.log(hexToU8a(msg).length);
   const signature: Uint8Array =
     type === "ethereum"
       ? signer.sign(hexToU8a(msg))

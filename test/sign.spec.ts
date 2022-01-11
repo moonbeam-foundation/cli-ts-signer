@@ -14,7 +14,6 @@ export async function testSign(command: string): Promise<`0x${string}`> {
     let call = exec(command);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
-      console.log(message);
       if (message.substring(0, 12) === "SIGNATURE : ") {
         resolve(message.substring(12, message.length - 1));
       }
