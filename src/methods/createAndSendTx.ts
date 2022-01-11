@@ -56,6 +56,7 @@ export async function createAndSendTx(
   } else {
     txExtrinsic = await api.tx[section][method](...splitParams);
   }
+  console.log('txExtrinsic',txExtrinsic.toHex())
   const signer = {
     signPayload: async (payload: SignerPayloadJSON) => {
       console.log("(sign)", payload);

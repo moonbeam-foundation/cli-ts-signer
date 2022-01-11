@@ -115,7 +115,7 @@ describe("Create and Send Tx Integration Test", function () {
     console.log(1)
     let signature=await verifyAndSign('ethereum','0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133',false,`/m/44'/60'/0'/0/0`,filePath,payload)
     console.log(2)
-    await sendSignedTx(networkArgs,filePath,signature)
+    await sendSignedTx(networkArgs,filePath,signature,"0x740403003cd0a705a2dc65e5b1e1205896baa2be8a07c6e0070010a5d4e8")
     console.log(3)
 
     // Stop producing blocks
