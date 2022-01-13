@@ -4,18 +4,18 @@ export interface SignArgs extends SignPromptArgs {
 }
 export interface SignPromptArgs {
   type: string;
-  privateKey?: string;
+  "private-key"?: string;
   derivePath: string;
 }
 export interface VerifyArgs {
   message: string;
   signature: string;
-  pubKey: string;
+  "public-key": string;
   type: string;
 }
 export interface SendTxArgs {
   ws: string;
-  txData: string;
+  "tx-data": string;
 }
 export interface CreateAndSendArgs {
   network: string;

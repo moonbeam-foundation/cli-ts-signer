@@ -23,7 +23,7 @@ export async function testSign(command: string): Promise<`0x${string}`> {
 
 export async function testSignCLIPrivateKey(data: string): Promise<`0x${string}`> {
   return testSign(
-    "npm run cli sign -- --type ethereum --privateKey 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 --message " +
+    "npm run cli sign -- --type ethereum --private-key 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 --message " +
       data
   );
 }

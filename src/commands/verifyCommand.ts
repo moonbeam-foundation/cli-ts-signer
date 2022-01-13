@@ -23,7 +23,7 @@ export const verifyOptions = {
     default: "0x0",
     demandOption: true,
   },
-  pubKey: {
+  "public-key": {
     describe: "public key of the party who sigend",
     type: "string" as "string",
     default: ALITH,
@@ -38,6 +38,6 @@ export const verifyCommand = {
     return yargs.options(verifyOptions);
   },
   handler: (argv: VerifyArgs) => {
-    verify(argv.message, argv.signature, argv.pubKey, isNetworkType(argv.type));
+    verify(argv.message, argv.signature, argv["public-key"], isNetworkType(argv.type));
   },
 };
