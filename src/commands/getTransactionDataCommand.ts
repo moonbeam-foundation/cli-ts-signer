@@ -11,7 +11,7 @@ export const getTransactionDataCommand = {
   },
   handler: async (argv: CreateAndSendArgs) => {
     return await getTransactionData(
-      { tx: argv.tx, params: argv.params, address: argv.address, sudo: argv.sudo },
+      { tx: argv.tx, params: JSON.parse(argv.params), address: argv.address, sudo: argv.sudo },
       { ws: argv.ws, network: argv.network }
     );
   },

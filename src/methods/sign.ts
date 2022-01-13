@@ -2,7 +2,7 @@ import { hexToU8a, stringToU8a, u8aToHex } from "@polkadot/util";
 import { Keyring } from "@polkadot/keyring";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import type { KeypairType } from "@polkadot/util-crypto/types";
-import { cryptoWaitReady } from "@polkadot/util-crypto";
+import { cryptoWaitReady, blake2AsHex } from "@polkadot/util-crypto";
 import prompts from "prompts";
 import { NetworkType } from "./types";
 

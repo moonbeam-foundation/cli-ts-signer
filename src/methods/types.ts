@@ -1,10 +1,10 @@
 // Command Args
 export interface SignArgs extends SignPromptArgs {
-  message: string;
+  message?: string;
 }
 export interface SignPromptArgs {
   type: string;
-  privateKey: string;
+  privateKey?: string;
   derivePath: string;
 }
 export interface VerifyArgs {
@@ -24,6 +24,7 @@ export interface CreateAndSendArgs {
   tx: string;
   params: string;
   sudo?: boolean;
+  nonce?: number;
   immortality?: boolean;
 }
 export interface VoteCouncilArgs {
@@ -36,8 +37,9 @@ export type TxParam = boolean | string | number | { [key: string]: any };
 
 // Methods args
 export interface TxArgs {
+  nonce?: number;
   tx: string;
-  params: string | TxParam[];
+  params: TxParam[];
   address: string;
   sudo?: boolean;
   immortality?: boolean;

@@ -1,5 +1,4 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { parseImage } from "@polkadot/api-derive/democracy/util";
 import { typesBundlePre900 } from "moonbeam-types-bundle";
 import prompts from "prompts";
 import { moonbeamChains } from "./utils";
@@ -14,6 +13,8 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
   }[]
 > {
   const { ws, network } = networkArgs;
+
+  // Instantiate Api
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
     api = await ApiPromise.create({
@@ -26,11 +27,10 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
     });
   }
 
-  const hashes = await api.query["councilCollective" as "council"].proposals();
-  const motionList = (await api.query["councilCollective" as "council"].proposalOf.multi(
-    hashes
-  )) as any;
-  const votes = (await api.query["councilCollective" as "council"].voting.multi(hashes)) as any;
+  // Fetch list of proposal hashes, descriptions and votes
+  const hashes = (await api.query["councilCollective"].proposals()) as any;
+  const motionList = (await api.query["councilCollective"].proposalOf.multi(hashes)) as any;
+  const votes = (await api.query["councilCollective"].voting.multi(hashes)) as any;
 
   return await Promise.all(
     motionList.map(async (motionData: any, index: any) => {
@@ -49,16 +49,21 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
         motion.method == "externalProposeDefault" ||
         motion.method == "externalPropose"
       ) {
-        const preimageData = await api.query.democracy.preimages(motion.args[0]);
-        const preimage = parseImage(api as any, preimageData as any);
+        const preimageData = (await api.query.democracy.preimages(motion.args[0])) as any;
+        const proposal =
+          preimageData.toHuman() && preimageData.unwrap().isAvailable
+            ? api.registry.createType(
+                "Proposal",
+                preimageData.unwrap().asAvailable.data.toU8a(true)
+              )
+            : null;
 
-        const proposal = preimage && preimage.proposal;
         if (proposal) {
-          data.text = `[${vote.index}] ${motion.method} - ${proposal.section}.${
-            proposal.method
-          }: ${proposal.args
-            .map((argv) => {
-              const text = argv.toHuman()?.toString() || "";
+          data.text = `[${vote.index}] ${motion.method} - ${proposal.toHuman().section}.${
+            proposal.toHuman().method
+          }: ${Object.keys((proposal.toHuman() as any).args)
+            .map((argKey: any) => {
+              const text = `${argKey}:${(proposal.toHuman() as any).args[argKey]}`;
               return `${
                 text.length > 100
                   ? `${text.substring(0, 7)}..${text.substring(text.length - 4)}`
@@ -112,11 +117,7 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
     {
       address,
       tx: `councilCollective.vote`,
-      params: [
-        selectedMotion.hash,
-        selectedMotion.index,
-        vote.yes, //vote.yes?"Yes":"No"
-      ],
+      params: [selectedMotion.hash, selectedMotion.index, vote.yes],
     },
     networkArgs,
     async (payload: string) => {

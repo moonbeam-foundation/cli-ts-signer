@@ -15,7 +15,6 @@ export const signOptions = {
     alias: "mnemonic",
     describe: "private key or mnemonic for the signature",
     type: "string" as "string",
-    default: `bottom drive obey lake curtain smoke basket hold race lonely fit walk`,
     demandOption: true,
   },
   derivePath: {
@@ -34,23 +33,30 @@ export const signCommand = {
       message: {
         describe: "message to be signed",
         type: "string" as "string",
-        default: "0x0",
         demandOption: true,
       },
     });
   },
   handler: async (argv: SignArgs) => {
+    if (!argv.privateKey) {
+      console.log(`Missing private key`);
+      return;
+    }
     await sign(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.message);
   },
 };
 
 export const signPromptCommand = {
-  command: "signPrompt <type> <privateKey|mnemonic> [derivePath]",
+  command: "signPrompt",
   describe: "sign byteCode with a private key - using prompt",
   builder: (yargs: Argv) => {
     return yargs.options(signOptions);
   },
   handler: async (argv: SignPromptArgs) => {
+    if (!argv.privateKey) {
+      console.log(`Missing private key`);
+      return;
+    }
     await sign(isNetworkType(argv.type), argv.privateKey, true, argv.derivePath);
   },
 };

@@ -31,9 +31,9 @@ export const createTxOptions = {
     demandOption: true,
   },
   params: {
-    describe: "comma separated list of parameters",
+    describe: "JSON formatted Array string",
     type: "string" as "string",
-    default: BALTATHAR + ",100000000000000000",
+    default: `["${BALTATHAR}",100000000000000000]`,
     demandOption: true,
   },
   sudo: {
@@ -41,6 +41,10 @@ export const createTxOptions = {
     type: "boolean" as "boolean",
     default: false,
     demandOption: false,
+  },
+  nonce: {
+    describe: "nonce to use",
+    type: "number" as "number",
   },
   immortality: {
     describe: "creates an immortal transaction (doesn't expire)",
@@ -57,10 +61,18 @@ export const createAndSendTxCommand = {
     return yargs.options(createTxOptions);
   },
   handler: async (argv: CreateAndSendArgs) => {
+    // Moves this check to yargs
+    const params = JSON.parse(argv.params);
+    if (!Array.isArray(params)) {
+      console.log(`Params need to be an array`);
+      exit();
+      return;
+    }
     await createAndSendTxPrompt(
       {
+        nonce: argv.nonce,
         tx: argv.tx,
-        params: argv.params,
+        params: JSON.parse(argv.params),
         address: argv.address,
         sudo: argv.sudo,
         immortality: argv.immortality,

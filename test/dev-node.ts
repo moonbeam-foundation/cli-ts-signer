@@ -15,8 +15,8 @@ export const DISPLAY_LOG = process.env.MOONBEAM_LOG || false;
 const debug = require("debug")("test:dev-node");
 
 // test parachain from docker
-const paraName = "moonbase-0.11.2";
-const paraDocker = "purestake/moonbeam:v0.11.2";
+const paraName = "moonbase-0.17.0";
+const paraDocker = "purestake/moonbeam:v0.17.0";
 
 export async function findAvailablePorts() {
   const availablePorts = await Promise.all(
@@ -84,7 +84,6 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
             docker rm moonbeam-tmp`);
       console.log(`${parachainBinary} downloaded !`);
     }
-    console.log("parachainPath", parachainPath);
     cmd = parachainPath;
   }
 

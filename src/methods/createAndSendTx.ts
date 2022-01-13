@@ -3,6 +3,9 @@ import { u8aToHex } from "@polkadot/util";
 import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
+import Keyring from "@polkadot/keyring";
+import { blake2AsHex } from "@polkadot/util-crypto";
+
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
 import { NetworkArgs, TxArgs, TxParam } from "./types";
@@ -12,12 +15,9 @@ export async function createAndSendTx(
   networkArgs: NetworkArgs,
   signatureFunction: (payload: string) => Promise<`0x${string}`>
 ) {
-  const { tx, params, address, sudo } = txArgs;
+  const { tx, params, address, sudo, nonce } = txArgs;
   const { ws, network } = networkArgs;
   const [section, method] = tx.split(".");
-  const splitParams: TxParam[] = Array.isArray(params)
-    ? (params as TxParam[])
-    : (params as string).split(",");
 
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
@@ -32,9 +32,9 @@ export async function createAndSendTx(
   }
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
   if (sudo) {
-    txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));
+    txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...params));
   } else {
-    txExtrinsic = await api.tx[section][method](...splitParams);
+    txExtrinsic = await api.tx[section][method](...params);
   }
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
@@ -42,16 +42,25 @@ export async function createAndSendTx(
 
       // create the actual payload we will be using
       const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
-      console.log("Transaction data to be signed : ", u8aToHex(xp.toU8a(true)));
+      const payloadHex = u8aToHex(xp.toU8a(true));
+      console.log("Transaction data to be signed : ", payloadHex);
 
+      const hashed = payloadHex.length > (256 + 1) * 2 ? blake2AsHex(payloadHex) : payloadHex;
       return new Promise<SignerResult>(async (resolve) => {
-        const signature = await signatureFunction(u8aToHex(xp.toU8a(true)));
+        const signature = await signatureFunction(hashed);
         resolve({ id: 1, signature });
       });
     },
   };
-  let options = txArgs.immortality ? { signer, era: 0 } : { signer };
+  let options = txArgs.immortality ? { signer, era: 0, nonce } : { signer, nonce };
 
+  const keyring = new Keyring({ type: "ethereum" });
+  const genesisAccount = await keyring.addFromUri(
+    "0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133",
+    undefined,
+    "ethereum"
+  );
+  let res = await txExtrinsic.sign(genesisAccount);
   // Only resolve when it's finalised
   await new Promise<void>((resolve, reject) => {
     txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
