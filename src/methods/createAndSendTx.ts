@@ -5,6 +5,7 @@ import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import Keyring from "@polkadot/keyring";
 import { blake2AsHex } from "@polkadot/util-crypto";
+import chalk from "chalk"
 
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
@@ -17,7 +18,7 @@ export async function createAndSendTx(
 ) {
   const { tx, params, address, sudo, nonce } = txArgs;
   const { ws, network } = networkArgs;
-  const [section, method] = tx.split(".");
+  const [sectionName, methodName] = tx.split(".");
 
   let api: ApiPromise;
   if (moonbeamChains.includes(network)) {
@@ -32,10 +33,15 @@ export async function createAndSendTx(
   }
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
   if (sudo) {
-    txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...params));
+    txExtrinsic = await api.tx.sudo.sudo(api.tx[sectionName][methodName](...params));
   } else {
-    txExtrinsic = await api.tx[section][method](...params);
+    txExtrinsic = await api.tx[sectionName][methodName](...params);
   }
+
+  // explicit display of name, args
+  const { method: { args, method, section } } = txExtrinsic;
+  console.log(`Transaction created:\n${chalk.red(`${section}.${method}`)}(${chalk.green(`${args.map((a) => a.toString().slice(0, 200)).join(chalk.white(', '))}`)})\n`);
+
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
       console.log("(sign)", payload);

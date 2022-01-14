@@ -36,6 +36,7 @@
     "@polkadot/types": "^7.3.1",
     "@polkadot/util": "^8.3.1",
     "@polkadot/wasm-crypto": "^4.5.1",
+    "chalk": "^4.1.2",
     "child_process": "^1.0.2",
     "elliptic": "^6.5.4",
     "moonbeam-types-bundle": "^2.0.2",
