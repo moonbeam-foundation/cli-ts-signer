@@ -88,7 +88,7 @@ export const createAndSendTxCommand = {
       {
         nonce: argv.nonce,
         tx: argv.tx,
-        params: JSON.parse(argv.params),
+        params,
         address: argv.address,
         sudo: argv.sudo,
         immortality: argv.immortality,
