@@ -50,3 +50,7 @@ export interface NetworkArgs {
 }
 
 export type NetworkType = "ethereum" | "sr25519";
+
+export interface Vote {
+  yes: boolean;
+}
