@@ -11,6 +11,18 @@ export const voteTechCommitteeCommand = {
     return yargs.options(specificTxOptions);
   },
   handler: async (argv: VoteCouncilArgs) => {
+    if (!argv["address"]) {
+      console.log(`Missing address`);
+      return;
+    }
+    if (!argv["ws"]) {
+      console.log(`Missing ws`);
+      return;
+    }
+    if (!argv["network"]) {
+      console.log(`Missing network`);
+      return;
+    }
     await voteTechCommitteePrompt(argv.address, { ws: argv.ws, network: argv.network });
     exit();
   },

@@ -9,15 +9,31 @@ const expectedSignature =
 const expectedSignatureBaltathar =
   "0xa85517f8b6c9d88810fff4e734db98adf5ed77547ac4adc3c61e4dbb539a2caa1cbc0cf4b8708bb81bc48a4748c040fcafd7ae9cd1882313df420cdf1eb15a1b01";
 
-export async function testSign(command: string): Promise<`0x${string}`> {
+export async function testSign(
+  command: string,
+  lookForError: boolean = false
+): Promise<`0x${string}`> {
   return new Promise((resolve) => {
     let call = exec(command);
-    call.stdout?.on("data", function (chunk) {
-      let message = chunk.toString();
-      if (message.substring(0, 12) === "SIGNATURE : ") {
-        resolve(message.substring(12, message.length - 1));
-      }
-    });
+    if (lookForError) {
+      call.stderr?.on("data", function (chunk) {
+        let message = chunk.toString();
+        if (message.search("Error") > -1) {
+          resolve(message.substring(message.search("Error"), message.length));
+        } else if (message.search("Missing") > -1) {
+          resolve(message.substring(message.search("Missing"), message.length));
+        }
+      });
+    } else {
+      call.stdout?.on("data", function (chunk) {
+        let message = chunk.toString();
+        if (message.search("SIGNATURE") > -1) {
+          resolve(
+            message.substring(message.search("SIGNATURE") + 12, message.search("SIGNATURE") + 144)
+          );
+        }
+      });
+    }
   });
 }
 
@@ -26,6 +42,10 @@ export async function testSignCLIPrivateKey(data: string): Promise<`0x${string}`
     "npm run cli sign -- --type ethereum --private-key 0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133 --message " +
       data
   );
+}
+
+export async function testSignCLIMissingPrivateKey(data: string): Promise<`0x${string}`> {
+  return testSign("npm run cli sign -- --type ethereum --message " + data, true);
 }
 
 export async function testSignCLIMnemonic(data: string): Promise<`0x${string}`> {
@@ -40,6 +60,11 @@ describe("Signature - privkey", function () {
     this.timeout(200000);
     const output = await testSignCLIPrivateKey(testData);
     assert.equal(output, expectedSignature);
+  });
+  it("should throw error for missing private key", async function () {
+    this.timeout(200000);
+    const output = await testSignCLIMissingPrivateKey(testData);
+    assert.equal(output, "Missing required argument: private-key\n");
   });
 });
 

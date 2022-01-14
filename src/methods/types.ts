@@ -3,34 +3,34 @@ export interface SignArgs extends SignPromptArgs {
   message?: string;
 }
 export interface SignPromptArgs {
-  type: string;
+  type?: string;
   "private-key"?: string;
   derivePath: string;
 }
 export interface VerifyArgs {
-  message: string;
-  signature: string;
-  "public-key": string;
-  type: string;
+  message?: string;
+  signature?: string;
+  "public-key"?: string;
+  type?: string;
 }
 export interface SendTxArgs {
-  ws: string;
-  "tx-data": string;
+  ws?: string;
+  "tx-data"?: string;
 }
 export interface CreateAndSendArgs {
-  network: string;
-  ws: string;
-  address: string;
-  tx: string;
-  params: string;
-  sudo?: boolean;
+  network?: string;
+  ws?: string;
+  address?: string;
+  tx?: string;
+  params?: string;
+  sudo: boolean;
   nonce?: number;
-  immortality?: boolean;
+  immortality: boolean;
 }
 export interface VoteCouncilArgs {
-  network: string;
-  ws: string;
-  address: string;
+  network?: string;
+  ws?: string;
+  address?: string;
 }
 
 export type TxParam = boolean | string | number | { [key: string]: any };
