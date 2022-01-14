@@ -1,6 +1,6 @@
 import { ApiPromise } from "@polkadot/api";
 import prompts from "prompts";
-import {moonbeamChains, retrieveApi } from "./utils";
+import { moonbeamChains, retrieveApi } from "./utils";
 import { NetworkArgs, Vote } from "./types";
 import { createAndSendTx } from "./createAndSendTx";
 
@@ -82,8 +82,8 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
       };
     }),
   });
-  if (!motionSelection.index||motionSelection.index.length===0){
-    throw new Error("There are no motions to vote for")
+  if (!motionSelection.index || motionSelection.index.length === 0) {
+    throw new Error("There are no motions to vote for");
   }
 
   // For each selected motion, let the user chose a vote
@@ -114,7 +114,7 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
     console.log(`  ${selectedMotion.text}`);
     votes.push(vote);
   }
-  
+
   // If more than one motion, use batch utility
   const txArgs =
     votes.length === 1

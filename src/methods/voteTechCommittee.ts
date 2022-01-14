@@ -70,11 +70,11 @@ export async function retrieveMotions(api: ApiPromise): Promise<
 
 export async function voteTechCommitteePrompt(address: string, networkArgs: NetworkArgs) {
   const api = await retrieveApi(networkArgs.network, networkArgs.ws);
-  
+
   // Retrieve list of motions
   const motions = await retrieveMotions(api);
 
-    // Multiselect allows the user to chose multiple motions to vote for
+  // Multiselect allows the user to chose multiple motions to vote for
   const motionSelection = await prompts({
     type: "multiselect",
     name: "index",
@@ -86,10 +86,10 @@ export async function voteTechCommitteePrompt(address: string, networkArgs: Netw
       };
     }),
   });
-  if (!motionSelection.index||motionSelection.index.length===0){
-    throw new Error("There are no motions to vote for")
+  if (!motionSelection.index || motionSelection.index.length === 0) {
+    throw new Error("There are no motions to vote for");
   }
-  
+
   // For each selected motion, let the user chose a vote
   let votes: Vote[] = [];
   for (let j = 0; j < motionSelection.index.length; j++) {
@@ -118,7 +118,7 @@ export async function voteTechCommitteePrompt(address: string, networkArgs: Netw
     console.log(`  ${selectedMotion.text}`);
     votes.push(vote);
   }
-  
+
   // If more than one motion, use batch utility
   const txArgs =
     votes.length === 1
@@ -145,17 +145,13 @@ export async function voteTechCommitteePrompt(address: string, networkArgs: Netw
             }),
           ],
         };
-  return createAndSendTx(
-    txArgs,
-    networkArgs,
-    async (payload: string) => {
-      const response = await prompts({
-        type: "text",
-        name: "signature",
-        message: "Please enter signature for + " + payload + " +",
-        validate: (value) => true, // TODO: add validation
-      });
-      return response["signature"].trim();
-    }
-  );
+  return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
+    const response = await prompts({
+      type: "text",
+      name: "signature",
+      message: "Please enter signature for + " + payload + " +",
+      validate: (value) => true, // TODO: add validation
+    });
+    return response["signature"].trim();
+  });
 }
