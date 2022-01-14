@@ -1,32 +1,16 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import { typesBundlePre900 } from "moonbeam-types-bundle";
+import { ApiPromise } from "@polkadot/api";
 import prompts from "prompts";
-import { moonbeamChains } from "./utils";
-import { NetworkArgs } from "./types";
+import { moonbeamChains, retrieveApi } from "./utils";
+import { NetworkArgs, Vote } from "./types";
 import { createAndSendTx } from "./createAndSendTx";
 
-export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
+export async function retrieveMotions(api: ApiPromise): Promise<
   {
     index: number;
     hash: string;
     text: string;
   }[]
 > {
-  const { ws, network } = networkArgs;
-
-  // Instantiate Api
-  let api: ApiPromise;
-  if (moonbeamChains.includes(network)) {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-      typesBundle: typesBundlePre900 as any,
-    });
-  } else {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-    });
-  }
-
   // Fetch list of proposal hashes, descriptions and votes
   const hashes = (await api.query["councilCollective"].proposals()) as any;
   const motionList = (await api.query["councilCollective"].proposalOf.multi(hashes)) as any;
@@ -81,10 +65,14 @@ export async function retrieveMotions(networkArgs: NetworkArgs): Promise<
 }
 
 export async function voteCouncilPrompt(address: string, networkArgs: NetworkArgs) {
-  const motions = await retrieveMotions(networkArgs);
+  const api = await retrieveApi(networkArgs.network, networkArgs.ws);
 
-  const motionIndex = await prompts({
-    type: "select",
+  // Retrieve list of motions
+  const motions = await retrieveMotions(api);
+
+  // Multiselect allows the user to chose multiple motions to vote for
+  const motionSelection = await prompts({
+    type: "multiselect",
     name: "index",
     message: "Pick motion",
     choices: motions.map((motion, i) => {
@@ -94,40 +82,72 @@ export async function voteCouncilPrompt(address: string, networkArgs: NetworkArg
       };
     }),
   });
-  const selectedMotion = motions[motionIndex.index];
-
-  if (!selectedMotion) {
-    console.log(`Selected motion doesn't exist`);
-    return;
+  if (!motionSelection.index || motionSelection.index.length === 0) {
+    throw new Error("There are no motions to vote for");
   }
 
-  const vote = await prompts({
-    type: "select",
-    name: "yes",
-    message: `Pick a vote for ${selectedMotion.text}`,
-    choices: [
-      { title: "Yes", value: true },
-      { title: "No", value: false },
-    ],
-  });
-  console.log(`You are voting ${vote.yes} for [${selectedMotion.index} - ${selectedMotion.hash}]`);
-  console.log(`  ${selectedMotion.text}`);
+  // For each selected motion, let the user chose a vote
+  let votes: Vote[] = [];
+  for (let j = 0; j < motionSelection.index.length; j++) {
+    let i = motionSelection.index[j];
+    const selectedMotion = motions[i];
 
-  return createAndSendTx(
-    {
-      address,
-      tx: `councilCollective.vote`,
-      params: [selectedMotion.hash, selectedMotion.index, vote.yes],
-    },
-    networkArgs,
-    async (payload: string) => {
-      const response = await prompts({
-        type: "text",
-        name: "signature",
-        message: "Please enter signature for + " + payload + " +",
-        validate: (value) => true, // TODO: add validation
-      });
-      return response["signature"].trim();
+    if (!selectedMotion) {
+      console.log(`Selected motion doesn't exist`);
+      return;
     }
-  );
+
+    let vote: Vote = await prompts({
+      type: "select",
+      name: "yes",
+      message: `Pick a vote for [Motion #${selectedMotion.index}] ${
+        selectedMotion.text || `Not available - hash ${selectedMotion.hash}`
+      }`,
+      choices: [
+        { title: "Yes", value: true },
+        { title: "No", value: false },
+      ],
+    });
+    console.log(
+      `You are voting ${vote.yes} for [${selectedMotion.index} - ${selectedMotion.hash}]`
+    );
+    console.log(`  ${selectedMotion.text}`);
+    votes.push(vote);
+  }
+
+  // If more than one motion, use batch utility
+  const txArgs =
+    votes.length === 1
+      ? {
+          address,
+          tx: `councilCollective.vote`,
+          params: [
+            motions[motionSelection.index[0]].hash,
+            motions[motionSelection.index[0]].index,
+            votes[0].yes,
+          ],
+        }
+      : {
+          address,
+          tx: `utility.batch`,
+          params: [
+            votes.map((vote: Vote, i: number) => {
+              let selectedMotion = motions[motionSelection.index[i]];
+              return api.tx.councilCollective.vote(
+                selectedMotion.hash,
+                selectedMotion.index,
+                vote.yes
+              );
+            }),
+          ],
+        };
+  return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
+    const response = await prompts({
+      type: "text",
+      name: "signature",
+      message: "Please enter signature for + " + payload + " +",
+      validate: (value) => true, // TODO: add validation
+    });
+    return response["signature"].trim();
+  });
 }

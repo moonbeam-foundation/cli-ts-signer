@@ -35,7 +35,7 @@ export async function testGetTxDataCLI(): Promise<string> {
 
 export async function testSubmitTxCLI(data: string): Promise<string> {
   return new Promise((resolve) => {
-    let call = exec("npm run cli submitTx -- --ws " + testnetWs + " --txData " + data);
+    let call = exec("npm run cli submitTx -- --ws " + testnetWs + " --tx-data " + data);
     call.stdout?.on("data", function (chunk) {
       let message = chunk.toString();
       if (message.substring(0, 2) === "ok") {

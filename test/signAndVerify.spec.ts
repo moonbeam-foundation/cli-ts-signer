@@ -14,7 +14,7 @@ export async function testVerifyCLI(data: string, sig: string): Promise<string> 
         data +
         " --signature " +
         sig +
-        " --pubKey " +
+        " --public-key " +
         ALITH
     );
     call.stdout?.on("data", function (chunk) {

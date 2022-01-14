@@ -7,7 +7,7 @@ export const submitTxCommand = {
   description: "creates a transaction payload and resolves",
   builder: (yargs: Argv) => {
     return yargs
-      .positional("txData", {
+      .positional("tx-data", {
         describe: "the signed bytecode of the tx you wish to submit on chain",
         type: "string",
         default: "0x0",
@@ -19,6 +19,6 @@ export const submitTxCommand = {
       });
   },
   handler: async (argv: SendTxArgs) => {
-    return await submitPreSignedTx(argv.ws, argv.txData);
+    return await submitPreSignedTx(argv.ws, argv["tx-data"]);
   },
 };

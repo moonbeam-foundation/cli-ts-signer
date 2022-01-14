@@ -11,7 +11,7 @@ export const signOptions = {
     default: "ethereum",
     demandOption: true,
   },
-  privateKey: {
+  "private-key": {
     alias: "mnemonic",
     describe: "private key or mnemonic for the signature",
     type: "string" as "string",
@@ -38,11 +38,11 @@ export const signCommand = {
     });
   },
   handler: async (argv: SignArgs) => {
-    if (!argv.privateKey) {
+    if (!argv["private-key"]) {
       console.log(`Missing private key`);
       return;
     }
-    await sign(isNetworkType(argv.type), argv.privateKey, false, argv.derivePath, argv.message);
+    await sign(isNetworkType(argv.type), argv["private-key"], false, argv.derivePath, argv.message);
   },
 };
 
@@ -53,10 +53,10 @@ export const signPromptCommand = {
     return yargs.options(signOptions);
   },
   handler: async (argv: SignPromptArgs) => {
-    if (!argv.privateKey) {
+    if (!argv["private-key"]) {
       console.log(`Missing private key`);
       return;
     }
-    await sign(isNetworkType(argv.type), argv.privateKey, true, argv.derivePath);
+    await sign(isNetworkType(argv.type), argv["private-key"], true, argv.derivePath);
   },
 };
