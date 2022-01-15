@@ -8,7 +8,6 @@ export const signOptions = {
     describe: "type of encryption scheme (sr25519 or ethereum)",
     type: "string" as "string",
     choices: ["sr25519", "ethereum"],
-    default: "ethereum",
     demandOption: true,
   },
   "private-key": {
@@ -21,6 +20,7 @@ export const signOptions = {
     describe: "derivation path for bip-44 (optional)",
     type: "string" as "string",
     default: `/m/44'/60'/0'/0/0`,
+    demandOption: false,
   },
 };
 
@@ -42,6 +42,10 @@ export const signCommand = {
       console.log(`Missing private key`);
       return;
     }
+    if (!argv["type"]) {
+      console.log(`Missing type`);
+      return;
+    }
     await sign(isNetworkType(argv.type), argv["private-key"], false, argv.derivePath, argv.message);
   },
 };
@@ -55,6 +59,10 @@ export const signPromptCommand = {
   handler: async (argv: SignPromptArgs) => {
     if (!argv["private-key"]) {
       console.log(`Missing private key`);
+      return;
+    }
+    if (!argv["type"]) {
+      console.log(`Missing type`);
       return;
     }
     await sign(isNetworkType(argv.type), argv["private-key"], true, argv.derivePath);

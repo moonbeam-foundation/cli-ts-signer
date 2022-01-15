@@ -8,32 +8,27 @@ export const createTxOptions = {
   network: {
     describe: "the network on which you want to send the tx",
     type: "string" as "string",
-    default: "moonbase",
     choices: authorizedChains,
     demandOption: true,
   },
   ws: {
     describe: "websocket address of the endpoint on which to connect",
     type: "string" as "string",
-    default: "wss://wss.testnet.moonbeam.network",
     demandOption: true,
   },
   address: {
     describe: "address of the sender",
     type: "string" as "string",
-    default: ALITH,
     demandOption: true,
   },
   tx: {
     describe: "<pallet>.<function>",
     type: "string" as "string",
-    default: "balances.transfer",
     demandOption: true,
   },
   params: {
     describe: "JSON formatted Array string",
     type: "string" as "string",
-    default: `["${BALTATHAR}",100000000000000000]`,
     demandOption: true,
   },
   sudo: {
@@ -45,6 +40,7 @@ export const createTxOptions = {
   nonce: {
     describe: "nonce to use",
     type: "number" as "number",
+    demandOption: false,
   },
   immortality: {
     describe: "creates an immortal transaction (doesn't expire)",
@@ -61,6 +57,26 @@ export const createAndSendTxCommand = {
     return yargs.options(createTxOptions);
   },
   handler: async (argv: CreateAndSendArgs) => {
+    if (!argv["params"]) {
+      console.log(`Missing params`);
+      return;
+    }
+    if (!argv["tx"]) {
+      console.log(`Missing tx`);
+      return;
+    }
+    if (!argv["address"]) {
+      console.log(`Missing address`);
+      return;
+    }
+    if (!argv["ws"]) {
+      console.log(`Missing ws`);
+      return;
+    }
+    if (!argv["network"]) {
+      console.log(`Missing network`);
+      return;
+    }
     // Moves this check to yargs
     const params = JSON.parse(argv.params);
     if (!Array.isArray(params)) {
@@ -72,7 +88,7 @@ export const createAndSendTxCommand = {
       {
         nonce: argv.nonce,
         tx: argv.tx,
-        params: JSON.parse(argv.params),
+        params,
         address: argv.address,
         sudo: argv.sudo,
         immortality: argv.immortality,

@@ -36,3 +36,17 @@ export async function retrieveApi(network: string, ws: string): Promise<ApiPromi
   }
   return api;
 }
+
+export function checkArgv(argv: { [key: string]: any }, fieldName: string) {
+  if (!argv[fieldName]) {
+    // console.log(`Missing arg : ${fieldName}`);
+    throw new Error(`Missing arg : ${fieldName}`);
+    // return;
+  }
+}
+export function checkArgvList<T>(argv: Partial<T>, fieldNameList: string[]): T {
+  fieldNameList.forEach((name) => {
+    checkArgv(argv, name);
+  });
+  return argv as T;
+}
