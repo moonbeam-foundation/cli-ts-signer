@@ -77,7 +77,7 @@ export async function createAndSendTx(
         console.log('Events: ');
         events.forEach(({ event: { data, method, section } }) => {
           const [error] = data as any[];
-          if (error.isModule) {
+          if (error?.isModule) {
             const { docs, name, section } = api.registry.findMetaError(error.asModule);
             console.log('\t', `${chalk.red(`${section}.${name}`)}`, `${docs}`);
           } else if (section=="system" && method == "ExtrinsicSuccess") {
