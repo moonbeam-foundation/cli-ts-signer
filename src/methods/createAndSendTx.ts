@@ -74,9 +74,18 @@ export async function createAndSendTx(
 
       if (status.isInBlock) {
         console.log("Included at block hash", status.asInBlock.toHex());
-        resolve();
-      } else if (status.isFinalized) {
-        console.log("Finalized block hash", status.asFinalized.toHex());
+        console.log('Events: ');
+        events.forEach(({ event: { data, method, section } }) => {
+          const [error] = data as any[];
+          if (error.isModule) {
+            const { docs, name, section } = api.registry.findMetaError(error.asModule);
+            console.log('\t', `${chalk.red(`${section}.${name}`)}`, `${docs}`);
+          } else if (section=="system" && method == "ExtrinsicSuccess") {
+            console.log('\t', chalk.green(`${section}.${method}`), data.toString());
+          } else {
+            console.log('\t', `${section}.${method}`, data.toString());
+          }
+        });
         resolve();
       } else if (status.isDropped || status.isInvalid || status.isRetracted) {
         console.log(
@@ -88,6 +97,7 @@ export async function createAndSendTx(
     });
   });
 }
+
 export async function createAndSendTxPrompt(txArgs: TxArgs, networkArgs: NetworkArgs) {
   return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
     const response = await prompts({
