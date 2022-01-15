@@ -19,4 +19,5 @@ export const cli = yargs(hideBin(process.argv))
   .command(getTransactionDataCommand) // TODO: test getTransactionDataCommand and submitTxCommand
   .command(submitTxCommand)
   .demandCommand()
+  .strict()
   .help().argv;
