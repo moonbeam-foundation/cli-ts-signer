@@ -10,11 +10,6 @@ export const signOptions = {
     choices: ["sr25519", "ethereum"],
     demandOption: true,
   },
-  "private-key": {
-    alias: "mnemonic",
-    describe: "private key or mnemonic for the signature",
-    type: "string" as "string",
-  },
   derivePath: {
     describe: "derivation path for bip-44 (optional)",
     type: "string" as "string",
@@ -34,9 +29,19 @@ export const signCommand = {
         type: "string" as "string",
         demandOption: true,
       },
+      "private-key": {
+        alias: "mnemonic",
+        describe: "private key or mnemonic for the signature",
+        type: "string" as "string",
+        demandOption: true,
+      },
     });
   },
   handler: async (argv: SignArgs) => {
+    if (!argv["private-key"]) {
+      console.log(`Missing private key`);
+      return;
+    }
     if (!argv["type"]) {
       console.log(`Missing type`);
       return;
@@ -47,19 +52,15 @@ export const signCommand = {
 
 export const signPromptCommand = {
   command: "signPrompt",
-  describe: "sign byteCode with a private key - using prompt",
+  describe: "sign byteCode with a private key - using prompt for message and private key",
   builder: (yargs: Argv) => {
     return yargs.options(signOptions);
   },
   handler: async (argv: SignPromptArgs) => {
-    if (!argv["private-key"]) {
-      console.log(`Missing private key`);
-      return;
-    }
     if (!argv["type"]) {
       console.log(`Missing type`);
       return;
     }
-    await sign(isNetworkType(argv.type), argv["private-key"], true, argv.derivePath);
+    await sign(isNetworkType(argv.type), undefined, true, argv.derivePath);
   },
 };
