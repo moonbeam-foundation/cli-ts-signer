@@ -9,7 +9,7 @@ import { NetworkType } from "./types";
 // TODO display payload content
 export async function sign(
   type: NetworkType,
-  privKeyOrMnemonic: string,
+  privateKeyOrMnemonic: string | undefined,
   prompt: boolean,
   derivePath: string,
   message?: string
@@ -21,6 +21,18 @@ export async function sign(
   // Instantiate keyring
   let keyringType: KeypairType = type === "ethereum" ? "ethereum" : "sr25519";
   let keyring: Keyring = new Keyring({ type: keyringType });
+
+  // If no provided priv key, fetch it from prompt
+  const privKeyOrMnemonic =
+    privateKeyOrMnemonic ||
+    (
+      await prompts({
+        type: "text",
+        name: "privKeyOrMnemonic",
+        message: "Please enter private key or mnemonic",
+        validate: (value) => true, // TODO: add validation
+      })
+    ).privKeyOrMnemonic;
 
   // Support both private key and mnemonic
   const signer: KeyringPair =
