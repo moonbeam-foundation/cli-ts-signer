@@ -5,7 +5,7 @@ import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import Keyring from "@polkadot/keyring";
 import { blake2AsHex } from "@polkadot/util-crypto";
-import chalk from "chalk"
+import chalk from "chalk";
 
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
@@ -39,8 +39,14 @@ export async function createAndSendTx(
   }
 
   // explicit display of name, args
-  const { method: { args, method, section } } = txExtrinsic;
-  console.log(`Transaction created:\n${chalk.red(`${section}.${method}`)}(${chalk.green(`${args.map((a) => a.toString().slice(0, 200)).join(chalk.white(', '))}`)})\n`);
+  const {
+    method: { args, method, section },
+  } = txExtrinsic;
+  console.log(
+    `Transaction created:\n${chalk.red(`${section}.${method}`)}(${chalk.green(
+      `${args.map((a) => a.toString().slice(0, 200)).join(chalk.white(", "))}`
+    )})\n`
+  );
 
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
@@ -74,16 +80,16 @@ export async function createAndSendTx(
 
       if (status.isInBlock) {
         console.log("Included at block hash", status.asInBlock.toHex());
-        console.log('Events: ');
+        console.log("Events: ");
         events.forEach(({ event: { data, method, section } }) => {
           const [error] = data as any[];
           if (error?.isModule) {
             const { docs, name, section } = api.registry.findMetaError(error.asModule);
-            console.log('\t', `${chalk.red(`${section}.${name}`)}`, `${docs}`);
-          } else if (section=="system" && method == "ExtrinsicSuccess") {
-            console.log('\t', chalk.green(`${section}.${method}`), data.toString());
+            console.log("\t", `${chalk.red(`${section}.${name}`)}`, `${docs}`);
+          } else if (section == "system" && method == "ExtrinsicSuccess") {
+            console.log("\t", chalk.green(`${section}.${method}`), data.toString());
           } else {
-            console.log('\t', `${section}.${method}`, data.toString());
+            console.log("\t", `${section}.${method}`, data.toString());
           }
         });
         resolve();

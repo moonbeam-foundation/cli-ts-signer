@@ -14,7 +14,6 @@ export const signOptions = {
     alias: "mnemonic",
     describe: "private key or mnemonic for the signature",
     type: "string" as "string",
-    demandOption: true,
   },
   derivePath: {
     describe: "derivation path for bip-44 (optional)",
@@ -38,10 +37,6 @@ export const signCommand = {
     });
   },
   handler: async (argv: SignArgs) => {
-    if (!argv["private-key"]) {
-      console.log(`Missing private key`);
-      return;
-    }
     if (!argv["type"]) {
       console.log(`Missing type`);
       return;
