@@ -31,10 +31,19 @@ export async function createAndSendTx(
     });
   }
   let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
+  // For empty param, submit the tx without arguments
   if (sudo) {
-    txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));
+    if ((params as string).length === 0) {
+      txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method]());
+    } else {
+      txExtrinsic = await api.tx.sudo.sudo(api.tx[section][method](...splitParams));
+    }
   } else {
-    txExtrinsic = await api.tx[section][method](...splitParams);
+    if ((params as string).length === 0) {
+      txExtrinsic = await api.tx[section][method]();
+    } else {
+      txExtrinsic = await api.tx[section][method](...splitParams);
+    }
   }
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
