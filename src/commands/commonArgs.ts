@@ -2,7 +2,7 @@
 import { authorizedChains } from "../methods/utils";
 import { TxWrapperArgs } from "./types";
 
-export const commonWrapperArgs: {[Property in keyof TxWrapperArgs]: any} = {
+export const commonWrapperArgs = {
     sudo: {
         describe: "activates sudo mode",
         type: "boolean" as "boolean",
