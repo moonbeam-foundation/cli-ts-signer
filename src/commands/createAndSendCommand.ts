@@ -1,21 +1,10 @@
 import { Argv } from "yargs";
-import { CreateAndSendArgs } from "../methods/types";
 import { createAndSendTxPrompt } from "../methods/createAndSendTx";
 import { exit } from "../methods/utils";
-import { ALITH, authorizedChains, BALTATHAR } from "../methods/utils";
+import { commonArgs } from "./commonArgs";
+import { CreateAndSendArgs, NetworkArgs, TxWrapperArgs } from "./types";
 
 export const createTxOptions = {
-  network: {
-    describe: "the network on which you want to send the tx",
-    type: "string" as "string",
-    choices: authorizedChains,
-    demandOption: true,
-  },
-  ws: {
-    describe: "websocket address of the endpoint on which to connect",
-    type: "string" as "string",
-    demandOption: true,
-  },
   address: {
     describe: "address of the sender",
     type: "string" as "string",
@@ -30,12 +19,6 @@ export const createTxOptions = {
     describe: "JSON formatted Array string",
     type: "string" as "string",
     demandOption: true,
-  },
-  sudo: {
-    describe: "activates sudo mode",
-    type: "boolean" as "boolean",
-    default: false,
-    demandOption: false,
   },
   nonce: {
     describe: "nonce to use",
@@ -54,9 +37,12 @@ export const createAndSendTxCommand = {
   command: "createAndSendTx",
   describe: "creates a transaction payload, prompts for signature and sends it",
   builder: (yargs: Argv) => {
-    return yargs.options(createTxOptions);
+    return yargs.options({
+      ...commonArgs,
+      ...createTxOptions
+    });
   },
-  handler: async (argv: CreateAndSendArgs) => {
+  handler: async (argv: CreateAndSendArgs & NetworkArgs & TxWrapperArgs) => {
     if (!argv["params"]) {
       console.log(`Missing params`);
       return;
@@ -90,8 +76,14 @@ export const createAndSendTxCommand = {
         tx: argv.tx,
         params,
         address: argv.address,
-        sudo: argv.sudo,
         immortality: argv.immortality,
+      },
+      {
+        sudo: argv.sudo,
+        proxy: argv["proxied-account"] ? {
+          account: argv["proxied-account"],
+          type: argv["proxy-type"]
+        } : undefined
       },
       { ws: argv.ws, network: argv.network }
     );

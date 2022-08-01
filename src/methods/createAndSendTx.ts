@@ -9,15 +9,17 @@ import chalk from "chalk"
 
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
-import { NetworkArgs, TxArgs, TxParam } from "./types";
+import { NetworkOpt, TxOpt, TxWrapperOpt } from "./types";
 
 export async function createAndSendTx(
-  txArgs: TxArgs,
-  networkArgs: NetworkArgs,
+  txOpt: TxOpt,
+  txWrapperOpt: TxWrapperOpt,
+  networkOpt: NetworkOpt,
   signatureFunction: (payload: string) => Promise<`0x${string}`>
 ) {
-  const { tx, params, address, sudo, nonce } = txArgs;
-  const { ws, network } = networkArgs;
+  const { tx, params, address, nonce } = txOpt;
+  const { sudo, proxy } = txWrapperOpt
+  const { ws, network } = networkOpt;
   const [sectionName, methodName] = tx.split(".");
 
   let api: ApiPromise;
@@ -31,12 +33,17 @@ export async function createAndSendTx(
       provider: new WsProvider(ws),
     });
   }
-  let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult>;
+  let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult> = api.tx[sectionName][methodName](...params);
   if (sudo) {
-    txExtrinsic = await api.tx.sudo.sudo(api.tx[sectionName][methodName](...params));
-  } else {
-    txExtrinsic = await api.tx[sectionName][methodName](...params);
+    txExtrinsic = api.tx.sudo.sudo(txExtrinsic);
   }
+  if (proxy && proxy.account) {
+    txExtrinsic = api.tx.proxy.proxy(
+      proxy.account,
+      proxy.type || null,
+      txExtrinsic);
+  }
+  txExtrinsic = await txExtrinsic;
 
   // explicit display of name, args
   const { method: { args, method, section } } = txExtrinsic;
@@ -58,7 +65,7 @@ export async function createAndSendTx(
       });
     },
   };
-  let options = txArgs.immortality ? { signer, era: 0, nonce } : { signer, nonce };
+  let options = txOpt.immortality ? { signer, era: 0, nonce } : { signer, nonce };
 
   const keyring = new Keyring({ type: "ethereum" });
   const genesisAccount = await keyring.addFromUri(
@@ -80,7 +87,7 @@ export async function createAndSendTx(
           if (error?.isModule) {
             const { docs, name, section } = api.registry.findMetaError(error.asModule);
             console.log('\t', `${chalk.red(`${section}.${name}`)}`, `${docs}`);
-          } else if (section=="system" && method == "ExtrinsicSuccess") {
+          } else if (section == "system" && method == "ExtrinsicSuccess") {
             console.log('\t', chalk.green(`${section}.${method}`), data.toString());
           } else {
             console.log('\t', `${section}.${method}`, data.toString());
@@ -98,8 +105,8 @@ export async function createAndSendTx(
   });
 }
 
-export async function createAndSendTxPrompt(txArgs: TxArgs, networkArgs: NetworkArgs) {
-  return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
+export async function createAndSendTxPrompt(txOpt: TxOpt, txWrapperOpt: TxWrapperOpt, networkOpt: NetworkOpt) {
+  return createAndSendTx(txOpt, txWrapperOpt, networkOpt, async (payload: string) => {
     const response = await prompts({
       type: "text",
       name: "signature",

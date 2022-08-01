@@ -1,7 +1,7 @@
 import { ApiPromise } from "@polkadot/api";
 import prompts from "prompts";
 import { retrieveApi } from "./utils";
-import { NetworkArgs, Vote } from "./types";
+import { NetworkOpt, TxWrapperOpt, Vote } from "./types";
 import { createAndSendTx } from "./createAndSendTx";
 
 export async function retrieveMotions(api: ApiPromise): Promise<
@@ -41,24 +41,22 @@ export async function retrieveMotions(api: ApiPromise): Promise<
         const proposal =
           preimageData.toHuman() && preimageData.unwrap().isAvailable
             ? api.registry.createType(
-                "Proposal",
-                preimageData.unwrap().asAvailable.data.toU8a(true)
-              )
+              "Proposal",
+              preimageData.unwrap().asAvailable.data.toU8a(true)
+            )
             : null;
 
         if (proposal) {
-          data.text = `[${vote.index}] ${motion.method} - ${proposal.section}.${
-            proposal.method
-          }: ${Object.keys((proposal.toHuman() as any).args)
-            .map((argKey) => {
-              const text = `${argKey}:${(proposal.toHuman() as any).args[argKey]}`;
-              return `${
-                text.length > 100
-                  ? `${text.substring(0, 7)}..${text.substring(text.length - 4)}`
-                  : text
-              }`;
-            })
-            .join(`, `)}`;
+          data.text = `[${vote.index}] ${motion.method} - ${proposal.section}.${proposal.method
+            }: ${Object.keys((proposal.toHuman() as any).args)
+              .map((argKey) => {
+                const text = `${argKey}:${(proposal.toHuman() as any).args[argKey]}`;
+                return `${text.length > 100
+                    ? `${text.substring(0, 7)}..${text.substring(text.length - 4)}`
+                    : text
+                  }`;
+              })
+              .join(`, `)}`;
         }
       } else {
         data.text = `[${vote.index}] ${motion.section}.${motion.method}`;
@@ -68,8 +66,8 @@ export async function retrieveMotions(api: ApiPromise): Promise<
   );
 }
 
-export async function voteTechCommitteePrompt(address: string, networkArgs: NetworkArgs) {
-  const api = await retrieveApi(networkArgs.network, networkArgs.ws);
+export async function voteTechCommitteePrompt(address: string, txWrapperOpt: TxWrapperOpt, networkOpt: NetworkOpt) {
+  const api = await retrieveApi(networkOpt.network, networkOpt.ws);
 
   // Retrieve list of motions
   const motions = await retrieveMotions(api);
@@ -104,9 +102,8 @@ export async function voteTechCommitteePrompt(address: string, networkArgs: Netw
     let vote: Vote = await prompts({
       type: "select",
       name: "yes",
-      message: `Pick a vote for [Motion #${selectedMotion.index}] ${
-        selectedMotion.text || `Not available - hash ${selectedMotion.hash}`
-      }`,
+      message: `Pick a vote for [Motion #${selectedMotion.index}] ${selectedMotion.text || `Not available - hash ${selectedMotion.hash}`
+        }`,
       choices: [
         { title: "Yes", value: true },
         { title: "No", value: false },
@@ -120,32 +117,32 @@ export async function voteTechCommitteePrompt(address: string, networkArgs: Netw
   }
 
   // If more than one motion, use batch utility
-  const txArgs =
+  const txOpt =
     votes.length === 1
       ? {
-          address,
-          tx: `techCommitteeCollective.vote`,
-          params: [
-            motions[motionSelection.index[0]].hash,
-            motions[motionSelection.index[0]].index,
-            votes[0].yes,
-          ],
-        }
+        address,
+        tx: `techCommitteeCollective.vote`,
+        params: [
+          motions[motionSelection.index[0]].hash,
+          motions[motionSelection.index[0]].index,
+          votes[0].yes,
+        ],
+      }
       : {
-          address,
-          tx: `utility.batch`,
-          params: [
-            votes.map((vote: Vote, i: number) => {
-              let selectedMotion = motions[motionSelection.index[i]];
-              return api.tx.techCommitteeCollective.vote(
-                selectedMotion.hash,
-                selectedMotion.index,
-                vote.yes
-              );
-            }),
-          ],
-        };
-  return createAndSendTx(txArgs, networkArgs, async (payload: string) => {
+        address,
+        tx: `utility.batch`,
+        params: [
+          votes.map((vote: Vote, i: number) => {
+            let selectedMotion = motions[motionSelection.index[i]];
+            return api.tx.techCommitteeCollective.vote(
+              selectedMotion.hash,
+              selectedMotion.index,
+              vote.yes
+            );
+          }),
+        ],
+      };
+  return createAndSendTx(txOpt, txWrapperOpt, networkOpt, async (payload: string) => {
     const response = await prompts({
       type: "text",
       name: "signature",

@@ -18,33 +18,6 @@ const debug = require("debug")("test:dev-node");
 const paraName = "moonbase-0.17.0";
 const paraDocker = "purestake/moonbeam:v0.17.0";
 
-export async function findAvailablePorts() {
-  const availablePorts = await Promise.all(
-    [null, null, null].map(async (_, index) => {
-      let selectedPort = 0;
-      let port = 1024 + index * 20000 + (process.pid % 20000);
-      let endingPort = 65535;
-      while (!selectedPort && port < endingPort) {
-        const inUse = await tcpPortUsed.check(port, "127.0.0.1");
-        if (!inUse) {
-          selectedPort = port;
-        }
-        port++;
-      }
-      if (!selectedPort) {
-        throw new Error(`No available port`);
-      }
-      return selectedPort;
-    })
-  );
-
-  return {
-    p2pPort: availablePorts[0],
-    rpcPort: availablePorts[1],
-    wsPort: availablePorts[2],
-  };
-}
-
 // Stores if the node has already started.
 // It is used when a test file contains multiple describeDevMoonbeam. Those are
 // executed within the same PID and so would generate a race condition if started
@@ -52,7 +25,6 @@ export async function findAvailablePorts() {
 let nodeStarted = false;
 
 // This will start a moonbeam dev node, only 1 at a time (check every 100ms).
-// This will prevent race condition on the findAvailablePorts which uses the PID of the process
 export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
   p2pPort: number;
   rpcPort: number;
@@ -66,7 +38,11 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
     });
   }
   nodeStarted = true;
-  const { p2pPort, rpcPort, wsPort } = await findAvailablePorts();
+  const { p2pPort, rpcPort, wsPort } = {
+    p2pPort: 33333,
+    rpcPort: 9933,
+    wsPort: 9944,
+  }
 
   let cmd: string;
   if (process.env.LOCAL_BUILD) {

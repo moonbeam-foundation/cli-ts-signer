@@ -1,5 +1,5 @@
 import { Argv } from "yargs";
-import { SignArgs, SignPromptArgs } from "../methods/types";
+import { SignArgs, SignPromptArgs } from "./types";
 import { sign } from "../methods/sign";
 import { isNetworkType } from "../methods/utils";
 

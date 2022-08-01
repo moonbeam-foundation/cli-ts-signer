@@ -1,21 +1,10 @@
 import { Argv } from "yargs";
-import { VoteCouncilArgs } from "../methods/types";
 import { exit } from "../methods/utils";
-import { ALITH, authorizedChains } from "../methods/utils";
 import { voteCouncilPrompt } from "../methods/voteCouncil";
+import { commonArgs } from "./commonArgs";
+import { NetworkArgs, TxWrapperArgs, VoteCouncilArgs } from "./types";
 
-export const specificTxOptions = {
-  network: {
-    describe: "the network on which you want to send the tx",
-    type: "string" as "string",
-    choices: authorizedChains,
-    demandOption: true,
-  },
-  ws: {
-    describe: "websocket address of the endpoint on which to connect",
-    type: "string" as "string",
-    demandOption: true,
-  },
+export const specificTxArgs = {
   address: {
     describe: "address of the sender",
     type: "string" as "string",
@@ -27,9 +16,12 @@ export const voteCouncilCommand = {
   command: "voteCouncil",
   describe: "creates a vote council payload, prompts for signature and sends it",
   builder: (yargs: Argv) => {
-    return yargs.options(specificTxOptions);
+    return yargs.options({
+      ...commonArgs,
+      ...specificTxArgs
+    });
   },
-  handler: async (argv: VoteCouncilArgs) => {
+  handler: async (argv: VoteCouncilArgs & NetworkArgs & TxWrapperArgs) => {
     if (!argv["address"]) {
       console.log(`Missing address`);
       return;
@@ -42,7 +34,13 @@ export const voteCouncilCommand = {
       console.log(`Missing network`);
       return;
     }
-    await voteCouncilPrompt(argv.address, { ws: argv.ws, network: argv.network });
+    await voteCouncilPrompt(argv.address, {
+      sudo: argv.sudo,
+      proxy: argv["proxied-account"] ? {
+        account: argv["proxied-account"],
+        type: argv["proxy-type"]
+      } : undefined
+    }, { ws: argv.ws, network: argv.network });
     exit();
   },
 };

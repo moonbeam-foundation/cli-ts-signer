@@ -1,16 +1,19 @@
 import { Argv } from "yargs";
-import { CreateAndSendArgs } from "../methods/types";
 import { getTransactionData } from "../methods/getTransactionData";
 import { createTxOptions } from "./createAndSendCommand";
-import { checkArgvList } from "../methods/utils";
+import { commonNetworkArgs } from "./commonArgs";
+import { CreateAndSendArgs, NetworkArgs, TxWrapperArgs } from "./types";
 
 export const getTransactionDataCommand = {
   command: "getTransactionData",
   description: "creates a transaction payload and resolves",
   builder: (yargs: Argv) => {
-    return yargs.options(createTxOptions);
+    return yargs.options({
+      ...commonNetworkArgs,
+      ...createTxOptions
+    });
   },
-  handler: async (argv: CreateAndSendArgs) => {
+  handler: async (argv: CreateAndSendArgs & NetworkArgs & TxWrapperArgs) => {
     if (!argv["params"]) {
       console.log(`Missing params`);
       return;
@@ -32,7 +35,8 @@ export const getTransactionDataCommand = {
       return;
     }
     return await getTransactionData(
-      { tx: argv.tx, params: JSON.parse(argv.params), address: argv.address, sudo: argv.sudo },
+      { tx: argv.tx, params: JSON.parse(argv.params), address: argv.address },
+      { sudo: argv.sudo, proxy: argv["proxied-account"] ? { account: argv["proxied-account"], type: argv["proxy-type"] } : undefined },
       { ws: argv.ws, network: argv.network }
     );
   },

@@ -29,6 +29,14 @@ Then, in the two other windows run :
 
 You will see the updated parachainBond in the apps (chain state) if connecting to ws://localhost:34102
 
+### Proxy
+
+It is possible to proxy transaction by using:
+`npm run cli voteCouncil -- --network <network> --ws <ws> <address> --proxied-account <proxied-address> [--proxy-type <Any|Governance|...>]`
+
+* proxied-account: The account that is **proxied** 
+* proxy-type: The type of proxy (default: null, will use the first proxy account matching)
+
 ### Specific Actions
 
 Some specific actions are provided as a preconfigured feature:

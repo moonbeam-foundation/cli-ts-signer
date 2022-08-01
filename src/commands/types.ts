@@ -1,42 +1,39 @@
 // Command Args
-export interface SignOpt extends SignPromptOpt {
+export interface SignArgs extends SignPromptArgs {
   message?: string;
 }
-export interface SignPromptOpt {
+export interface SignPromptArgs {
   type?: string;
   "private-key"?: string;
   derivePath: string;
 }
-export interface VerifyOpt {
+export interface VerifyArgs {
   message?: string;
   signature?: string;
   "public-key"?: string;
   type?: string;
 }
-export interface SendTxOpt {
+export interface SendTxArgs {
   ws?: string;
   "tx-data"?: string;
 }
 
-export interface CreateAndSendOpt {
+export interface CreateAndSendArgs {
   address?: string;
   tx?: string;
   params?: string;
   nonce?: number;
   immortality: boolean;
 }
-export interface VoteCouncilOpt {
+export interface VoteCouncilArgs {
   address?: string;
 }
 
 export type TxParam = boolean | string | number | { [key: string]: any };
 
-export interface ProxyOpt {
-  account: string;
-  type?: "Any" | string;
-}
+
 // Methods args
-export interface TxOpt {
+export interface TxArgs {
   nonce?: number;
   tx: string;
   params: TxParam[];
@@ -44,13 +41,15 @@ export interface TxOpt {
   immortality?: boolean;
 }
 
-export interface TxWrapperOpt {
+export interface TxWrapperArgs {
   sudo?: boolean;
-  proxy?: ProxyOpt;
+  "proxied-account"?: string;
+  "proxy-type"?: "Any" | string;
 }
-export interface NetworkOpt {
-  ws: string;
-  network: string;
+
+export interface NetworkArgs {
+  ws?: string;
+  network?: string;
 }
 
 export type NetworkType = "ethereum" | "sr25519";

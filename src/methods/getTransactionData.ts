@@ -1,10 +1,11 @@
 import { createAndSendTx } from "./createAndSendTx";
-import { NetworkArgs, TxArgs } from "./types";
+import { NetworkOpt, TxOpt, TxWrapperOpt } from "./types";
 
-export async function getTransactionData(txArgs: TxArgs, networkArgs: NetworkArgs) {
+export async function getTransactionData(txOpt: TxOpt, txWrapperOpt: TxWrapperOpt, networkOpt: NetworkOpt) {
   return createAndSendTx(
-    txArgs,
-    networkArgs,
+    txOpt,
+    txWrapperOpt,
+    networkOpt,
     // Here we don't want to send the signature,
     // just see the payload so we return empty signature
     async (_: string) => {
