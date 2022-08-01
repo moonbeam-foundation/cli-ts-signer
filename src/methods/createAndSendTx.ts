@@ -5,7 +5,7 @@ import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import Keyring from "@polkadot/keyring";
 import { blake2AsHex } from "@polkadot/util-crypto";
-import chalk from "chalk"
+import chalk from "chalk";
 
 import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
@@ -18,7 +18,7 @@ export async function createAndSendTx(
   signatureFunction: (payload: string) => Promise<`0x${string}`>
 ) {
   const { tx, params, address, nonce } = txOpt;
-  const { sudo, proxy } = txWrapperOpt
+  const { sudo, proxy } = txWrapperOpt;
   const { ws, network } = networkOpt;
   const [sectionName, methodName] = tx.split(".");
 
@@ -33,21 +33,26 @@ export async function createAndSendTx(
       provider: new WsProvider(ws),
     });
   }
-  let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult> = api.tx[sectionName][methodName](...params);
+  let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult> = api.tx[sectionName][
+    methodName
+  ](...params);
   if (sudo) {
     txExtrinsic = api.tx.sudo.sudo(txExtrinsic);
   }
   if (proxy && proxy.account) {
-    txExtrinsic = api.tx.proxy.proxy(
-      proxy.account,
-      proxy.type || null,
-      txExtrinsic);
+    txExtrinsic = api.tx.proxy.proxy(proxy.account, proxy.type || null, txExtrinsic);
   }
   txExtrinsic = await txExtrinsic;
 
   // explicit display of name, args
-  const { method: { args, method, section } } = txExtrinsic;
-  console.log(`Transaction created:\n${chalk.red(`${section}.${method}`)}(${chalk.green(`${args.map((a) => a.toString().slice(0, 200)).join(chalk.white(', '))}`)})\n`);
+  const {
+    method: { args, method, section },
+  } = txExtrinsic;
+  console.log(
+    `Transaction created:\n${chalk.red(`${section}.${method}`)}(${chalk.green(
+      `${args.map((a) => a.toString().slice(0, 200)).join(chalk.white(", "))}`
+    )})\n`
+  );
 
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
@@ -81,16 +86,16 @@ export async function createAndSendTx(
 
       if (status.isInBlock) {
         console.log("Included at block hash", status.asInBlock.toHex());
-        console.log('Events: ');
+        console.log("Events: ");
         events.forEach(({ event: { data, method, section } }) => {
           const [error] = data as any[];
           if (error?.isModule) {
             const { docs, name, section } = api.registry.findMetaError(error.asModule);
-            console.log('\t', `${chalk.red(`${section}.${name}`)}`, `${docs}`);
+            console.log("\t", `${chalk.red(`${section}.${name}`)}`, `${docs}`);
           } else if (section == "system" && method == "ExtrinsicSuccess") {
-            console.log('\t', chalk.green(`${section}.${method}`), data.toString());
+            console.log("\t", chalk.green(`${section}.${method}`), data.toString());
           } else {
-            console.log('\t', `${section}.${method}`, data.toString());
+            console.log("\t", `${section}.${method}`, data.toString());
           }
         });
         resolve();
@@ -105,7 +110,11 @@ export async function createAndSendTx(
   });
 }
 
-export async function createAndSendTxPrompt(txOpt: TxOpt, txWrapperOpt: TxWrapperOpt, networkOpt: NetworkOpt) {
+export async function createAndSendTxPrompt(
+  txOpt: TxOpt,
+  txWrapperOpt: TxWrapperOpt,
+  networkOpt: NetworkOpt
+) {
   return createAndSendTx(txOpt, txWrapperOpt, networkOpt, async (payload: string) => {
     const response = await prompts({
       type: "text",

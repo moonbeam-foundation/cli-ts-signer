@@ -31,7 +31,6 @@ export interface VoteCouncilArgs {
 
 export type TxParam = boolean | string | number | { [key: string]: any };
 
-
 // Methods args
 export interface TxArgs {
   nonce?: number;

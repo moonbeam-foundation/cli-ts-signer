@@ -10,7 +10,7 @@ export const getTransactionDataCommand = {
   builder: (yargs: Argv) => {
     return yargs.options({
       ...commonNetworkArgs,
-      ...createTxOptions
+      ...createTxOptions,
     });
   },
   handler: async (argv: CreateAndSendArgs & NetworkArgs & TxWrapperArgs) => {
@@ -36,7 +36,12 @@ export const getTransactionDataCommand = {
     }
     return await getTransactionData(
       { tx: argv.tx, params: JSON.parse(argv.params), address: argv.address },
-      { sudo: argv.sudo, proxy: argv["proxied-account"] ? { account: argv["proxied-account"], type: argv["proxy-type"] } : undefined },
+      {
+        sudo: argv.sudo,
+        proxy: argv["proxied-account"]
+          ? { account: argv["proxied-account"], type: argv["proxy-type"] }
+          : undefined,
+      },
       { ws: argv.ws, network: argv.network }
     );
   },

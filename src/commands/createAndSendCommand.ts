@@ -39,7 +39,7 @@ export const createAndSendTxCommand = {
   builder: (yargs: Argv) => {
     return yargs.options({
       ...commonArgs,
-      ...createTxOptions
+      ...createTxOptions,
     });
   },
   handler: async (argv: CreateAndSendArgs & NetworkArgs & TxWrapperArgs) => {
@@ -80,10 +80,12 @@ export const createAndSendTxCommand = {
       },
       {
         sudo: argv.sudo,
-        proxy: argv["proxied-account"] ? {
-          account: argv["proxied-account"],
-          type: argv["proxy-type"]
-        } : undefined
+        proxy: argv["proxied-account"]
+          ? {
+              account: argv["proxied-account"],
+              type: argv["proxy-type"],
+            }
+          : undefined,
       },
       { ws: argv.ws, network: argv.network }
     );

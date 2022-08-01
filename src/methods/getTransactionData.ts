@@ -1,7 +1,11 @@
 import { createAndSendTx } from "./createAndSendTx";
 import { NetworkOpt, TxOpt, TxWrapperOpt } from "./types";
 
-export async function getTransactionData(txOpt: TxOpt, txWrapperOpt: TxWrapperOpt, networkOpt: NetworkOpt) {
+export async function getTransactionData(
+  txOpt: TxOpt,
+  txWrapperOpt: TxWrapperOpt,
+  networkOpt: NetworkOpt
+) {
   return createAndSendTx(
     txOpt,
     txWrapperOpt,

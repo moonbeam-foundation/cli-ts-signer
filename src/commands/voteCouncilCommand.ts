@@ -18,7 +18,7 @@ export const voteCouncilCommand = {
   builder: (yargs: Argv) => {
     return yargs.options({
       ...commonArgs,
-      ...specificTxArgs
+      ...specificTxArgs,
     });
   },
   handler: async (argv: VoteCouncilArgs & NetworkArgs & TxWrapperArgs) => {
@@ -34,13 +34,19 @@ export const voteCouncilCommand = {
       console.log(`Missing network`);
       return;
     }
-    await voteCouncilPrompt(argv.address, {
-      sudo: argv.sudo,
-      proxy: argv["proxied-account"] ? {
-        account: argv["proxied-account"],
-        type: argv["proxy-type"]
-      } : undefined
-    }, { ws: argv.ws, network: argv.network });
+    await voteCouncilPrompt(
+      argv.address,
+      {
+        sudo: argv.sudo,
+        proxy: argv["proxied-account"]
+          ? {
+              account: argv["proxied-account"],
+              type: argv["proxy-type"],
+            }
+          : undefined,
+      },
+      { ws: argv.ws, network: argv.network }
+    );
     exit();
   },
 };

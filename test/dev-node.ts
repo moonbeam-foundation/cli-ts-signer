@@ -42,7 +42,7 @@ export async function startMoonbeamDevNode(withWasm?: boolean): Promise<{
     p2pPort: 33333,
     rpcPort: 9933,
     wsPort: 9944,
-  }
+  };
 
   let cmd: string;
   if (process.env.LOCAL_BUILD) {

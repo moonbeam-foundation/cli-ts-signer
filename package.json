@@ -1,6 +1,6 @@
 {
   "name": "cli-ts-signer",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "ts based signer for moonbeam",
   "main": "index.js",
   "repository": "git@github.com:PureStake/cli-ts-signer.git",
