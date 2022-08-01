@@ -53,8 +53,8 @@ describe("Create and Send Tx Integration Test", function () {
         tx: "balances.transfer",
         params: [BALTATHAR, testAmount],
         address: ALITH,
-        sudo: false,
       },
+      {},
       { ws: wsUrl, network: "moonbase" },
       async (payload: string) => {
         return await testSignCLIPrivateKey(payload);
@@ -161,8 +161,8 @@ describe("Create and Send Tx Integration Test", function () {
         tx: "sudo.sudo",
         params: largeParams,
         address: ALITH,
-        sudo: false,
       },
+      {},
       { ws: wsUrl, network: "moonbase" },
       async (payload: string) => {
         return await testSignCLIPrivateKey(payload);
@@ -205,9 +205,9 @@ describe("Create and Send Tx Integration Test", function () {
         tx: "balances.transfer",
         params: [BALTATHAR, testAmount],
         address: ALITH,
-        sudo: false,
         immortality: true,
       },
+      {},
       { ws: wsUrl, network: "moonbase" },
       async (payload: string) => {
         // wait 300 blocks before submitting signature
@@ -267,8 +267,8 @@ describe("Create and Send Tx Integration Test", function () {
             tx: "balances.transfer",
             params: [BALTATHAR, testAmount],
             address: ALITH,
-            sudo: false,
           },
+          {},
           { ws: wsUrl, network: "moonbase" },
           async (payload: string) => {
             for (let i = 0; i < 300; i++) {
