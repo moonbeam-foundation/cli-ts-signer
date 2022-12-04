@@ -3,6 +3,7 @@ import { u8aToHex } from "@polkadot/util";
 import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
+import fs from "fs";
 import Keyring from "@polkadot/keyring";
 import { blake2AsHex } from "@polkadot/util-crypto";
 import chalk from "chalk";
@@ -23,7 +24,8 @@ export async function createAndSendTx(
   const [sectionName, methodName] = tx.split(".");
 
   let api: ApiPromise;
-  if (moonbeamChains.includes(network)) {
+
+  if (network && moonbeamChains.includes(network)) {
     api = await ApiPromise.create({
       provider: new WsProvider(ws),
       typesBundle: typesBundlePre900 as any,
@@ -54,9 +56,19 @@ export async function createAndSendTx(
     )})\n`
   );
 
+  /*
+  
+  toAddress(this.registry, signer),
+  this.registry.createTypeUnsafe('ExtrinsicSignature', [signature]),
+  new GenericExtrinsicPayloadV4(this.registry, payload)
+  */
+
+  const ttx = api.tx(JSON.parse(fs.readFileSync("payload.json").toString()));
+
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
       console.log("(sign)", payload);
+      fs.writeFileSync("payload.json", JSON.stringify(payload, null, 2));
 
       // create the actual payload we will be using
       const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
@@ -78,8 +90,21 @@ export async function createAndSendTx(
     undefined,
     "ethereum"
   );
-  let res = await txExtrinsic.sign(genesisAccount);
+
+  // const blockNumber = (await api.rpc.chain.getHeader()).number.toNumber();
+
+  // const txPayload = api.registry.createType("SignerPayload", [
+  //   {
+  //     address,
+  //     blockNumber,
+  //     method: txExtrinsic.method,
+  //   },
+  // ]);
   // Only resolve when it's finalised
+  // console.log("txPayload");
+  // console.log(txPayload.toHex());
+  fs.writeFileSync("payload2.json", JSON.stringify(txExtrinsic.toJSON(), null, 2));
+
   await new Promise<void>((resolve, reject) => {
     txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
       console.log("Transaction status:", status.type);

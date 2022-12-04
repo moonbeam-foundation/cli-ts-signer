@@ -13,9 +13,14 @@ export interface VerifyOpt {
   "public-key"?: string;
   type?: string;
 }
-export interface SendTxOpt {
-  ws?: string;
-  "tx-data"?: string;
+
+export interface CreateOpt {
+  file: string;
+}
+
+export interface SendOpt {
+  file: string;
+  yes: boolean;
 }
 
 export interface CreateAndSendOpt {

@@ -33,7 +33,10 @@ export const signCommand = {
       message: {
         describe: "message to be signed",
         type: "string" as "string",
-        demandOption: true,
+      },
+      file: {
+        describe: "[RW] file to read the transaction from and write the signature to",
+        type: "string" as "string",
       },
     });
   },
@@ -46,7 +49,14 @@ export const signCommand = {
       console.log(`Missing type`);
       return;
     }
-    await sign(isNetworkType(argv.type), argv["private-key"], false, argv.derivePath, argv.message);
+    await sign(
+      isNetworkType(argv.type),
+      argv["private-key"],
+      false,
+      argv.derivePath,
+      argv.message,
+      argv.file
+    );
   },
 };
 

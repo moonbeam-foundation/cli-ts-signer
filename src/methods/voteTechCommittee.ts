@@ -37,8 +37,9 @@ export async function retrieveMotions(api: ApiPromise): Promise<
         motion.method == "externalProposeDefault" ||
         motion.method == "externalPropose"
       ) {
+        // TODO: fix with new preimage
         const preimageData = (await api.query.democracy.preimages(motion.args[0])) as any;
-        const proposal =
+        const proposal: any =
           preimageData.toHuman() && preimageData.unwrap().isAvailable
             ? api.registry.createType(
                 "Proposal",

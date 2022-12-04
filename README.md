@@ -90,3 +90,41 @@ npm run cli -- createAndSendTx --network moonbase --ws "wss://wss.testnet.moonbe
 
 [1, 2] is utility.BatchAll in current Moonbase runtime 1101  
 [3, 1] is balance.setBalance in current Moonbase runtime 1101
+
+## Create/Sign/Send through file
+
+The signer supports to wrote transaction data and signature into a file to faciliate doing offline signing.
+
+### Generating the transaction
+
+`npm run cli -- create --network <network> --ws <ws> --address <address> --file <path_of_file> --tx <section.method> --params '[...]'`
+
+Creates the file `<path_of_file>` and stores the transaction payload details into it. This will get used in by the sign command
+
+### Signing the transaction
+
+`npm run cli -- sign --type ethereum --file <path_of_file> --private-key <private_key>`
+
+Reads payload from the file `<path_of_file>`, signs it with the private-key and **writes the signature into the same file**.
+
+Bonus: Also verifies the private-key matches the transaction address, preventing the bad-signature issue.
+
+### Sending the signed transaction
+
+`npm run cli -- send --network <network> --ws <ws> --file send-remark.json [--yes]`
+
+Sends the signed transaction. Will prompt the user for confirmation except if `--yes` is provided
+
+## Tips: Using encrypted private keys
+
+In order to avoid typing your private key in the cli, and having it visible (on screen and also in the bash history), it is suggested to store the private key in an encrypted file.
+
+If your private key is in file `alith.txt`, you can run:
+
+`gpg -c alith.txt` (and provide a password)
+
+This will generate the file `alith.txt.gpg`. You can re-use it when signing doing:
+
+`npm run cli -- sign --type ethereum --file <path_of_file> --private-key $(gpg -d alith.txt.gpg)`
+
+(This will ask for the password the first time, and keep it in memory for 5min in most gpg distributions)

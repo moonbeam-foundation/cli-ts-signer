@@ -1,6 +1,7 @@
 // Command Args
 export interface SignArgs extends SignPromptArgs {
   message?: string;
+  file?: string;
 }
 export interface SignPromptArgs {
   type?: string;
@@ -13,9 +14,9 @@ export interface VerifyArgs {
   "public-key"?: string;
   type?: string;
 }
-export interface SendTxArgs {
-  ws?: string;
-  "tx-data"?: string;
+export interface SendArgs {
+  file?: string;
+  yes?: boolean;
 }
 
 export interface CreateAndSendArgs {
@@ -25,6 +26,16 @@ export interface CreateAndSendArgs {
   nonce?: number;
   immortality: boolean;
 }
+
+export interface CreateArgs {
+  address?: string;
+  tx?: string;
+  params?: string;
+  nonce?: number;
+  immortality: boolean;
+  file?: string;
+}
+
 export interface VoteCouncilArgs {
   address?: string;
 }

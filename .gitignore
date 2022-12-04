@@ -111,3 +111,5 @@ moonbeam-signer-win.exe
 .DS_Store 
 
 test/build/
+
+*.gpg

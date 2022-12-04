@@ -2,8 +2,9 @@ import { hexToU8a, stringToU8a, u8aToHex } from "@polkadot/util";
 import { Keyring } from "@polkadot/keyring";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import type { KeypairType } from "@polkadot/util-crypto/types";
-import { cryptoWaitReady, blake2AsHex } from "@polkadot/util-crypto";
+import { cryptoWaitReady } from "@polkadot/util-crypto";
 import prompts from "prompts";
+import fs from "fs";
 import { NetworkType } from "./types";
 
 // TODO display payload content
@@ -12,10 +13,14 @@ export async function sign(
   privKeyOrMnemonic: string,
   prompt: boolean,
   derivePath: string,
-  message?: string
+  message?: string,
+  file?: string
 ): Promise<string> {
   if (!["ethereum", "sr25519"].includes(type)) {
     throw new Error("Type is not supported");
+  }
+  if (message && file) {
+    throw new Error("--message incompatible with --file-in");
   }
   await cryptoWaitReady();
   // Instantiate keyring
@@ -31,6 +36,29 @@ export async function sign(
           {},
           keyringType
         );
+
+  if (file) {
+    const { payload, message } = JSON.parse(fs.readFileSync(file).toString());
+    console.log(`Payload being signed: `, payload);
+
+    if (signer.address != payload.address) {
+      throw `Signer address: ${signer.address} doesn't match transaction sender: ${payload.address}`;
+    }
+
+    // Sign
+    const signature: Uint8Array =
+      type === "ethereum"
+        ? signer.sign(hexToU8a(message))
+        : signer.sign(hexToU8a(message), { withType: true });
+    console.log(`Signature generated for account: ${signer.address}`);
+
+    fs.writeFileSync(
+      file,
+      JSON.stringify({ payload, message, signature: u8aToHex(signature) }, null, 2)
+    );
+    console.log(`Signature stored in file: ${file}`);
+    return u8aToHex(signature);
+  }
 
   if (!prompt && !message) {
     throw new Error("sign must either provide message or use prompt");

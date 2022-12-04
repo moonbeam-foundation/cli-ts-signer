@@ -1,5 +1,4 @@
 import { authorizedChains } from "../methods/utils";
-import { TxWrapperArgs } from "./types";
 
 export const commonWrapperArgs = {
   sudo: {
