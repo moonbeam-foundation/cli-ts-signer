@@ -10,6 +10,11 @@ export const specificTxArgs = {
     type: "string" as "string",
     demandOption: true,
   },
+  file: {
+    describe: "file in which to store the transaction",
+    type: "string" as "string",
+    demandOption: true,
+  },
 };
 
 export const voteCouncilCommand = {
@@ -34,6 +39,10 @@ export const voteCouncilCommand = {
       console.log(`Missing network`);
       return;
     }
+    if (!argv["file"]) {
+      console.log(`Missing file`);
+      return;
+    }
     await voteCouncilPrompt(
       argv.address,
       {
@@ -45,7 +54,8 @@ export const voteCouncilCommand = {
             }
           : undefined,
       },
-      { ws: argv.ws, network: argv.network }
+      { ws: argv.ws, network: argv.network },
+      { file: argv.file }
     );
     exit();
   },

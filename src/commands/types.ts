@@ -38,6 +38,7 @@ export interface CreateArgs {
 
 export interface VoteCouncilArgs {
   address?: string;
+  file?: string;
 }
 
 export type TxParam = boolean | string | number | { [key: string]: any };

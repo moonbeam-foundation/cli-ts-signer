@@ -27,6 +27,10 @@ export const voteTechCommitteeCommand = {
       console.log(`Missing network`);
       return;
     }
+    if (!argv["file"]) {
+      console.log(`Missing file`);
+      return;
+    }
     await voteTechCommitteePrompt(
       argv.address,
       {
@@ -38,7 +42,8 @@ export const voteTechCommitteeCommand = {
             }
           : undefined,
       },
-      { ws: argv.ws, network: argv.network }
+      { ws: argv.ws, network: argv.network },
+      { file: argv.file }
     );
     exit();
   },

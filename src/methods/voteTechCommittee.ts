@@ -1,8 +1,8 @@
 import { ApiPromise } from "@polkadot/api";
 import prompts from "prompts";
 import { retrieveApi } from "./utils";
-import { NetworkOpt, TxWrapperOpt, Vote } from "./types";
-import { createAndSendTx } from "./createAndSendTx";
+import { CreateOpt, NetworkOpt, TxWrapperOpt, Vote } from "./types";
+import { createTx } from "./createTx";
 
 export async function retrieveMotions(api: ApiPromise): Promise<
   {
@@ -72,7 +72,8 @@ export async function retrieveMotions(api: ApiPromise): Promise<
 export async function voteTechCommitteePrompt(
   address: string,
   txWrapperOpt: TxWrapperOpt,
-  networkOpt: NetworkOpt
+  networkOpt: NetworkOpt,
+  createOpt: CreateOpt
 ) {
   const api = await retrieveApi(networkOpt.network, networkOpt.ws);
 
@@ -150,13 +151,5 @@ export async function voteTechCommitteePrompt(
             }),
           ],
         };
-  return createAndSendTx(txOpt, txWrapperOpt, networkOpt, async (payload: string) => {
-    const response = await prompts({
-      type: "text",
-      name: "signature",
-      message: "Please enter signature for + " + payload + " +",
-      validate: (value) => true, // TODO: add validation
-    });
-    return response["signature"].trim();
-  });
+  return createTx(txOpt, txWrapperOpt, networkOpt, createOpt);
 }

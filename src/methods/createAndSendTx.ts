@@ -56,19 +56,11 @@ export async function createAndSendTx(
     )})\n`
   );
 
-  /*
-  
-  toAddress(this.registry, signer),
-  this.registry.createTypeUnsafe('ExtrinsicSignature', [signature]),
-  new GenericExtrinsicPayloadV4(this.registry, payload)
-  */
-
   const ttx = api.tx(JSON.parse(fs.readFileSync("payload.json").toString()));
 
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
       console.log("(sign)", payload);
-      fs.writeFileSync("payload.json", JSON.stringify(payload, null, 2));
 
       // create the actual payload we will be using
       const xp = txExtrinsic.registry.createType("ExtrinsicPayload", payload);
