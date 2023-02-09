@@ -1,6 +1,6 @@
 {
   "name": "cli-ts-signer",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "ts based signer for moonbeam",
   "main": "index.js",
   "repository": "git@github.com:PureStake/cli-ts-signer.git",
@@ -28,6 +28,7 @@
     "build-binary": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg pkg.config.json"
   },
   "dependencies": {
+    "@moonbeam-network/api-augment": "^0.2000.1",
     "@polkadot/api": "^9.10.1",
     "@polkadot/keyring": "^10.2.1",
     "@polkadot/util": "^10.2.1",

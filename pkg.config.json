@@ -1,12 +1,10 @@
 {
-    "name": "moonbeam-signer",
-    "bin": "dist/index.js",
-    "private": true,
-    "pkg": {
-      "assets": [
-        "dist/876.index.js"
-      ],
-      "outputPath": "./",
-      "targets": ["node18-linux-x64","node18-macos-x64","node18-win-x64"]
-    }
+  "name": "moonbeam-signer",
+  "bin": "dist/index.js",
+  "private": true,
+  "pkg": {
+    "assets": ["dist/876.index.js"],
+    "outputPath": "./",
+    "targets": ["node18-linux-x64", "node18-macos-x64", "node18-win-x64"]
   }
+}

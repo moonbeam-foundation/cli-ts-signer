@@ -12,9 +12,9 @@ export async function retrieveMotions(api: ApiPromise): Promise<
   }[]
 > {
   // Fetch list of proposal hashes, descriptions and votes
-  const hashes = (await api.query["councilCollective"].proposals()) as any;
-  const motionList = (await api.query["councilCollective"].proposalOf.multi(hashes)) as any;
-  const votes = (await api.query["councilCollective"].voting.multi(hashes)) as any;
+  const hashes = (await api.query.councilCollective.proposals()) as any;
+  const motionList = (await api.query.councilCollective.proposalOf.multi(hashes)) as any;
+  const votes = (await api.query.councilCollective.voting.multi(hashes)) as any;
 
   return await Promise.all(
     motionList.map(async (motionData: any, index: any) => {
@@ -33,8 +33,13 @@ export async function retrieveMotions(api: ApiPromise): Promise<
         motion.method == "externalProposeDefault" ||
         motion.method == "externalPropose"
       ) {
-        // TODO: fix with new preimage
-        const preimageData = (await api.query.democracy.preimages(motion.args[0])) as any;
+        const preimageData: any = motion.args[0].isLookup
+          ? await api.query.preimage.preimageFor(motion.args[0])
+          : motion.args[0].isInline
+          ? motion.args[0].asInline
+          : await api.query.democracy.preimages(
+              motion.args[0].isLegacy ? motion.args[0].asLegacy : motion.args[0] // Support runtime before preimage pallet
+            );
         const proposal: any =
           preimageData.toHuman() && preimageData.unwrap().isAvailable
             ? api.registry.createType(
