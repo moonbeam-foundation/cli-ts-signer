@@ -1,4 +1,7 @@
 // Command Args
+import type { MoonbeamRuntimeProxyType } from "@polkadot/types/lookup";
+import { ProxyChain } from "moonbeam-tools";
+
 export interface SignOpt extends SignPromptOpt {
   message?: string;
 }
@@ -15,7 +18,7 @@ export interface VerifyOpt {
 }
 
 export interface CreateOpt {
-  file: string;
+  file?: string;
 }
 
 export interface SendOpt {
@@ -38,7 +41,7 @@ export type TxParam = boolean | string | number | { [key: string]: any };
 
 export interface ProxyOpt {
   account: string;
-  type?: "Any" | string;
+  type?: MoonbeamRuntimeProxyType["type"];
 }
 // Methods args
 export interface TxOpt {
@@ -51,11 +54,7 @@ export interface TxOpt {
 
 export interface TxWrapperOpt {
   sudo?: boolean;
-  proxy?: ProxyOpt;
-}
-export interface NetworkOpt {
-  ws: string;
-  network: string;
+  proxyChain: ProxyChain;
 }
 
 export type NetworkType = "ethereum" | "sr25519";

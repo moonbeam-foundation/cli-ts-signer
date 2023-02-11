@@ -2,7 +2,8 @@ import { Argv } from "yargs";
 import { createTx } from "../methods/createTx";
 import { exit } from "../methods/utils";
 import { commonArgs } from "./commonArgs";
-import { CreateArgs, NetworkArgs, TxWrapperArgs } from "./types";
+import { Argv as NetworkArgs, ProxyChain } from "moonbeam-tools";
+import { CreateArgs, TxWrapperArgs } from "./types";
 
 export const createOptions = {
   address: {
@@ -60,12 +61,8 @@ export const createCommand = {
       console.log(`Missing address`);
       return;
     }
-    if (!argv["ws"]) {
-      console.log(`Missing ws`);
-      return;
-    }
-    if (!argv["network"]) {
-      console.log(`Missing network`);
+    if (!argv["url"] && !argv["network"]) {
+      console.log(`Missing url or network`);
       return;
     }
     if (!argv["file"]) {
@@ -89,14 +86,9 @@ export const createCommand = {
       },
       {
         sudo: argv.sudo,
-        proxy: argv["proxied-account"]
-          ? {
-              account: argv["proxied-account"],
-              type: argv["proxy-type"],
-            }
-          : undefined,
+        proxyChain: ProxyChain.from(argv),
       },
-      { ws: argv.ws, network: argv.network },
+      { url: argv.url, network: argv.network },
       { file: argv.file }
     );
     exit();

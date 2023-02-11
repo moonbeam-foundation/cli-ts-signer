@@ -1,8 +1,7 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { expect } from "chai";
 import { ChildProcess } from "child_process";
-import { typesBundlePre900 } from "moonbeam-types-bundle";
-import { clearInterval } from "timers";
+import { ProxyChain } from "moonbeam-tools";
 import { createAndSendTx } from "../src/methods/createAndSendTx";
 import { TxParam } from "../src/methods/types";
 import { ALITH, BALTATHAR, testnetWs } from "../src/methods/utils";
@@ -29,10 +28,23 @@ describe("Create and Send Tx Integration Test", function () {
     wsUrl = `ws://localhost:${init.wsPort}`;
     api = await ApiPromise.create({
       provider: new WsProvider(wsUrl),
-      typesBundle: typesBundlePre900 as any,
     });
+    await api.isConnected;
     moonbeamProcess = init.runningNode;
   });
+
+  afterEach(async function () {
+    api.disconnect();
+
+    if (moonbeamProcess) {
+      await new Promise((resolve) => {
+        moonbeamProcess?.once("exit", resolve);
+        moonbeamProcess?.kill();
+        moonbeamProcess = null;
+      });
+    }
+  });
+
   it("should increment Baltathar's account balance", async function () {
     this.timeout(40000);
 
@@ -54,8 +66,8 @@ describe("Create and Send Tx Integration Test", function () {
         params: [BALTATHAR, testAmount],
         address: ALITH,
       },
-      {},
-      { ws: wsUrl, network: "moonbase" },
+      { proxyChain: new ProxyChain() },
+      { url: wsUrl },
       async (payload: string) => {
         return await testSignCLIPrivateKey(payload);
       }
@@ -162,8 +174,8 @@ describe("Create and Send Tx Integration Test", function () {
         params: largeParams,
         address: ALITH,
       },
-      {},
-      { ws: wsUrl, network: "moonbase" },
+      { proxyChain: new ProxyChain() },
+      { url: wsUrl },
       async (payload: string) => {
         return await testSignCLIPrivateKey(payload);
       }
@@ -207,8 +219,8 @@ describe("Create and Send Tx Integration Test", function () {
         address: ALITH,
         immortality: true,
       },
-      {},
-      { ws: wsUrl, network: "moonbase" },
+      { proxyChain: new ProxyChain() },
+      { url: wsUrl },
       async (payload: string) => {
         // wait 300 blocks before submitting signature
         for (let i = 0; i < 300; i++) {
@@ -229,75 +241,50 @@ describe("Create and Send Tx Integration Test", function () {
   });
   it("make sure tx fail after 300 blocks without immortality", async function () {
     this.timeout(40000);
-    return new Promise(async (res) => {
-      // First get initial balance of Baltathar
-      const initialBalance = await getBalance(BALTATHAR, api);
+    // First get initial balance of Baltathar
+    const initialBalance = await getBalance(BALTATHAR, api);
 
-      // Start producing blocks in parallel
-      let produceBlocks = true;
-      setInterval(async () => {
-        if (produceBlocks) {
-          await createAndFinalizeBlock(api, undefined, true);
-        }
-      }, 500);
-
-      // listen for node error messages
-      moonbeamProcess?.stderr?.on("data", async function (chunk) {
-        let message = chunk.toString();
-        if (
-          message.includes(
-            "Transaction pool error: Invalid transaction validity: InvalidTransaction::BadProof"
-          )
-        ) {
-          // Stop producing blocks
-          produceBlocks = false;
-          const finalBalance = await getBalance(BALTATHAR, api);
-          assert.equal(
-            Number(finalBalance).toString().substring(0, 15),
-            Number(initialBalance).toString().substring(0, 15)
-          );
-          res();
-        }
-      });
-
-      // create and send transfer tx from ALITH
-      try {
-        await createAndSendTx(
-          {
-            tx: "balances.transfer",
-            params: [BALTATHAR, testAmount],
-            address: ALITH,
-          },
-          {},
-          { ws: wsUrl, network: "moonbase" },
-          async (payload: string) => {
-            for (let i = 0; i < 300; i++) {
-              // wait 300 blocks before submitting signature
-              await createAndFinalizeBlock(api, undefined, true);
-            }
-            return await testSignCLIPrivateKey(payload);
-          }
-        );
-        // Stop producing blocks
-        produceBlocks = false;
-      } catch (e: any) {
-        // Stop producing blocks
-        produceBlocks = false;
-        expect(e.toString()).to.eq(
-          "Error: 1010: Invalid Transaction: Transaction has a bad signature"
-        );
+    // Start producing blocks in parallel
+    let produceBlocks = true;
+    let timer = setInterval(async () => {
+      if (produceBlocks) {
+        await createAndFinalizeBlock(api, undefined, true);
       }
-    });
-  });
-  afterEach(async function () {
-    api.disconnect();
+    }, 500);
 
-    if (moonbeamProcess) {
-      await new Promise((resolve) => {
-        moonbeamProcess?.once("exit", resolve);
-        moonbeamProcess?.kill();
-        moonbeamProcess = null;
-      });
+    // create and send transfer tx from ALITH
+    let err;
+    try {
+      await createAndSendTx(
+        {
+          tx: "balances.transfer",
+          params: [BALTATHAR, testAmount],
+          address: ALITH,
+        },
+        { proxyChain: new ProxyChain() },
+        { url: wsUrl },
+        async (payload: string) => {
+          for (let i = 0; i < 300; i++) {
+            // wait 300 blocks before submitting signature
+            await createAndFinalizeBlock(api, undefined, true);
+          }
+          return await testSignCLIPrivateKey(payload);
+        }
+      );
+      throw new Error("Create and Send should fail with bad signature");
+    } catch (e: any) {
+      err = e;
     }
+    // Stop producing blocks
+    produceBlocks = false;
+    clearInterval(timer);
+    expect(err.toString()).to.eq(
+      "RpcError: 1010: Invalid Transaction: Transaction has a bad signature"
+    );
+    const finalBalance = await getBalance(BALTATHAR, api);
+    assert.equal(
+      Number(finalBalance).toString().substring(0, 15),
+      Number(initialBalance).toString().substring(0, 15)
+    );
   });
 });

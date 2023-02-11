@@ -1,8 +1,9 @@
-import { Argv } from "yargs";
+import { Argv } from "yargs"; // Command Args
 import { exit } from "../methods/utils";
-import { voteCouncilPrompt } from "../methods/voteCouncil";
+import { votePrompt } from "../methods/vote";
 import { commonArgs } from "./commonArgs";
-import { NetworkArgs, TxWrapperArgs, VoteCouncilArgs } from "./types";
+import { Argv as NetworkArgs, ProxyChain } from "moonbeam-tools";
+import { TxWrapperArgs, VoteArgs } from "./types";
 
 export const specificTxArgs = {
   address: {
@@ -17,44 +18,35 @@ export const specificTxArgs = {
   },
 };
 
-export const voteCouncilCommand = {
-  command: "voteCouncil",
-  describe: "creates a vote council payload, prompts for signature and sends it",
+export const voteCommand = {
+  command: "vote",
+  describe: "creates a vote payload, prompts for signature and sends it",
   builder: (yargs: Argv) => {
     return yargs.options({
       ...commonArgs,
       ...specificTxArgs,
     });
   },
-  handler: async (argv: VoteCouncilArgs & NetworkArgs & TxWrapperArgs) => {
+  handler: async (argv: VoteArgs & NetworkArgs & TxWrapperArgs) => {
     if (!argv["address"]) {
       console.log(`Missing address`);
       return;
     }
-    if (!argv["ws"]) {
-      console.log(`Missing ws`);
-      return;
-    }
-    if (!argv["network"]) {
-      console.log(`Missing network`);
+    if (!argv["url"] && !argv["network"]) {
+      console.log(`Missing url or network`);
       return;
     }
     if (!argv["file"]) {
       console.log(`Missing file`);
       return;
     }
-    await voteCouncilPrompt(
+    await votePrompt(
       argv.address,
       {
         sudo: argv.sudo,
-        proxy: argv["proxied-account"]
-          ? {
-              account: argv["proxied-account"],
-              type: argv["proxy-type"],
-            }
-          : undefined,
+        proxyChain: ProxyChain.from(argv),
       },
-      { ws: argv.ws, network: argv.network },
+      { url: argv.url, network: argv.network },
       { file: argv.file }
     );
     exit();

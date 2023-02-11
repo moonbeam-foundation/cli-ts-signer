@@ -1,12 +1,10 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import { typesBundlePre900 } from "moonbeam-types-bundle";
 import { SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import fs from "fs";
 import chalk from "chalk";
 
-import { moonbeamChains } from "./utils";
-import { SendOpt, NetworkOpt } from "./types";
+import { Argv as NetworkOpt, getApiFor } from "moonbeam-tools";
+import { SendOpt } from "./types";
 import { u8aToHex } from "@polkadot/util";
 import { blake2AsHex } from "@polkadot/util-crypto";
 
@@ -15,21 +13,9 @@ export async function sendTx(
   sendOpt: SendOpt,
   prompter: () => Promise<boolean>
 ) {
-  const { ws, network } = networkOpt;
   const { file } = sendOpt;
 
-  let api: ApiPromise;
-
-  if (network && moonbeamChains.includes(network)) {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-      typesBundle: typesBundlePre900 as any,
-    });
-  } else {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-    });
-  }
+  const api = await getApiFor(networkOpt);
   const { payload, message, signature } = JSON.parse(fs.readFileSync(file).toString());
   const txExtrinsic = api.tx(payload);
 
@@ -44,7 +30,9 @@ export async function sendTx(
   console.log(
     `Transaction being sent from ${chalk.yellow(payload.address)}:\n${chalk.red(
       `${section}.${method}`
-    )}(${chalk.green(`${args.map((a) => a.toString().slice(0, 200)).join(chalk.white(", "))}`)})\n`
+    )}(${chalk.green(
+      `${args.map((a) => a.toString().slice(0, 10000)).join(chalk.white(", "))}`
+    )})\n`
   );
 
   const signer = {

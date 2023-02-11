@@ -2,7 +2,8 @@ import { Argv } from "yargs";
 import { createAndSendTxPrompt } from "../methods/createAndSendTx";
 import { exit } from "../methods/utils";
 import { commonArgs } from "./commonArgs";
-import { CreateAndSendArgs, NetworkArgs, TxWrapperArgs } from "./types";
+import { Argv as NetworkArgs, ProxyChain } from "moonbeam-tools";
+import { CreateAndSendArgs, TxWrapperArgs } from "./types";
 
 export const createTxOptions = {
   address: {
@@ -55,12 +56,8 @@ export const createAndSendTxCommand = {
       console.log(`Missing address`);
       return;
     }
-    if (!argv["ws"]) {
-      console.log(`Missing ws`);
-      return;
-    }
-    if (!argv["network"]) {
-      console.log(`Missing network`);
+    if (!argv["url"] && !argv["network"]) {
+      console.log(`Missing url or network`);
       return;
     }
     // Moves this check to yargs
@@ -80,14 +77,9 @@ export const createAndSendTxCommand = {
       },
       {
         sudo: argv.sudo,
-        proxy: argv["proxied-account"]
-          ? {
-              account: argv["proxied-account"],
-              type: argv["proxy-type"],
-            }
-          : undefined,
+        proxyChain: ProxyChain.from(argv),
       },
-      { ws: argv.ws, network: argv.network }
+      { url: argv.url, network: argv.network }
     );
     exit();
   },

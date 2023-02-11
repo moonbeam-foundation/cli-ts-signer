@@ -1,4 +1,4 @@
-import { authorizedChains } from "../methods/utils";
+import { NETWORK_YARGS_OPTIONS, PROXY_CHAIN_YARGS_OPTIONS } from "moonbeam-tools";
 
 export const commonWrapperArgs = {
   sudo: {
@@ -7,31 +7,10 @@ export const commonWrapperArgs = {
     default: false,
     demandOption: false,
   },
-  "proxied-account": {
-    describe: "address of the proxied account",
-    type: "string" as "string",
-  },
-  "proxy-type": {
-    describe: "Type of proxy",
-    type: "string" as "string",
-  },
-};
-
-export const commonNetworkArgs = {
-  network: {
-    describe: "the network on which you want to send the tx",
-    type: "string" as "string",
-    choices: authorizedChains,
-    demandOption: true,
-  },
-  ws: {
-    describe: "websocket address of the endpoint on which to connect",
-    type: "string" as "string",
-    demandOption: true,
-  },
+  ...PROXY_CHAIN_YARGS_OPTIONS,
 };
 
 export const commonArgs = {
   ...commonWrapperArgs,
-  ...commonNetworkArgs,
+  ...NETWORK_YARGS_OPTIONS,
 };

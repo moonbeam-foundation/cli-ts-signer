@@ -1,5 +1,5 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
-import { typesBundlePre900 } from "moonbeam-types-bundle";
+import "@moonbeam-network/api-augment";
+
 import { NetworkType } from "./types";
 
 export const moonbeamChains = ["moonbase", "moonbeam", "moonriver", "moonshadow"];
@@ -22,24 +22,8 @@ export function exit() {
   process.exit();
 }
 
-export async function retrieveApi(network: string, ws: string): Promise<ApiPromise> {
-  let api: ApiPromise;
-  if (moonbeamChains.includes(network)) {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-      typesBundle: typesBundlePre900 as any,
-    });
-  } else {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-    });
-  }
-  return api;
-}
-
 export function checkArgv(argv: { [key: string]: any }, fieldName: string) {
   if (!argv[fieldName]) {
-    // console.log(`Missing arg : ${fieldName}`);
     throw new Error(`Missing arg : ${fieldName}`);
     // return;
   }

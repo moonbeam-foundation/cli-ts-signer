@@ -16,7 +16,7 @@ export const signOptions = {
     type: "string" as "string",
     demandOption: true,
   },
-  derivePath: {
+  "derive-path": {
     describe: "derivation path for bip-44 (optional)",
     type: "string" as "string",
     default: `/m/44'/60'/0'/0/0`,
@@ -53,7 +53,7 @@ export const signCommand = {
       isNetworkType(argv.type),
       argv["private-key"],
       false,
-      argv.derivePath,
+      argv["derive-path"],
       argv.message,
       argv.file
     );
@@ -75,6 +75,6 @@ export const signPromptCommand = {
       console.log(`Missing type`);
       return;
     }
-    await sign(isNetworkType(argv.type), argv["private-key"], true, argv.derivePath);
+    await sign(isNetworkType(argv.type), argv["private-key"], true, argv["derive-path"]);
   },
 };

@@ -1,16 +1,12 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
-import { typesBundlePre900 } from "moonbeam-types-bundle";
-import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
+import { SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
-import fs from "fs";
-import Keyring from "@polkadot/keyring";
 import { blake2AsHex } from "@polkadot/util-crypto";
 import chalk from "chalk";
 
-import { moonbeamChains } from "./utils";
 import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
-import { NetworkOpt, TxOpt, TxWrapperOpt } from "./types";
+import { Argv as NetworkOpt, getApiFor } from "moonbeam-tools";
+import { TxOpt, TxWrapperOpt } from "./types";
 
 export async function createAndSendTx(
   txOpt: TxOpt,
@@ -19,30 +15,16 @@ export async function createAndSendTx(
   signatureFunction: (payload: string) => Promise<`0x${string}`>
 ) {
   const { tx, params, address, nonce } = txOpt;
-  const { sudo, proxy } = txWrapperOpt;
-  const { ws, network } = networkOpt;
+  const { sudo, proxyChain } = txWrapperOpt;
   const [sectionName, methodName] = tx.split(".");
 
-  let api: ApiPromise;
-
-  if (network && moonbeamChains.includes(network)) {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-      typesBundle: typesBundlePre900 as any,
-    });
-  } else {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-    });
-  }
-  let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult> = api.tx[sectionName][
-    methodName
-  ](...params);
+  const api = await getApiFor(networkOpt);
+  let txExtrinsic = api.tx[sectionName][methodName](...params);
   if (sudo) {
     txExtrinsic = api.tx.sudo.sudo(txExtrinsic);
   }
-  if (proxy && proxy.account) {
-    txExtrinsic = api.tx.proxy.proxy(proxy.account, proxy.type || null, txExtrinsic);
+  if (proxyChain) {
+    txExtrinsic = proxyChain.applyChain(api, txExtrinsic);
   }
   txExtrinsic = await txExtrinsic;
 
@@ -52,11 +34,9 @@ export async function createAndSendTx(
   } = txExtrinsic;
   console.log(
     `Transaction created:\n${chalk.red(`${section}.${method}`)}(${chalk.green(
-      `${args.map((a) => a.toString().slice(0, 200)).join(chalk.white(", "))}`
+      `${args.map((a) => a.toString().slice(0, 10000)).join(chalk.white(", "))}`
     )})\n`
   );
-
-  const ttx = api.tx(JSON.parse(fs.readFileSync("payload.json").toString()));
 
   const signer = {
     signPayload: (payload: SignerPayloadJSON) => {
@@ -76,54 +56,37 @@ export async function createAndSendTx(
   };
   let options = txOpt.immortality ? { signer, era: 0, nonce } : { signer, nonce };
 
-  const keyring = new Keyring({ type: "ethereum" });
-  const genesisAccount = await keyring.addFromUri(
-    "0x5fb92d6e98884f76de468fa3f6278f8807c48bebc13595d45af5bdc4da702133",
-    undefined,
-    "ethereum"
-  );
+  await new Promise<void>(async (resolve, reject) => {
+    try {
+      await txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
+        console.log("Transaction status:", status.type);
 
-  // const blockNumber = (await api.rpc.chain.getHeader()).number.toNumber();
-
-  // const txPayload = api.registry.createType("SignerPayload", [
-  //   {
-  //     address,
-  //     blockNumber,
-  //     method: txExtrinsic.method,
-  //   },
-  // ]);
-  // Only resolve when it's finalised
-  // console.log("txPayload");
-  // console.log(txPayload.toHex());
-  fs.writeFileSync("payload2.json", JSON.stringify(txExtrinsic.toJSON(), null, 2));
-
-  await new Promise<void>((resolve, reject) => {
-    txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
-      console.log("Transaction status:", status.type);
-
-      if (status.isInBlock) {
-        console.log("Included at block hash", status.asInBlock.toHex());
-        console.log("Events: ");
-        events.forEach(({ event: { data, method, section } }) => {
-          const [error] = data as any[];
-          if (error?.isModule) {
-            const { docs, name, section } = api.registry.findMetaError(error.asModule);
-            console.log("\t", `${chalk.red(`${section}.${name}`)}`, `${docs}`);
-          } else if (section == "system" && method == "ExtrinsicSuccess") {
-            console.log("\t", chalk.green(`${section}.${method}`), data.toString());
-          } else {
-            console.log("\t", `${section}.${method}`, data.toString());
-          }
-        });
-        resolve();
-      } else if (status.isDropped || status.isInvalid || status.isRetracted) {
-        console.log(
-          "There was a problem with the extrinsic, status : ",
-          status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
-        );
-        resolve();
-      }
-    });
+        if (status.isInBlock || status.isFinalized) {
+          console.log("Included at block hash", status.toHex());
+          console.log("Events: ");
+          events.forEach(({ event: { data, method, section } }) => {
+            const [error] = data as any[];
+            if (error?.isModule) {
+              const { docs, name, section } = api.registry.findMetaError(error.asModule);
+              console.log("\t", `${chalk.red(`${section}.${name}`)}`, `${docs}`);
+            } else if (section == "system" && method == "ExtrinsicSuccess") {
+              console.log("\t", chalk.green(`${section}.${method}`), data.toString());
+            } else {
+              console.log("\t", `${section}.${method}`, data.toString());
+            }
+          });
+          resolve();
+        } else if (status.isDropped || status.isInvalid || status.isRetracted) {
+          console.log(
+            "There was a problem with the extrinsic, status : ",
+            status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
+          );
+          resolve();
+        }
+      });
+    } catch (e) {
+      reject(e);
+    }
   });
 }
 

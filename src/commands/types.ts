@@ -3,17 +3,20 @@ export interface SignArgs extends SignPromptArgs {
   message?: string;
   file?: string;
 }
+
 export interface SignPromptArgs {
   type?: string;
   "private-key"?: string;
-  derivePath: string;
+  "derive-path": string;
 }
+
 export interface VerifyArgs {
   message?: string;
   signature?: string;
   "public-key"?: string;
   type?: string;
 }
+
 export interface SendArgs {
   file?: string;
   yes?: boolean;
@@ -36,7 +39,7 @@ export interface CreateArgs {
   file?: string;
 }
 
-export interface VoteCouncilArgs {
+export interface VoteArgs {
   address?: string;
   file?: string;
 }
@@ -56,11 +59,6 @@ export interface TxWrapperArgs {
   sudo?: boolean;
   "proxied-account"?: string;
   "proxy-type"?: "Any" | string;
-}
-
-export interface NetworkArgs {
-  ws?: string;
-  network?: string;
 }
 
 export type NetworkType = "ethereum" | "sr25519";

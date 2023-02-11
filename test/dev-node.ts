@@ -15,8 +15,8 @@ export const DISPLAY_LOG = process.env.MOONBEAM_LOG || false;
 const debug = require("debug")("test:dev-node");
 
 // test parachain from docker
-const paraName = "moonbase-0.17.0";
-const paraDocker = "purestake/moonbeam:v0.17.0";
+const paraName = "moonbase-0.29.0";
+const paraDocker = "purestake/moonbeam:v0.29.0";
 
 // Stores if the node has already started.
 // It is used when a test file contains multiple describeDevMoonbeam. Those are

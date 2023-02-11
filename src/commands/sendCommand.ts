@@ -2,7 +2,8 @@ import { Argv } from "yargs";
 import { sendTxPrompt } from "../methods/sendTx";
 import { exit } from "../methods/utils";
 import { commonArgs } from "./commonArgs";
-import { NetworkArgs, SendArgs } from "./types";
+import { Argv as NetworkArgs } from "moonbeam-tools";
+import { SendArgs } from "./types";
 
 export const sendOptions = {
   file: {
@@ -26,12 +27,8 @@ export const sendCommand = {
     });
   },
   handler: async (argv: SendArgs & NetworkArgs) => {
-    if (!argv["ws"]) {
-      console.log(`Missing ws`);
-      return;
-    }
-    if (!argv["network"]) {
-      console.log(`Missing network`);
+    if (!argv["url"] && !argv["network"]) {
+      console.log(`Missing url or network`);
       return;
     }
     if (!argv["file"]) {
@@ -39,7 +36,7 @@ export const sendCommand = {
       return;
     }
     await sendTxPrompt(
-      { ws: argv.ws, network: argv.network },
+      { url: argv.url, network: argv.network },
       { file: argv.file, yes: argv.yes || false }
     );
     exit();

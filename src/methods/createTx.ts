@@ -1,14 +1,11 @@
-import { ApiPromise, WsProvider } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
-import { typesBundlePre900 } from "moonbeam-types-bundle";
-import { ISubmittableResult, SignerPayloadJSON } from "@polkadot/types/types";
+import { SignerPayloadJSON } from "@polkadot/types/types";
 import fs from "fs";
 import { blake2AsHex } from "@polkadot/util-crypto";
 import chalk from "chalk";
 
-import { moonbeamChains } from "./utils";
-import { SubmittableExtrinsic } from "@polkadot/api/types";
-import { CreateOpt, NetworkOpt, TxOpt, TxWrapperOpt } from "./types";
+import { Argv as NetworkOpt, getApiFor } from "moonbeam-tools";
+import { CreateOpt, TxOpt, TxWrapperOpt } from "./types";
 
 export async function createTx(
   txOpt: TxOpt,
@@ -17,30 +14,17 @@ export async function createTx(
   createOpt: CreateOpt
 ) {
   const { tx, params, address, nonce } = txOpt;
-  const { sudo, proxy } = txWrapperOpt;
-  const { ws, network } = networkOpt;
+  const { sudo, proxyChain } = txWrapperOpt;
   const { file } = createOpt;
   const [sectionName, methodName] = tx.split(".");
 
-  let api: ApiPromise;
-  if (network && moonbeamChains.includes(network)) {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-      typesBundle: typesBundlePre900 as any,
-    });
-  } else {
-    api = await ApiPromise.create({
-      provider: new WsProvider(ws),
-    });
-  }
-  let txExtrinsic: SubmittableExtrinsic<"promise", ISubmittableResult> = api.tx[sectionName][
-    methodName
-  ](...params);
+  const api = await getApiFor(networkOpt);
+  let txExtrinsic = api.tx[sectionName][methodName](...params);
   if (sudo) {
     txExtrinsic = api.tx.sudo.sudo(txExtrinsic);
   }
-  if (proxy && proxy.account) {
-    txExtrinsic = api.tx.proxy.proxy(proxy.account, proxy.type || null, txExtrinsic);
+  if (proxyChain) {
+    txExtrinsic = proxyChain.applyChain(api, txExtrinsic);
   }
   txExtrinsic = await txExtrinsic;
 
@@ -50,11 +34,15 @@ export async function createTx(
   } = txExtrinsic;
   console.log(
     `Transaction created:\n${chalk.red(`${section}.${method}`)}(${chalk.green(
-      `${args.map((a) => a.toString().slice(0, 200)).join(chalk.white(", "))}`
+      `${args.map((a) => a.toString().slice(0, 10000)).join(chalk.white(", "))}`
     )})\n`
   );
 
   // Capture the full payload into a file
+  let result: {
+    message?: string;
+    payload?: any;
+  } = {};
   const signer = {
     signPayload: async (payload: SignerPayloadJSON) => {
       // create the actual payload we will be using
@@ -65,17 +53,14 @@ export async function createTx(
       console.log("Transaction data to be signed: ", payload);
       console.log("Message: ", message);
 
-      fs.writeFileSync(
-        file,
-        JSON.stringify(
-          {
-            message,
-            payload,
-          },
-          null,
-          2
-        )
-      );
+      result = {
+        message,
+        payload,
+      };
+
+      if (file) {
+        fs.writeFileSync(file, JSON.stringify(result, null, 2));
+      }
       console.log(`Transaction data written into: ${file}`);
       return { id: 1, signature: "0x00" as `0x${string}` };
     },
@@ -85,4 +70,5 @@ export async function createTx(
   await txExtrinsic.signAsync(address, options).catch((err) => {
     // expected to fail as we are not signing it but simply storing the data
   });
+  return result;
 }

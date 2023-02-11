@@ -1,4 +1,4 @@
-import { hexToU8a, stringToU8a, u8aToHex } from "@polkadot/util";
+import { hexToU8a, u8aToHex } from "@polkadot/util";
 import { Keyring } from "@polkadot/keyring";
 import type { KeyringPair } from "@polkadot/keyring/types";
 import type { KeypairType } from "@polkadot/util-crypto/types";
