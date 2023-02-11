@@ -26,7 +26,7 @@ export const signOptions = {
 
 export const signCommand = {
   command: "sign",
-  describe: "sign byteCode with a private key",
+  describe: "sign a transaction message or payload from a file",
   builder: (yargs: Argv) => {
     return yargs.options({
       ...signOptions,

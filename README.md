@@ -1,49 +1,88 @@
 # cli-ts-signer
 
-Typescript based cli signer for both Substrate and Ethereum Transactions
+Typescript based cli signer for both Substrate and Ethereum Transactions.
 
 The goal is to be able to sign transactions offline for both Moonbeam based parachains and relay chains.
 
-## Examples
+## Disclaimer
 
-_run these commands in the shell_tests folder_
+Moonbeam Signer Copyright (C) 2023 Purestake Ltd  
+This program comes with ABSOLUTELY NO WARRANTY. For details, see [LICENSE](./LICENSE).  
+This is free software, and you are welcome to redistribute it under certain conditions.
 
-To run the examples, open two terminal and run in parallel the createAndSend and the signature test scripts:
+## Commands
 
-`./test_signature_{moonbase/westend}`
-`./test_createAndSend_{moonbase/westend}`
+- `license`: Displays the license
+- `create`: Creates a transaction payload and stores it in a file
+- `vote`: Interactively create a batch of votes for collectives in a file
+- `sign`: Signs a transaction message or payload from a file
+- `send`: Sends on-chain a signed transaction stored in a file
+- `verify`: Verifies a signature
+- `createAndSendTx`: Perform create and send sequentially
 
-createAndSend will create a transaction payload and prompt the user to enter signature and send it.
-signature (sign) will sign a payload and return a signature.
-See script for input details.
+## Create/Sign/Send through file
+
+### Generating the transaction
+
+The signer supports to wrote transaction data and signature into a file to faciliate doing offline signing.
+
+```
+./moonbeam-signer-linux create --network <network> --address <address> --file <path_of_file> --tx <section.method> --params '[...]'
+```
+
+Creates the file `<path_of_file>` and stores the transaction payload details into it. This will get used in by the sign command.
+
+(To easily find the possible section.method and their parameters, it is suggested to connect to [polkadotjs app](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fwss.api.moonbeam.network#/extrinsics))
+
+### Signing the transaction
+
+```
+./moonbeam-signer-linux sign --type ethereum --file <path_of_file> --private-key <private_key>
+```
+
+Reads payload from the file `<path_of_file>`, signs it with the private-key and **writes the signature into the same file**.
+
+Bonus: Also verifies the private-key matches the transaction address, preventing the bad-signature issue.
+
+### Sending the signed transaction
+
+```
+./moonbeam-signer-linux send --network <network> --file send-remark.json [--yes]
+```
+
+Sends the signed transaction. Will prompt the user for confirmation except if `--yes` is provided
 
 ### Sudo
 
-To try sudo, open 3 terminals.
-In the first one run `npm run launch --parachain local --relay local` in order
-to launch a local parachain on port 34102.
+It is possible to wrap the call inside a sudo:
 
-Then, in the two other windows run :
-`./test_signature_moonbase`
-`./test_createAndSend_sudo_moonbase`
+```
+./moonbeam-signer-linux create --network <network> --address <address> --tx parachainStaking.setParachainBondAccount --params "0x111...11" --sudo
+```
 
-You will see the updated parachainBond in the apps (chain state) if connecting to ws://localhost:34102
+will execute `sudo.sudo` (`<address>` must be the sudo user) to execute `parachainStaking.setParachainBondAccount("0x111...111")`
 
 ### Proxy
 
 It is possible to proxy transaction by using:
-`npm run cli voteCouncil -- --network <network> --ws <ws> <address> --proxied-account <proxied-address> [--proxy-type <Any|Governance|...>]`
 
-- proxied-account: The account that is **proxied**
-- proxy-type: The type of proxy (default: null, will use the first proxy account matching)
+```
+./moonbeam-signer-linux vote --network <network> --address <address> --proxied-account <proxied-address>[:<proxy-type>][,proxied-address>[:<proxy-type>]]...
+```
 
-### Specific Actions
+- proxied-account: A list (comma-separated) of proxied addresses
 
-Some specific actions are provided as a preconfigured feature:
+Proxy addresses are ordered from the deepest proxy to the real account.
+A Proxied address can be followed by `:<proxy-type` (like Governance, Any,...) to specify the type of proxy to use.
 
-`npm run cli voteCouncil -- --network <network> --ws <ws> <address>` : creates a vote council payload, prompts for signature and sends it
+**Exemple:**
 
-`npm run cli voteTechCommittee -- --network <network> --ws <ws> --address <address>` : creates a tech committee vote payload, prompts for signature and sends it
+`--proxied-account "0x222...22:Any,0x333...33:Staking --address "0x111..11"`
+will make `0x111...11` **sign** a _proxy.proxy_ to `0x222...22` which will _proxy.proxy_ to `0x333...33` which will _execute the call_)
+
+**Combined with sudo**
+
+If you combine `--sudo` with `--proxied-account`, the `sudo.sudo` will get wrapped inside the `proxy.proxy`(s).
 
 ## Binary
 
@@ -56,7 +95,7 @@ Then, to use it on a mac, for example:
 
 ## Exemples
 
-Using sudo.sudoAs to add proxy to another account
+Using sudo.sudoAs to **add proxy** to another account
 
 ```
 npm run cli -- createAndSendTx --ws "wss://wss.testnet.moonbeam.network" --address "0x5a7869f6aEfC93F45b30514023324B8D38e2a11c" --tx sudo.sudoAs --params '["0x62D9F113cBd2263FADd5C6248B0f538dD133f6A4", {"callIndex": [22, 1], "args":["0xb1C35866AEba18de80b8A60226EA47990F7D2208", "Any", 50400]}]'
@@ -64,7 +103,7 @@ npm run cli -- createAndSendTx --ws "wss://wss.testnet.moonbeam.network" --addre
 
 [22, 1] is proxy.addProxy in current Moonbase runtime 1101
 
-Using sudo to set the balance of multiple accounts
+Using sudo to **set the balance of multiple accounts**
 
 ```
 npm run cli -- createAndSendTx --network moonbase --ws "wss://wss.testnet.moonbeam.network" --address "0x5a7869f6aEfC93F45b30514023324B8D38e2a11c" \
@@ -90,30 +129,6 @@ npm run cli -- createAndSendTx --network moonbase --ws "wss://wss.testnet.moonbe
 
 [1, 2] is utility.BatchAll in current Moonbase runtime 1101  
 [3, 1] is balance.setBalance in current Moonbase runtime 1101
-
-## Create/Sign/Send through file
-
-The signer supports to wrote transaction data and signature into a file to faciliate doing offline signing.
-
-### Generating the transaction
-
-`npm run cli -- create --network <network> --ws <ws> --address <address> --file <path_of_file> --tx <section.method> --params '[...]'`
-
-Creates the file `<path_of_file>` and stores the transaction payload details into it. This will get used in by the sign command
-
-### Signing the transaction
-
-`npm run cli -- sign --type ethereum --file <path_of_file> --private-key <private_key>`
-
-Reads payload from the file `<path_of_file>`, signs it with the private-key and **writes the signature into the same file**.
-
-Bonus: Also verifies the private-key matches the transaction address, preventing the bad-signature issue.
-
-### Sending the signed transaction
-
-`npm run cli -- send --network <network> --ws <ws> --file send-remark.json [--yes]`
-
-Sends the signed transaction. Will prompt the user for confirmation except if `--yes` is provided
 
 ## Tips: Using encrypted private keys
 

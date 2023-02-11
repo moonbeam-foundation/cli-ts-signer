@@ -19,7 +19,7 @@ export const sendOptions = {
 
 export const sendCommand = {
   command: "send",
-  describe: "sends signed ransaction stored in a file",
+  describe: "sends signed transaction stored in a file",
   builder: (yargs: Argv) => {
     return yargs.options({
       ...commonArgs,
