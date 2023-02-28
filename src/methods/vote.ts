@@ -199,7 +199,7 @@ export async function votePrompt(
     votes.length === 1
       ? {
           address,
-          tx: `councilCollective.vote`,
+          tx: `${motions[motionSelection.index[0]].palletName}.vote`,
           params: [
             motions[motionSelection.index[0]].hash,
             motions[motionSelection.index[0]].index,
