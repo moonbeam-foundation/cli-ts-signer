@@ -1,4 +1,6 @@
 import { exec } from "child_process";
+import path from "path";
+import fs from "fs";
 var assert = require("assert");
 
 // transaction data for a balance.tranfer from Alice to Balthathar of "1000000000000", on the moonbase testnet
@@ -82,5 +84,31 @@ describe("Signature - mnemonic", function () {
         ` --derivePath "/m/44'/60'/0'/0/1"`
     );
     assert.equal(output, expectedSignatureBaltathar);
+  });
+});
+
+const SR25519_KEY = "0x014f939e16c21f9d5d151e71f07e42de5b63db3569d65e8fc2ba281ca737ca07";
+const SR25519_SS58_ADDRESS = "5EcFvNvYgK351fXoFY3CrurAZqpzFe5AXgEVyC1GE33WtJbt";
+const FILE_SAMPLE_1 = path.resolve(__dirname, "samples/sample-1.json");
+describe("Signature - file", function () {
+  let originalSample = "";
+  before("Verify sample is correct", async function () {
+    originalSample = fs.readFileSync(FILE_SAMPLE_1).toString();
+    const { signature } = JSON.parse(originalSample);
+    assert.equal(signature, null);
+  });
+  
+  after("Restore sample", async function () {
+    fs.writeFileSync(FILE_SAMPLE_1, originalSample);
+  });
+
+  it.only("should correctly sign file with different ss58Prefix", async function () {
+    this.timeout(10000);
+
+    await testSign(
+      `npm run cli sign -- --type sr25519 --private-key ${SR25519_KEY} --file ${FILE_SAMPLE_1}`
+    );
+    const { signature } = JSON.parse(fs.readFileSync(FILE_SAMPLE_1).toString());
+    assert.equal(signature.length, 132);
   });
 });

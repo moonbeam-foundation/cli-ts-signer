@@ -113,3 +113,5 @@ moonbeam-signer-win.exe
 test/build/
 
 *.gpg
+
+test/samples/

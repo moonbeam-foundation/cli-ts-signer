@@ -1,0 +1,30 @@
+{
+    "message": "0x1d010040c4301003d5d109819d51372edf6d0477ce8e3c13f98f951b7926003e5e632f0000000000d50200009a2400001400000091b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3a973beb861564605da73e5773e1053fef25903e475761229ca39f05a4234b80b",
+    "payload": {
+      "specVersion": "0x0000249a",
+      "transactionVersion": "0x00000014",
+      "address": "5EcFvNvYgK351fXoFY3CrurAZqpzFe5AXgEVyC1GE33WtJbt",
+      "blockHash": "0xa973beb861564605da73e5773e1053fef25903e475761229ca39f05a4234b80b",
+      "blockNumber": "0x00ef406d",
+      "era": "0xd502",
+      "genesisHash": "0x91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+      "method": "0x1d010040c4301003d5d109819d51372edf6d0477ce8e3c13f98f951b7926003e5e632f0000000000",
+      "nonce": "0x00000000",
+      "signedExtensions": [
+        "CheckNonZeroSender",
+        "CheckSpecVersion",
+        "CheckTxVersion",
+        "CheckGenesis",
+        "CheckMortality",
+        "CheckNonce",
+        "CheckWeight",
+        "ChargeTransactionPayment",
+        "PrevalidateAttests"
+      ],
+      "tip": "0x00000000000000000000000000000000",
+      "version": 4
+    },
+    "_extra": {
+        "command": "./moonbeam-signer-linux create --network polkadot --tx proxy.addProxy --params '[\"12TvLz5jAFCrCPWHZw6VWZJ63hxLwh15wxnatwfEZASCxAt2\", \"Any\", 0]' --address 5EcFvNvYgK351fXoFY3CrurAZqpzFe5AXgEVyC1GE33WtJbt --file sample-1"
+    }
+  }

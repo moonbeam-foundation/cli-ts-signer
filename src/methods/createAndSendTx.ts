@@ -21,9 +21,25 @@ export async function createAndSendTx(
   const api = await getApiFor(networkOpt);
   let txExtrinsic = api.tx[sectionName][methodName](...params);
   if (sudo) {
+    const {
+      method: { args, method, section },
+    } = txExtrinsic;
+    console.log(
+      `Sudo transaction:\n${chalk.red(`${section}.${method}`)}(${chalk.green(
+        `${args.map((a) => a.toString().slice(0, 10000)).join(chalk.white(", "))}`
+      )})\n`
+    );
     txExtrinsic = api.tx.sudo.sudo(txExtrinsic);
   }
-  if (proxyChain) {
+  if (proxyChain && proxyChain.proxies.length > 0) {
+    const {
+      method: { args, method, section },
+    } = txExtrinsic;
+    console.log(
+      `Proxied transaction:\n${chalk.red(`${section}.${method}`)}(${chalk.green(
+        `${args.map((a) => a.toString().slice(0, 10000)).join(chalk.white(", "))}`
+      )})\n`
+    );
     txExtrinsic = proxyChain.applyChain(api, txExtrinsic);
   }
   txExtrinsic = await txExtrinsic;
