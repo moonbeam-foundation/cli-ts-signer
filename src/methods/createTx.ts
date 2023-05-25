@@ -62,7 +62,6 @@ export async function createTx(
   } = {};
   const signer = {
     signPayload: async (payload: SignerPayloadJSON) => {
-      
       // Forces the address to be the same as the one provided.
       // Otherwise it would be using SS58Prefix 0
       payload.address = address;

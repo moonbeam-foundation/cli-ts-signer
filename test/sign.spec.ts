@@ -97,7 +97,7 @@ describe("Signature - file", function () {
     const { signature } = JSON.parse(originalSample);
     assert.equal(signature, null);
   });
-  
+
   after("Restore sample", async function () {
     fs.writeFileSync(FILE_SAMPLE_1, originalSample);
   });

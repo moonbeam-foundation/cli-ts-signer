@@ -7,8 +7,7 @@ import prompts from "prompts";
 import fs from "fs";
 import { NetworkType } from "./types";
 
-import knownSubstrate from '@substrate/ss58-registry';
-
+import knownSubstrate from "@substrate/ss58-registry";
 
 function getSigner(
   keyring: Keyring,
@@ -47,7 +46,7 @@ function signFile(type: NetworkType, file: string, privKeyOrMnemonic: string, de
       throw new Error("Invalid decoded address checksum");
     }
     ss58Prefix = ss58Decoded;
-    ss58Network = knownSubstrate.find(s => s.prefix === ss58Prefix)?.network || "unkown";
+    ss58Network = knownSubstrate.find((s) => s.prefix === ss58Prefix)?.network || "unkown";
     keyring.setSS58Format(ss58Decoded);
   }
 
