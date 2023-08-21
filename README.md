@@ -1,6 +1,6 @@
 # cli-ts-signer
 
-Typescript based cli signer for both Substrate and Ethereum Transactions.
+Typescript based cli signer for Substrate Transactions.
 
 The goal is to be able to sign transactions offline for both Moonbeam based parachains and relay chains.
 
