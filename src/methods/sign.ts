@@ -52,7 +52,7 @@ function signFile(type: NetworkType, file: string, privKeyOrMnemonic: string, de
 
   const signer = getSigner(keyring, type, privKeyOrMnemonic, derivePath);
 
-  if (signer.address != payload.address) {
+  if (signer.address.toLowerCase() != payload.address.toLowerCase()) {
     throw `Signer address: ${signer.address} doesn't match transaction sender: ${payload.address}`;
   }
 

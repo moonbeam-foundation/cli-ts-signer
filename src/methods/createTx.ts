@@ -1,6 +1,7 @@
 import { u8aToHex } from "@polkadot/util";
 import { SignerPayloadJSON } from "@polkadot/types/types";
 import fs from "fs";
+import { ExtrinsicEra } from "@polkadot/types/interfaces";
 import { blake2AsHex } from "@polkadot/util-crypto";
 import chalk from "chalk";
 
@@ -86,7 +87,17 @@ export async function createTx(
       return { id: 1, signature: "0x00" as `0x${string}` };
     },
   };
-  let options = txOpt.immortality ? { signer, era: 0, nonce } : { signer, nonce };
+  const currentHead = await api.rpc.chain.getHeader();
+  let options = txOpt.immortality ?
+    { signer, era: 0, nonce } :
+    {
+      signer,
+      blockHash: currentHead.hash.toString(),
+      era: api.registry.createTypeUnsafe<ExtrinsicEra>('ExtrinsicEra', [{
+        current: currentHead.number,
+        period: 2 ** 10 // Set 1024 blocks of delay
+      }]), nonce
+    };
 
   await txExtrinsic.signAsync(address, options).catch((err) => {
     // expected to fail as we are not signing it but simply storing the data

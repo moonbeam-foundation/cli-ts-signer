@@ -3,8 +3,8 @@ import { SignerPayloadJSON } from "@polkadot/types/types";
 import prompts from "prompts";
 import { blake2AsHex } from "@polkadot/util-crypto";
 import chalk from "chalk";
-
-import { SignerResult, SubmittableExtrinsic } from "@polkadot/api/types";
+import { SignerResult } from "@polkadot/api/types";
+import { ExtrinsicEra } from "@polkadot/types/interfaces";
 import { Argv as NetworkOpt, getApiFor } from "moonbeam-tools";
 import { TxOpt, TxWrapperOpt } from "./types";
 
@@ -70,7 +70,17 @@ export async function createAndSendTx(
       });
     },
   };
-  let options = txOpt.immortality ? { signer, era: 0, nonce } : { signer, nonce };
+  const currentHead = await api.rpc.chain.getHeader();
+  let options = txOpt.immortality ?
+    { signer, era: 0, nonce } :
+    {
+      signer,
+      blockHash: currentHead.hash.toString(),
+      era: api.registry.createTypeUnsafe<ExtrinsicEra>('ExtrinsicEra', [{
+        current: currentHead.number,
+        period: 2 ** 10 // Set 1024 blocks of delay
+      }]), nonce
+    };
 
   await new Promise<void>(async (resolve, reject) => {
     try {
