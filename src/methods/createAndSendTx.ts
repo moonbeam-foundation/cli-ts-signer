@@ -71,16 +71,19 @@ export async function createAndSendTx(
     },
   };
   const currentHead = await api.rpc.chain.getHeader();
-  let options = txOpt.immortality ?
-    { signer, era: 0, nonce } :
-    {
-      signer,
-      blockHash: currentHead.hash.toString(),
-      era: api.registry.createTypeUnsafe<ExtrinsicEra>('ExtrinsicEra', [{
-        current: currentHead.number,
-        period: 2 ** 10 // Set 1024 blocks of delay
-      }]), nonce
-    };
+  let options = txOpt.immortality
+    ? { signer, era: 0, nonce }
+    : {
+        signer,
+        blockHash: currentHead.hash.toString(),
+        era: api.registry.createTypeUnsafe<ExtrinsicEra>("ExtrinsicEra", [
+          {
+            current: currentHead.number,
+            period: 2 ** 10, // Set 1024 blocks of delay
+          },
+        ]),
+        nonce,
+      };
 
   await new Promise<void>(async (resolve, reject) => {
     try {

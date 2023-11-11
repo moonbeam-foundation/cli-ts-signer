@@ -88,16 +88,19 @@ export async function createTx(
     },
   };
   const currentHead = await api.rpc.chain.getHeader();
-  let options = txOpt.immortality ?
-    { signer, era: 0, nonce } :
-    {
-      signer,
-      blockHash: currentHead.hash.toString(),
-      era: api.registry.createTypeUnsafe<ExtrinsicEra>('ExtrinsicEra', [{
-        current: currentHead.number,
-        period: 2 ** 10 // Set 1024 blocks of delay
-      }]), nonce
-    };
+  let options = txOpt.immortality
+    ? { signer, era: 0, nonce }
+    : {
+        signer,
+        blockHash: currentHead.hash.toString(),
+        era: api.registry.createTypeUnsafe<ExtrinsicEra>("ExtrinsicEra", [
+          {
+            current: currentHead.number,
+            period: 2 ** 10, // Set 1024 blocks of delay
+          },
+        ]),
+        nonce,
+      };
 
   await txExtrinsic.signAsync(address, options).catch((err) => {
     // expected to fail as we are not signing it but simply storing the data
