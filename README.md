@@ -88,7 +88,7 @@ If you combine `--sudo` with `--proxied-account`, the `sudo.sudo` will get wrapp
 
 Build a binary for the cli-signer
 
-To build, run `npm build-binary`
+To build, run `npm run build-binary`
 
 Then, to use it on a mac, for example:
 `npm run cli-binary-macos --help`
