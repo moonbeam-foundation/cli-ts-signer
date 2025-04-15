@@ -96,7 +96,7 @@ export async function createTx(
         era: api.registry.createTypeUnsafe<ExtrinsicEra>("ExtrinsicEra", [
           {
             current: currentHead.number,
-            period: 2 ** 10, // Set 1024 blocks of delay
+            period: 2 ** 11, // Set 2048 blocks of delay
           },
         ]),
         nonce,

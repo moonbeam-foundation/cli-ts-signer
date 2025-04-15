@@ -1,12 +1,13 @@
 {
   "name": "cli-ts-signer",
-  "version": "3.3.2",
+  "version": "3.4.0",
   "description": "ts based signer for moonbeam",
   "main": "index.js",
   "repository": "git@github.com:moonsong-labs/cli-ts-signer.git",
   "author": "Alan Sapede <alan@moonsonglabs.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/bun": "latest",
     "@types/chai": "^4.2.21",
     "@types/elliptic": "^6.4.12",
     "@types/mocha": "^9.0.0",
@@ -25,15 +26,22 @@
     "test-local": "LOCAL_BUILD=true mocha -r ts-node/register --exit 'test/**.spec.ts'",
     "lint": "node_modules/.bin/prettier --check .",
     "lint:fix": "node_modules/.bin/prettier -w .",
-    "build-binary": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg pkg.config.json"
+    "build-binary-deprecated": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg pkg.config.json",
+    "build-bun:linux": "bun build --compile --target=bun-linux-x64 ./src/index.ts --outfile moonbeam-signer-linux && chmod +x moonbeam-signer-linux",
+    "build-bun:macos": "bun build --compile --target=bun-macos-x64 ./src/index.ts --outfile moonbeam-signer-macos && chmod +x moonbeam-signer-macos",
+    "build-bun:windows": "bun build --compile --target=bun-win-x64 ./src/index.ts --outfile moonbeam-signer-win.exe && chmod +x moonbeam-signer-win.exe",
+    "build-standalone": "npm run build-bun:linux && npm run build-bun:macos && npm run build-bun:windows"
   },
   "dependencies": {
-    "@moonbeam-network/api-augment": "^0.2902.0",
-    "@polkadot/api": "^12.1.1",
-    "@polkadot/keyring": "^12.6.2",
-    "@polkadot/util": "^12.6.2",
-    "@polkadot/util-crypto": "^12.6.2",
-    "@polkadot/wasm-crypto": "^7.3.2",
+    "@moonbeam-network/api-augment": "0.3600.0",
+    "@polkadot/api": "15.9.1",
+    "@polkadot/api-derive": "15.9.1",
+    "@polkadot/keyring": "13.4.3",
+    "@polkadot/rpc-provider": "15.9.1",
+    "@polkadot/types": "15.9.1",
+    "@polkadot/types-codec": "15.9.1",
+    "@polkadot/util": "13.4.3",
+    "@polkadot/util-crypto": "13.4.3",
     "chalk": "^4.1.2",
     "child_process": "^1.0.2",
     "elliptic": "^6.5.4",
@@ -43,10 +51,10 @@
     "prompts": "^2.4.1",
     "tcp-port-used": "^1.0.2",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.5",
+    "typescript": "^5",
     "web3": "^1.6.1",
     "wtfnode": "^0.9.1",
-    "yargs": "^17.6.2"
+    "yargs": "^17.7.2"
   },
   "overrides": {
     "@polkadot/api": "$@polkadot/api",
@@ -64,5 +72,9 @@
     "@polkadot/types-known": "$@polkadot/api",
     "@polkadot/util": "$@polkadot/util",
     "@polkadot/util-crypto": "$@polkadot/util-crypto"
+  },
+  "private": true,
+  "peerDependencies": {
+    "typescript": "^5"
   }
 }
