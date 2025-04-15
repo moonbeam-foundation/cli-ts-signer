@@ -27,7 +27,7 @@
     "lint": "node_modules/.bin/prettier --check .",
     "lint:fix": "node_modules/.bin/prettier -w .",
     "build-binary-deprecated": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg pkg.config.json",
-    "build-bun:linux": "bun build --compile --target=bun-linux-x64 ./src/index.ts --outfile moonbeam-signer-linux && chmod +x moonbeam-signer-linux",
+    "build-bun:linux": "bun build --compile --target=bun-linux-x64-baseline ./src/index.ts --outfile moonbeam-signer-linux && chmod +x moonbeam-signer-linux",
     "build-bun:macos": "bun build --compile --target=bun-macos-x64 ./src/index.ts --outfile moonbeam-signer-macos && chmod +x moonbeam-signer-macos",
     "build-bun:windows": "bun build --compile --target=bun-win-x64 ./src/index.ts --outfile moonbeam-signer-win.exe && chmod +x moonbeam-signer-win.exe",
     "build-standalone": "npm run build-bun:linux && npm run build-bun:macos && npm run build-bun:windows"
