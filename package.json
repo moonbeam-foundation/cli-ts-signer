@@ -6,6 +6,9 @@
   "repository": "git@github.com:moonsong-labs/cli-ts-signer.git",
   "author": "Alan Sapede <alan@moonsonglabs.com>",
   "license": "MIT",
+  "bin": {
+    "moonbeam-signer": "./dist/index.js"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/chai": "^4.2.21",
@@ -20,12 +23,14 @@
     "prettier": "^2.4.1"
   },
   "scripts": {
+    "postinstall": "npm run build",
     "cli": "node_modules/.bin/ts-node src/index.ts",
     "cli-binary-macos": "./moonbeam-signer-macos",
     "test": "mocha -r ts-node/register --exit 'test/**.spec.ts'",
     "test-local": "LOCAL_BUILD=true mocha -r ts-node/register --exit 'test/**.spec.ts'",
     "lint": "node_modules/.bin/prettier --check .",
     "lint:fix": "node_modules/.bin/prettier -w .",
+    "build": "esbuild src/index.ts --bundle --platform=node --outfile=dist/index.js",
     "build-binary-deprecated": "npx @vercel/ncc build src/index.ts -o dist ; node_modules/.bin/pkg pkg.config.json",
     "build-bun:linux": "bun build --compile --target=bun-linux-x64-baseline ./src/index.ts --outfile moonbeam-signer-linux && chmod +x moonbeam-signer-linux",
     "build-bun:macos": "bun build --compile --target=bun-macos-x64 ./src/index.ts --outfile moonbeam-signer-macos && chmod +x moonbeam-signer-macos",
