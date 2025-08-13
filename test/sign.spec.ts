@@ -102,7 +102,7 @@ describe("Signature - file", function () {
     fs.writeFileSync(FILE_SAMPLE_1, originalSample);
   });
 
-  it.only("should correctly sign file with different ss58Prefix", async function () {
+  it("should correctly sign file with different ss58Prefix", async function () {
     this.timeout(10000);
 
     await testSign(
