@@ -84,30 +84,30 @@ export const createCommand = {
       exit(1);
       return;
     }
-    
+
     if (!Array.isArray(params)) {
       console.log(`Params need to be an array`);
       exit(1);
       return;
     }
-    
+
     try {
       await createTx(
-      {
-        nonce: argv.nonce,
-        tx: argv.tx,
-        params,
-        address: argv.address,
-        immortality: argv.immortality,
-        eraPeriod: argv["era-period"],
-      },
-      {
-        sudo: argv.sudo,
-        proxyChain: ProxyChain.from(argv),
-      },
-      { url: argv.url, network: argv.network },
-      { file: argv.file }
-    );
+        {
+          nonce: argv.nonce,
+          tx: argv.tx,
+          params,
+          address: argv.address,
+          immortality: argv.immortality,
+          eraPeriod: argv["era-period"],
+        },
+        {
+          sudo: argv.sudo,
+          proxyChain: ProxyChain.from(argv),
+        },
+        { url: argv.url, network: argv.network },
+        { file: argv.file }
+      );
       exit();
     } catch (e) {
       console.error(`Error creating transaction: ${(e as Error).message}`);

@@ -39,6 +39,7 @@ Creates the file `<path_of_file>` and stores the transaction payload details int
 - **`--era-period <blocks>`**: Set custom mortality period in blocks (must be power of 2: 512, 1024, 2048, 4096, 8192, 16384)
 
 **Important Notes for Offline Batch Signing:**
+
 - For batches that take time to sign, use `--immortality` to avoid expiry issues
 - If using mortal transactions with `--era-period`:
   - Values > 4096 blocks may exceed chain limits and fail

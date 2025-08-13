@@ -75,29 +75,29 @@ export const createAndSendTxCommand = {
       exit(1);
       return;
     }
-    
+
     if (!Array.isArray(params)) {
       console.log(`Params need to be an array`);
       exit(1);
       return;
     }
-    
+
     try {
       await createAndSendTxPrompt(
-      {
-        nonce: argv.nonce,
-        tx: argv.tx,
-        params,
-        address: argv.address,
-        immortality: argv.immortality,
-        eraPeriod: argv["era-period"],
-      },
-      {
-        sudo: argv.sudo,
-        proxyChain: ProxyChain.from(argv),
-      },
-      { url: argv.url, network: argv.network }
-    );
+        {
+          nonce: argv.nonce,
+          tx: argv.tx,
+          params,
+          address: argv.address,
+          immortality: argv.immortality,
+          eraPeriod: argv["era-period"],
+        },
+        {
+          sudo: argv.sudo,
+          proxyChain: ProxyChain.from(argv),
+        },
+        { url: argv.url, network: argv.network }
+      );
       exit();
     } catch (e) {
       console.error(`Error creating and sending transaction: ${(e as Error).message}`);
