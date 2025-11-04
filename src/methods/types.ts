@@ -50,6 +50,8 @@ export interface TxOpt {
   params: TxParam[];
   address: string;
   immortality?: boolean;
+  // Optional custom era period (number of blocks)
+  eraPeriod?: number;
 }
 
 export interface TxWrapperOpt {

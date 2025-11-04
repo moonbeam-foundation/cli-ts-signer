@@ -88,6 +88,43 @@ export async function createTx(
     },
   };
   const currentHead = await api.rpc.chain.getHeader();
+  // Validate and determine era period
+  let eraPeriod = 2 ** 11; // Default: 2048 blocks (safe for all chains)
+
+  if (txOpt.eraPeriod !== undefined) {
+    // Validate it's a safe integer >= 4
+    if (!Number.isSafeInteger(txOpt.eraPeriod) || txOpt.eraPeriod < 4) {
+      console.log(chalk.red(`❌ Era period must be an integer >= 4`));
+      throw new Error("Invalid era period: must be an integer >= 4");
+    }
+
+    // Check if it's a power of 2 using logarithm
+    if (!Number.isInteger(Math.log2(txOpt.eraPeriod))) {
+      console.log(
+        chalk.red(`❌ Era period must be a power of 2 (e.g., 512, 1024, 2048, 4096, 8192, 16384).`)
+      );
+      throw new Error("Invalid era period: must be a power of 2");
+    }
+
+    eraPeriod = txOpt.eraPeriod;
+
+    // Warn about long periods
+    if (eraPeriod > 4096) {
+      console.log(
+        chalk.yellow(
+          `⚠️  Using era period of ${eraPeriod} blocks (${((eraPeriod * 12) / 3600).toFixed(
+            1
+          )} hours on Moonbeam).\n` +
+            `   Long-lived transactions carry risks:\n` +
+            `   - May exceed chain's BlockHashCount limit\n` +
+            `   - Runtime upgrades can invalidate pre-signed txs\n` +
+            `   - Nonce conflicts block subsequent transactions\n` +
+            `   Consider using --immortality for offline batch signing instead.`
+        )
+      );
+    }
+  }
+
   let options = txOpt.immortality
     ? { signer, era: 0, nonce }
     : {
@@ -96,7 +133,7 @@ export async function createTx(
         era: api.registry.createTypeUnsafe<ExtrinsicEra>("ExtrinsicEra", [
           {
             current: currentHead.number,
-            period: 2 ** 11, // Set 2048 blocks of delay
+            period: eraPeriod,
           },
         ]),
         nonce,

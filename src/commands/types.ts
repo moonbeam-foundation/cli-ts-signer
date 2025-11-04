@@ -28,6 +28,7 @@ export interface CreateAndSendArgs {
   params?: string;
   nonce?: number;
   immortality: boolean;
+  "era-period"?: number;
 }
 
 export interface CreateArgs {
@@ -37,6 +38,7 @@ export interface CreateArgs {
   nonce?: number;
   immortality: boolean;
   file?: string;
+  "era-period"?: number;
 }
 
 export interface VoteArgs {

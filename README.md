@@ -27,10 +27,25 @@ This is free software, and you are welcome to redistribute it under certain cond
 The signer supports to wrote transaction data and signature into a file to faciliate doing offline signing.
 
 ```
-./moonbeam-signer-linux create --network <network> --address <address> --file <path_of_file> --tx <section.method> --params '[...]'
+./moonbeam-signer-linux create --network <network> --address <address> --file <path_of_file> --tx <section.method> --params '[...]' [--immortality | --era-period <blocks>]
 ```
 
 Creates the file `<path_of_file>` and stores the transaction payload details into it. This will get used in by the sign command.
+
+#### Transaction Mortality Options
+
+- **Default behavior**: Transactions expire after 2048 blocks (~6.8 hours on Moonbeam with 12-second blocks)
+- **`--immortality`**: Creates immortal transactions that never expire (recommended for offline batch signing)
+- **`--era-period <blocks>`**: Set custom mortality period in blocks (must be power of 2: 512, 1024, 2048, 4096, 8192, 16384)
+
+**Important Notes for Offline Batch Signing:**
+
+- For batches that take time to sign, use `--immortality` to avoid expiry issues
+- If using mortal transactions with `--era-period`:
+  - Values > 4096 blocks may exceed chain limits and fail
+  - Runtime upgrades invalidate pre-signed transactions
+  - One stuck transaction blocks all subsequent ones (nonce chaining)
+- Generate a contiguous sequence of nonces and submit in order to avoid stale/future nonce errors
 
 (To easily find the possible section.method and their parameters, it is suggested to connect to [polkadotjs app](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fwss.api.moonbeam.network#/extrinsics))
 
@@ -51,6 +66,8 @@ Bonus: Also verifies the private-key matches the transaction address, preventing
 ```
 
 Sends the signed transaction. Will prompt the user for confirmation except if `--yes` is provided
+
+If you see `Invalid Transaction: Transaction is outdated`, it often indicates a stale nonce (the account nonce on-chain advanced). Compare the on-chain nonce vs the payload nonce and regenerate from the current nonce if needed. `Transaction status: Future` indicates the payload nonce is ahead of the on-chain nonce; submit earlier payloads first.
 
 ### Sudo
 

@@ -32,6 +32,12 @@ export const createOptions = {
     default: false,
     demandOption: false,
   },
+  "era-period": {
+    describe:
+      "custom mortality period in blocks (must be power of 2: 512, 1024, 2048, 4096, 8192, 16384). Default: 2048 blocks (~6.8 hours on Moonbeam). For offline batch signing, consider --immortality instead",
+    type: "number" as "number",
+    demandOption: false,
+  },
   file: {
     describe: "file in which to store the transaction",
     type: "string" as "string",
@@ -70,27 +76,42 @@ export const createCommand = {
       return;
     }
     // Moves this check to yargs
-    const params = JSON.parse(argv.params);
-    if (!Array.isArray(params)) {
-      console.log(`Params need to be an array`);
-      exit();
+    let params;
+    try {
+      params = JSON.parse(argv.params);
+    } catch (e) {
+      console.error(`Invalid --params JSON: ${(e as Error).message}`);
+      exit(1);
       return;
     }
-    await createTx(
-      {
-        nonce: argv.nonce,
-        tx: argv.tx,
-        params,
-        address: argv.address,
-        immortality: argv.immortality,
-      },
-      {
-        sudo: argv.sudo,
-        proxyChain: ProxyChain.from(argv),
-      },
-      { url: argv.url, network: argv.network },
-      { file: argv.file }
-    );
-    exit();
+
+    if (!Array.isArray(params)) {
+      console.log(`Params need to be an array`);
+      exit(1);
+      return;
+    }
+
+    try {
+      await createTx(
+        {
+          nonce: argv.nonce,
+          tx: argv.tx,
+          params,
+          address: argv.address,
+          immortality: argv.immortality,
+          eraPeriod: argv["era-period"],
+        },
+        {
+          sudo: argv.sudo,
+          proxyChain: ProxyChain.from(argv),
+        },
+        { url: argv.url, network: argv.network },
+        { file: argv.file }
+      );
+      exit();
+    } catch (e) {
+      console.error(`Error creating transaction: ${(e as Error).message}`);
+      exit(1);
+    }
   },
 };

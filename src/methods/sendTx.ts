@@ -56,38 +56,67 @@ export async function sendTx(
     },
   };
 
-  await new Promise<void>((resolve, reject) => {
-    txExtrinsic.signAndSend(
-      payload.address,
-      { signer, nonce: payload.nonce, era: payload.era, blockHash: payload.blockHash },
-      ({ events = [], status }) => {
-        console.log("Transaction status:", status.type);
+  try {
+    await new Promise<void>((resolve, reject) => {
+      txExtrinsic.signAndSend(
+        payload.address,
+        { signer, nonce: payload.nonce, era: payload.era, blockHash: payload.blockHash },
+        ({ events = [], status }) => {
+          console.log("Transaction status:", status.type);
 
-        if (status.isInBlock) {
-          console.log("Included at block hash", status.asInBlock.toHex());
-          console.log("Events: ");
-          events.forEach(({ event: { data, method, section } }) => {
-            const [error] = data as any[];
-            if (error?.isModule) {
-              const { docs, name, section } = api.registry.findMetaError(error.asModule);
-              console.log("\t", `${chalk.red(`${section}.${name}`)}`, `${docs}`);
-            } else if (section == "system" && method == "ExtrinsicSuccess") {
-              console.log("\t", chalk.green(`${section}.${method}`), data.toString());
-            } else {
-              console.log("\t", `${section}.${method}`, data.toString());
-            }
-          });
-          resolve();
-        } else if (status.isDropped || status.isInvalid || status.isRetracted) {
-          console.log(
-            "There was a problem with the extrinsic, status : ",
-            status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
-          );
-          resolve();
+          if (status.isInBlock) {
+            console.log("Included at block hash", status.asInBlock.toHex());
+            console.log("Events: ");
+            events.forEach(({ event: { data, method, section } }) => {
+              const [error] = data as any[];
+              if (error?.isModule) {
+                const { docs, name, section } = api.registry.findMetaError(error.asModule);
+                console.log("\t", `${chalk.red(`${section}.${name}`)}`, `${docs}`);
+              } else if (section == "system" && method == "ExtrinsicSuccess") {
+                console.log("\t", chalk.green(`${section}.${method}`), data.toString());
+              } else {
+                console.log("\t", `${section}.${method}`, data.toString());
+              }
+            });
+            resolve();
+          } else if (status.isDropped || status.isInvalid || status.isRetracted) {
+            console.log(
+              "There was a problem with the extrinsic, status : ",
+              status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
+            );
+            resolve();
+          }
         }
-      }
-    );
-  });
+      );
+    });
+  } catch (e: any) {
+    const msg = `${e?.message || e}`.toLowerCase();
+    // Provide actionable diagnostics for common RPC errors
+    if (msg.includes("transaction is outdated") || msg.includes("stale")) {
+      try {
+        const account: any = await api.query.system.account(payload.address);
+        const payloadNonce = BigInt(payload.nonce);
+        const chainNonce = BigInt(account.nonce.toString());
+        console.log(
+          `Hint: account nonce on-chain is ${chainNonce}, payload nonce is ${payloadNonce}.`
+        );
+        if (payloadNonce < chainNonce) {
+          console.log(
+            "This payload nonce is stale. Regenerate payloads starting from the current nonce or skip already-used nonces."
+          );
+        } else if (payloadNonce > chainNonce) {
+          console.log(
+            "This payload nonce is in the future. Submit earlier payloads first (or regenerate a contiguous batch)."
+          );
+        }
+      } catch {}
+    } else if (msg.includes("bad signature")) {
+      console.log(
+        "Hint: signature does not match the payload. Ensure you did not regenerate the payload without re-signing."
+      );
+    }
+    throw e;
+  }
 }
 
 export async function sendTxPrompt(networkOpt: NetworkOpt, sendOpt: SendOpt) {
