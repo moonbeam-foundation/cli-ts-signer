@@ -8,6 +8,26 @@ import { ExtrinsicEra } from "@polkadot/types/interfaces";
 import { Argv as NetworkOpt, getApiFor } from "moonbeam-tools";
 import { TxOpt, TxWrapperOpt } from "./types";
 
+function logEvents(api: any, events: any[]) {
+  if (!events.length) {
+    console.log("Events: (none)");
+    return;
+  }
+
+  console.log("Events: ");
+  events.forEach(({ event: { data, method, section } }) => {
+    const [error] = data as any[];
+    if (error?.isModule) {
+      const { docs, name, section: errorSection } = api.registry.findMetaError(error.asModule);
+      console.log("\t", `${chalk.red(`${errorSection}.${name}`)}`, `${docs}`);
+    } else if (section == "system" && method == "ExtrinsicSuccess") {
+      console.log("\t", chalk.green(`${section}.${method}`), data.toString());
+    } else {
+      console.log("\t", `${section}.${method}`, data.toString());
+    }
+  });
+}
+
 export async function createAndSendTx(
   txOpt: TxOpt,
   txWrapperOpt: TxWrapperOpt,
@@ -122,37 +142,55 @@ export async function createAndSendTx(
         nonce,
       };
 
-  await new Promise<void>(async (resolve, reject) => {
-    try {
-      await txExtrinsic.signAndSend(address, options, ({ events = [], status }) => {
+  await new Promise<void>((resolve, reject) => {
+    let unsubscribe: (() => void) | undefined;
+    let lastEvents: any[] = [];
+    let eventsLogged = false;
+
+    const cleanup = (cb: () => void) => {
+      try {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      } catch {
+        // swallow unsubscribe errors
+      } finally {
+        cb();
+      }
+    };
+
+    txExtrinsic
+      .signAndSend(address, options, ({ events = [], status }) => {
+        lastEvents = events.length ? events : lastEvents;
         console.log("Transaction status:", status.type);
 
-        if (status.isInBlock || status.isFinalized) {
-          console.log("Included at block hash", status.toHex());
-          console.log("Events: ");
-          events.forEach(({ event: { data, method, section } }) => {
-            const [error] = data as any[];
-            if (error?.isModule) {
-              const { docs, name, section } = api.registry.findMetaError(error.asModule);
-              console.log("\t", `${chalk.red(`${section}.${name}`)}`, `${docs}`);
-            } else if (section == "system" && method == "ExtrinsicSuccess") {
-              console.log("\t", chalk.green(`${section}.${method}`), data.toString());
-            } else {
-              console.log("\t", `${section}.${method}`, data.toString());
-            }
-          });
-          resolve();
+        if (status.isInBlock) {
+          console.log("Included at block hash", status.asInBlock.toHex());
+          if (events.length) {
+            logEvents(api, events);
+            eventsLogged = true;
+          }
+          console.log("Waiting for finalization...");
+        } else if (status.isFinalized) {
+          console.log("Finalized at block hash", status.asFinalized.toHex());
+          if (!eventsLogged) {
+            logEvents(api, events.length ? events : lastEvents);
+          }
+          cleanup(resolve);
         } else if (status.isDropped || status.isInvalid || status.isRetracted) {
           console.log(
             "There was a problem with the extrinsic, status : ",
             status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
           );
-          resolve();
+          cleanup(resolve);
         }
+      })
+      .then((unsub) => {
+        unsubscribe = unsub;
+      })
+      .catch((err) => {
+        cleanup(() => reject(err));
       });
-    } catch (e) {
-      reject(e);
-    }
   });
 }
 

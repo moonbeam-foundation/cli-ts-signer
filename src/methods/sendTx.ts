@@ -8,6 +8,26 @@ import { SendOpt } from "./types";
 import { u8aToHex } from "@polkadot/util";
 import { blake2AsHex } from "@polkadot/util-crypto";
 
+function logEvents(api: any, events: any[]) {
+  if (!events.length) {
+    console.log("Events: (none)");
+    return;
+  }
+
+  console.log("Events: ");
+  events.forEach(({ event: { data, method, section } }) => {
+    const [error] = data as any[];
+    if (error?.isModule) {
+      const { docs, name, section: errorSection } = api.registry.findMetaError(error.asModule);
+      console.log("\t", `${chalk.red(`${errorSection}.${name}`)}`, `${docs}`);
+    } else if (section == "system" && method == "ExtrinsicSuccess") {
+      console.log("\t", chalk.green(`${section}.${method}`), data.toString());
+    } else {
+      console.log("\t", `${section}.${method}`, data.toString());
+    }
+  });
+}
+
 export async function sendTx(
   networkOpt: NetworkOpt,
   sendOpt: SendOpt,
@@ -57,37 +77,59 @@ export async function sendTx(
   };
 
   try {
+    let lastEvents: any[] = [];
+    let eventsLogged = false;
     await new Promise<void>((resolve, reject) => {
-      txExtrinsic.signAndSend(
-        payload.address,
-        { signer, nonce: payload.nonce, era: payload.era, blockHash: payload.blockHash },
-        ({ events = [], status }) => {
-          console.log("Transaction status:", status.type);
+      let unsubscribe: (() => void) | undefined;
 
-          if (status.isInBlock) {
-            console.log("Included at block hash", status.asInBlock.toHex());
-            console.log("Events: ");
-            events.forEach(({ event: { data, method, section } }) => {
-              const [error] = data as any[];
-              if (error?.isModule) {
-                const { docs, name, section } = api.registry.findMetaError(error.asModule);
-                console.log("\t", `${chalk.red(`${section}.${name}`)}`, `${docs}`);
-              } else if (section == "system" && method == "ExtrinsicSuccess") {
-                console.log("\t", chalk.green(`${section}.${method}`), data.toString());
-              } else {
-                console.log("\t", `${section}.${method}`, data.toString());
-              }
-            });
-            resolve();
-          } else if (status.isDropped || status.isInvalid || status.isRetracted) {
-            console.log(
-              "There was a problem with the extrinsic, status : ",
-              status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
-            );
-            resolve();
+      const cleanup = (result: () => void) => {
+        try {
+          if (unsubscribe) {
+            unsubscribe();
           }
+        } catch (err) {
+          // noop - best effort unsubscribe
+        } finally {
+          result();
         }
-      );
+      };
+
+      txExtrinsic
+        .signAndSend(
+          payload.address,
+          { signer, nonce: payload.nonce, era: payload.era, blockHash: payload.blockHash },
+          ({ events = [], status }) => {
+            lastEvents = events.length ? events : lastEvents;
+            console.log("Transaction status:", status.type);
+
+            if (status.isInBlock) {
+              console.log("Included at block hash", status.asInBlock.toHex());
+              if (events.length) {
+                logEvents(api, events);
+                eventsLogged = true;
+              }
+              console.log("Waiting for finalization...");
+            } else if (status.isFinalized) {
+              console.log("Finalized at block hash", status.asFinalized.toHex());
+              if (!eventsLogged) {
+                logEvents(api, events.length ? events : lastEvents);
+              }
+              cleanup(resolve);
+            } else if (status.isDropped || status.isInvalid || status.isRetracted) {
+              console.log(
+                "There was a problem with the extrinsic, status : ",
+                status.isDropped ? "Dropped" : status.isInvalid ? "isInvalid" : "isRetracted"
+              );
+              cleanup(resolve);
+            }
+          }
+        )
+        .then((unsub) => {
+          unsubscribe = unsub;
+        })
+        .catch((err) => {
+          cleanup(() => reject(err));
+        });
     });
   } catch (e: any) {
     const msg = `${e?.message || e}`.toLowerCase();

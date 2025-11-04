@@ -65,7 +65,8 @@ Bonus: Also verifies the private-key matches the transaction address, preventing
 ./moonbeam-signer-linux send --network <network> --file send-remark.json [--yes]
 ```
 
-Sends the signed transaction. Will prompt the user for confirmation except if `--yes` is provided
+Sends the signed transaction. Will prompt the user for confirmation except if `--yes` is provided.  
+Repeat `--file` (or point it at a directory) to submit multiple signed payloads — they are processed in order and the CLI waits for finalization before moving to the next one.
 
 If you see `Invalid Transaction: Transaction is outdated`, it often indicates a stale nonce (the account nonce on-chain advanced). Compare the on-chain nonce vs the payload nonce and regenerate from the current nonce if needed. `Transaction status: Future` indicates the payload nonce is ahead of the on-chain nonce; submit earlier payloads first.
 
