@@ -18,7 +18,7 @@ export interface VerifyArgs {
 }
 
 export interface SendArgs {
-  file?: string;
+  file?: string | string[];
   yes?: boolean;
 }
 
