@@ -90,7 +90,8 @@ export async function createAndSendTx(
       });
     },
   };
-  const currentHead = await api.rpc.chain.getHeader();
+  const finalizedHash = await api.rpc.chain.getFinalizedHead();
+  const finalizedHead = await api.rpc.chain.getHeader(finalizedHash);
   // Validate and determine era period
   let eraPeriod = 2 ** 11; // Default: 2048 blocks (safe for all chains)
 
@@ -132,10 +133,10 @@ export async function createAndSendTx(
     ? { signer, era: 0, nonce }
     : {
         signer,
-        blockHash: currentHead.hash.toString(),
+        blockHash: finalizedHash.toString(),
         era: api.registry.createTypeUnsafe<ExtrinsicEra>("ExtrinsicEra", [
           {
-            current: currentHead.number,
+            current: finalizedHead.number,
             period: eraPeriod,
           },
         ]),
